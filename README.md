@@ -131,7 +131,7 @@ sequenceDiagram
 
     Note over R,O: weeks later — need the old configuration?
     R->>G: make rollback EXP=expNNN
-    G->>O: isolated worktree at the tag; re-run must reproduce the recorded config hash and metrics
+    G->>O: isolated worktree at the tag — re-run must reproduce the recorded config hash and metrics
 ```
 
 The tag is the rollback point; rollback never touches the current tree.
