@@ -6,7 +6,7 @@
 - [x] Versioned experiment framework (config → hash → run record → tag)
 - [x] CI/CD: ruff + pytest (3.11/3.12) + Docker gate, PR-only merges
 - [x] Dockerfile + compose; everything behind `make` targets
-- [x] PROJECT.md with full context + protocol
+- [x] living context + protocol doc (local)
 - [x] exp001: NESO Jan-2025 national baseline, reproducible end-to-end
 - [x] TDD adopted for all code changes (ADR-0004)
 - [x] README: architecture + data model + experiment lifecycle diagrams

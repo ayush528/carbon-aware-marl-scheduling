@@ -22,3 +22,5 @@ data/raw/
 Thumbs.db
 
 # Local tooling / assistant config (not part of the project)
+
+# local project-context file (not part of the public repo)

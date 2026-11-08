@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Scaffold a new experiment from experiments/_template.
-# The config is committed BEFORE the experiment is run (see PROJECT.md protocol).
+# The config is committed BEFORE the experiment is run (versioning protocol).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

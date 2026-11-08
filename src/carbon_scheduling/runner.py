@@ -1,6 +1,6 @@
 """Reproducible, versioned experiment runner.
 
-Protocol (full contract in PROJECT.md):
+Protocol:
 
 1. Every experiment lives in ``experiments/<exp_id>/`` and is defined by a
    committed ``config.yaml`` -- configs are committed *before* they are run.
