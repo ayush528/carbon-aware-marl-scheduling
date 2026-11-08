@@ -66,6 +66,11 @@ def parse_single_region(payload: dict[str, Any]) -> list[dict[str, Any]]:
     """
     inner = payload.get("data", {})
     rows = inner.get("data", []) if isinstance(inner, dict) else []
+    return parse_rows(rows)
+
+
+def parse_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Normalise NESO slot rows (shared by the national and regional shapes)."""
     records = []
     for row in rows:
         intensity = row.get("intensity", {})
@@ -78,6 +83,31 @@ def parse_single_region(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 "index": intensity.get("index"),
             }
         )
+    return records
+
+
+def fetch_national(
+    start: str,
+    end: str,
+    http_get: HttpGet | None = None,
+    retries: int = 3,
+    sleep: Callable[[float], None] | None = None,
+) -> list[dict[str, Any]]:
+    """Fetch national half-hourly carbon intensity over [start, end).
+
+    National payloads are flat (``{"data": [<slot rows>]}``) and — unlike the
+    regional endpoints — do carry ``actual`` intensities.
+    """
+    if http_get is None:
+        http_get = _urllib_get
+    if sleep is None:
+        sleep = time.sleep
+
+    records: list[dict[str, Any]] = []
+    for window_start, window_end in chunk_windows(start, end):
+        url = f"{BASE}/intensity/{window_start}/{window_end}"
+        payload = _get_with_retry(url, http_get, retries, sleep)
+        records.extend(parse_rows(payload.get("data", [])))
     return records
 
 

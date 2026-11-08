@@ -1,0 +1,7 @@
+id: exp004-conformal-bands
+title: Split-conformal bands -- calibrate Jan 2025, coverage on held-out Feb 2025
+phase: "1-data-freeze"
+seed: 42
+data:
+  - docs/datasets/data-audit/downloads/uk_national_2025-01_full_month.json
+  - data/uk_national_2025-02.json

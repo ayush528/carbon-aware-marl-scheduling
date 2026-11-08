@@ -37,3 +37,14 @@ experiments:
       endpoints, verified literals) and pins the Phase 1 finding that the
       NESO regional endpoint ships no actual intensities -- regional
       actuals must be estimated by national scaling (disclosed).
+
+  - id: exp004-conformal-bands
+    title: Split-conformal bands -- calibrate Jan 2025, coverage on held-out Feb 2025
+    phase: "1-data-freeze"
+    status: merged
+    rollback_tag: exp/exp004-conformal-bands
+    description: >
+      The Phase 1 exit test. Finite-sample-corrected split conformal on
+      national forecast residuals: calibrate on January 2025 (alpha = 0.1,
+      target coverage 90%), evaluate empirical coverage and MAE on the
+      held-out month (February 2025).
