@@ -1,0 +1,21 @@
+# Repeatability without retyping commands:
+#   docker compose run --rm test                     # full test suite
+#   EXP=exp001-uk-carbon-baseline docker compose run --rm exp
+services:
+  test:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: carbon-scheduling:dev
+    command: ["make", "test"]
+
+  exp:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: carbon-scheduling:dev
+    # Run any registered experiment; run records are written back to the host
+    # so they can be committed and tagged.
+    command: ["make", "exp-run", "EXP=${EXP:-exp001-uk-carbon-baseline}"]
+    volumes:
+      - ./experiments:/app/experiments

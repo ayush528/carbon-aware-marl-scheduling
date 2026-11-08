@@ -2,10 +2,20 @@
 __pycache__/
 *.pyc
 .venv/
-venv/
+*.egg-info/
 
-# Large raw datasets (re-fetchable via data-audit/scripts)
-feasibility-study/data-audit/downloads/*.csv
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# Rollback worktrees (created by scripts/rollback.sh)
+.worktrees/
+
+# Large raw datasets -- re-fetchable via scripts/fetch_data.sh
+# (catalog + URLs: docs/datasets/DATASETS.md). Small evidence JSONs are kept.
+docs/datasets/data-audit/downloads/*.csv
+data/raw/
 
 # OS / editor noise
 .DS_Store

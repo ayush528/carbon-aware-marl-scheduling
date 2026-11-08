@@ -1,0 +1,12 @@
+# Never bake large raw datasets into the image (re-fetchable; see
+# docs/datasets/DATASETS.md). Keep the build context small.
+.git
+.venv
+.worktrees
+**/__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.coverage
+src/*.egg-info
+docs/datasets/data-audit/downloads/*.csv

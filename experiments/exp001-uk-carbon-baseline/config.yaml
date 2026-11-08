@@ -1,0 +1,6 @@
+id: exp001-uk-carbon-baseline
+title: Baseline statistics of NESO national carbon intensity, Jan 2025
+phase: "1-data-freeze"
+seed: 42
+data:
+  - docs/datasets/data-audit/downloads/uk_national_2025-01_full_month.json

@@ -1,0 +1,11 @@
+{
+  "n_slots": 1493,
+  "n_actual": 1493,
+  "actual_mean": 168.100469,
+  "actual_median": 175,
+  "actual_stdev": 70.50963,
+  "actual_min": 35,
+  "actual_max": 293,
+  "forecast_mean": 168.326517,
+  "forecast_vs_actual_mae": 9.05317
+}
