@@ -158,7 +158,7 @@ docs/
 |---|---|---|
 | 2026-11-04 | Feasibility study complete (report, 30-paper survey, data audit) | initial commit |
 | 2026-11-08 | Phase 0 infra: docs restructure, experiment framework, CI/CD, Docker, Makefile | PR #1 |
-| 2026-11-08 | Agent skills vendored in-repo + load-before-work protocol (ADR-0004) | PR #2 |
+| 2026-11-08 | Working-context doc + TDD protocol | PR #2 |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 
