@@ -72,3 +72,15 @@ experiments:
       span, mean/peak arrivals per slot, token workload. Pins the loader
       against the real file; demand input envelope for the Phase 2
       simulator.
+
+  - id: exp007-site-energy
+    title: Site energy envelope -- real demand stream through the cluster model
+    phase: "2-simulator"
+    status: merged
+    rollback_tag: exp/exp007-site-energy
+    description: >
+      Streams the full Azure LLM trace through the cluster energy model
+      (NLR idle->peak per GPU, Google-prior PUE, disclosed throughput
+      knob) for one London-sized site. Records the energy envelope:
+      utilization distribution, saturated slots, energy per request
+      (sanity range vs DynamoLLM/TAPAS magnitudes).

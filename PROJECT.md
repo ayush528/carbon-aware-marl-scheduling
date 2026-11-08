@@ -103,7 +103,10 @@ national scaling — 12/14 regions ≥ 90% on held-out Feb, mean 91.9%) →
 **demand stream** `src/carbon_scheduling/demand.py` (Azure LLM trace →
 per-half-hour arrivals+tokens on the NESO slot grid; exp006: 16.8M requests
 validated, mean 50k/peak 155k per slot) →
-Phase 2: simulator env → Phase 3:
+**cluster model** `src/carbon_scheduling/cluster.py` (linear idle→peak
+per-GPU power from NLR profiles × PUE; exp007 envelope on the real trace:
+mean u 0.70, 90/336 slots saturate, 0.45 Wh/request — sanity range OK) →
+simulator env (SustainCluster-derived, planned) → Phase 3:
 agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 
 **Experiment framework (working today):**
@@ -120,6 +123,7 @@ agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 | National puller | `make data-pull-national` (`scripts/pull_national.py`) | national window -> API-consumable JSON (e.g. `data/uk_national_2025-02.json`, the Feb holdout) |
 | Conformal bands | `src/carbon_scheduling/bands.py` | `conformal_quantile` (finite-sample corrected), `absolute_residuals`, `regional_residuals` (national-scaling estimator), `coverage` — deterministic, stdlib-only |
 | Demand loader | `src/carbon_scheduling/demand.py` | `requests_per_slot(path, slot_minutes=30)`: streams the Azure LLM trace (16.8M rows) into per-slot arrivals + token sums on the NESO half-hour grid; idle slots zero-filled |
+| Cluster model | `src/carbon_scheduling/cluster.py` | `Site` (NLR idle→peak W per GPU, PUE, throughput knob) + `slot_energy(demand, site)` → per-slot GPU-seconds, utilization (raw, may exceed 1; capped at peak power), kWh |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -187,6 +191,7 @@ docs/
 | 2026-11-09 | exp004: conformal bands, held-out Feb coverage 92.1% (target 90%) — **Phase 1 exit test passed** | PR #6 |
 | 2026-11-09 | exp005: regional bands via national scaling — 12/14 regions ≥ 90% on held-out Feb; **Phase 1 complete** | PR #7 |
 | 2026-11-09 | exp006: Azure LLM trace demand loader validated on the real 1-week sample (16.8M requests) | PR #8 |
+| 2026-11-09 | exp007: cluster energy model + real-trace energy envelope (Phase 2 starts) | PR #9 |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 

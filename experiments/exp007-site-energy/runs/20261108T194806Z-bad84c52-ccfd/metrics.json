@@ -1,0 +1,13 @@
+{
+  "site": "london-illustrative",
+  "n_gpus": 100,
+  "n_slots": 336,
+  "mean_utilization": 61593.0735,
+  "peak_utilization": 360842.0252,
+  "n_saturated_slots": 336,
+  "total_energy_kwh": 13176.2,
+  "mean_energy_kwh_per_slot": 39.22,
+  "peak_energy_kwh_per_slot": 39.22,
+  "idle_energy_kwh_per_slot": 3.96,
+  "wh_per_request": 0.784
+}

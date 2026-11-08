@@ -1,0 +1,6 @@
+id: exp007-site-energy
+title: Site energy envelope -- real demand stream through the cluster model
+phase: "2-simulator"
+seed: 42
+data:
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
