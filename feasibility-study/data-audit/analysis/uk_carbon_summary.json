@@ -1,0 +1,19 @@
+{
+  "source": "UK Carbon Intensity API (NESO), api.carbonintensity.org.uk",
+  "national_month_slots": 1493,
+  "national_actual_min_mean_max": [
+    35,
+    168.1,
+    293
+  ],
+  "forecast_vs_actual_n": 1467,
+  "forecast_vs_actual_MAE": 9.05,
+  "forecast_vs_actual_RMSE": 12.97,
+  "london_forecast_slots": 1476,
+  "london_min_mean_max": [
+    22,
+    185.3,
+    334
+  ],
+  "unexpected_gaps": 0
+}

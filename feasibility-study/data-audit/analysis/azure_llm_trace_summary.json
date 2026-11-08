@@ -1,0 +1,35 @@
+{
+  "source": "Azure LLM Inference Trace 2024 (code subset, 1 week)",
+  "url": "https://github.com/Azure/AzurePublicDataset/releases/download/dataset-llm-2024/AzureLLMInferenceTrace_code_1week.csv",
+  "rows": 16803695,
+  "columns": [
+    "TIMESTAMP",
+    "ContextTokens",
+    "GeneratedTokens"
+  ],
+  "time_min": "2024-05-10 00:00:00.009930+00:00",
+  "time_max": "2024-05-16 23:59:59.929501+00:00",
+  "nulls": {
+    "TIMESTAMP": 0,
+    "ContextTokens": 0,
+    "GeneratedTokens": 0
+  },
+  "duplicate_rows": 0,
+  "context_tokens_stats": {
+    "min": 1.0,
+    "p50": 1930.0,
+    "mean": 2511.27569103105,
+    "p95": 7674.0,
+    "max": 7743.0
+  },
+  "generated_tokens_stats": {
+    "min": 1.0,
+    "p50": 8.0,
+    "mean": 22.689729967129253,
+    "p95": 79.0,
+    "max": 5000.0
+  },
+  "req_per_min_max": 5884,
+  "req_per_hour_mean": 100021.99404761905,
+  "region_field_present": false
+}

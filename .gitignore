@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Large raw datasets (re-fetchable via data-audit/scripts)
+feasibility-study/data-audit/downloads/*.csv
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
