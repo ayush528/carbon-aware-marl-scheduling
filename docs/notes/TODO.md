@@ -18,7 +18,8 @@
 - [x] exp004: split-conformal bands — held-out Feb 2025 coverage 92.1% (target 90%); Phase 1 exit test passed
 - [x] exp005: regional bands via national scaling — 12/14 regions ≥ 90% on held-out Feb (mean 91.9%); Phase 1 complete
 - [x] exp006: Azure LLM trace loader — 16.8M requests streamed, per-half-hour demand on the NESO grid
-- [ ] Phase 2: SustainCluster simulator (cluster model → NESO regional carbon → baseline policy reproduced)
+- [x] exp007: cluster energy model — NLR idle→peak × PUE, real-trace envelope (0.45 Wh/req, sanity range OK)
+- [ ] Phase 2 next: run SustainCluster as-is → swap NESO regional carbon → 3–5 UK sites → baseline reproduced
 
 ## Backlog / later phases
 

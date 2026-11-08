@@ -1,0 +1,14 @@
+{
+  "exp_id": "exp007-site-energy",
+  "git_sha": "1463c8a842fbd10b0705f3dd88b3eddf8ef1c61a",
+  "git_dirty": true,
+  "config_hash": "bad84c527bb3e21593d0b740c968ecdb2736ef8134a66308934f059a01f1e5ac",
+  "seed": 42,
+  "data_hashes": {
+    "docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.6-76070206-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261108T194932Z",
+  "run_dir": "20261108T194932Z-bad84c52-dca2"
+}
