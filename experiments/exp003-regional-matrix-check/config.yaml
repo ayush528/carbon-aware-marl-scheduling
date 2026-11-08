@@ -1,0 +1,8 @@
+id: exp003-regional-matrix-check
+title: 14-region Jan-2025 matrix validation + the regional-actuals gap
+phase: "1-data-freeze"
+seed: 42
+data:
+  - data/uk_regional_2025-01_tidy.csv
+  - docs/datasets/data-audit/downloads/uk_region13_london_2025-01_full_month.json
+  - docs/datasets/data-audit/downloads/uk_regional_all_2025-01-01_to_2025-01-02.json

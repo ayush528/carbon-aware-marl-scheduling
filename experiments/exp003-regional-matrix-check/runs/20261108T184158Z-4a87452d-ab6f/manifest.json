@@ -1,0 +1,16 @@
+{
+  "exp_id": "exp003-regional-matrix-check",
+  "git_sha": "d6b1b1122cd6b100c63fffb93bb8340a555dfb1f",
+  "git_dirty": true,
+  "config_hash": "4a87452d7c5bc1493b5a1c915111e2259dff1d0ea5858c98ce8a8d9396c1042a",
+  "seed": 42,
+  "data_hashes": {
+    "data/uk_regional_2025-01_tidy.csv": "ef30f41520943e2b052f469098ec04cc589bb7167adc6b99074ca083f03192f1",
+    "docs/datasets/data-audit/downloads/uk_region13_london_2025-01_full_month.json": "edc83ca1ec197d4f0f4cc0077747193c33ea23e752d1532fe2f3d74a71b530ec",
+    "docs/datasets/data-audit/downloads/uk_regional_all_2025-01-01_to_2025-01-02.json": "001bbbea4234623288dc93e81a7d722ed0f8391114b98d959586fd1d0e457da6"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.6-76070206-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261108T184158Z",
+  "run_dir": "20261108T184158Z-4a87452d-ab6f"
+}

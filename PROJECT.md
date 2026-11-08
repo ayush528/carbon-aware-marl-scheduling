@@ -94,6 +94,8 @@ Keep this section in sync with the code after every change (rule 2 above).
 regional puller `src/carbon_scheduling/data/neso.py` (all 18 region ids,
 weekly-chunked ranges, injected HTTP + retry; parse + chunk + fetch are
 unit-tested, live-API correctness pinned by exp002) →
+**regional matrix** `data/uk_regional_2025-01_tidy.csv` (14 DNO regions x
+Jan-2025, tidy CSV, built by `make data-pull-matrix`, validated by exp003) →
 loaders in `src/carbon_scheduling/carbon.py` → Phase 1: conformal bands +
 demand models (`src/data/`, planned) → Phase 2: simulator env → Phase 3:
 agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
@@ -107,7 +109,8 @@ agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 | Configs | `experiments/<id>/config.yaml` | committed before running; the versioned experiment definition |
 | Run records | `experiments/<id>/runs/` | append-only evidence: git SHA, config SHA-256, data SHA-256s, seed, metrics |
 | Registry | `experiments/registry.yaml` | status + rollback tag per experiment |
-| NESO regional puller | `src/carbon_scheduling/data/neso.py` | `fetch_regional(region_id, start, end)`: weekly-chunked GETs, retries, verified REGIONS registry (1–14 DNO, 15–18 aggregates) |
+| NESO regional puller | `src/carbon_scheduling/data/neso.py` | `fetch_regional(region_id, start, end)`: weekly-chunked GETs, retries, verified REGIONS registry (1–14 DNO, 15–18 aggregates); tidy CSV read/write |
+| Regional matrix | `make data-pull-matrix` (`scripts/pull_regional_matrix.py`) | 14-region x month pull -> `data/uk_regional_2025-01_tidy.csv` (forecast + actual columns; actuals empty, see Data rules) |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -155,6 +158,13 @@ docs/
   evidence JSONs are committed (CSVs gitignored, re-fetchable).
 - Any dataset used by an experiment must be listed in its config `data:` —
   the runner hashes every listed file into the manifest.
+- **Regional actuals do not exist in the NESO regional API** (verified live
+  2026-11-09: 0 actuals across the full Jan-2025 matrix AND recent windows;
+  the bulk all-regions endpoint likewise ships forecasts only). National
+  actuals exist. Regional actuals must be estimated as
+  `national_actual x regional_forecast / national_forecast` — disclosed
+  assumption (findings-and-plan.md risk table). Bands work (exp004+) builds
+  on this.
 
 ## Status / milestone log
 
@@ -164,6 +174,7 @@ docs/
 | 2026-11-08 | Phase 0 infra: docs restructure, experiment framework, CI/CD, Docker, Makefile | PR #1 |
 | 2026-11-08 | Working-context doc + TDD protocol | PR #2 |
 | 2026-11-08 | Phase 1 start: NESO regional puller + exp002 (live pull matches audit sample exactly) | PR #4 |
+| 2026-11-09 | 14-region Jan-2025 matrix pulled + validated (exp003); regional-actuals gap pinned | PR #5 |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 

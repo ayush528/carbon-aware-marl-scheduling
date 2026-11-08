@@ -14,11 +14,13 @@ HTTP is injectable for testing; default uses urllib with polite retries.
 
 from __future__ import annotations
 
+import csv
 import json
 import time
 import urllib.request
 from collections.abc import Callable
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 BASE = "https://api.carbonintensity.org.uk"
@@ -130,6 +132,41 @@ def _urllib_get(url: str) -> tuple[int, dict[str, Any] | None]:
     request = urllib.request.Request(url, headers={"User-Agent": "carbon-scheduling/0.1"})
     with urllib.request.urlopen(request, timeout=120) as response:
         return response.status, json.loads(response.read().decode())
+
+
+# --- tidy CSV store (regional matrix pulls) -----------------------------------
+
+TIDY_HEADER = ["from", "to", "regionid", "shortname", "forecast", "actual", "index"]
+
+
+def write_tidy_csv(records: list[dict[str, Any]], path: str | Path) -> None:
+    """Write slot records as tidy CSV: one row per (slot, region).
+
+    None values become empty cells -- never the string "None".
+    """
+    with Path(path).open("w", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=TIDY_HEADER)
+        writer.writeheader()
+        writer.writerows(records)
+
+
+def read_tidy_csv(path: str | Path) -> list[dict[str, Any]]:
+    """Read a tidy CSV back into records, restoring types (ints, None)."""
+    records = []
+    with Path(path).open(newline="") as fh:
+        for row in csv.DictReader(fh):
+            records.append(
+                {
+                    "from": row["from"],
+                    "to": row["to"],
+                    "regionid": int(row["regionid"]),
+                    "shortname": row["shortname"],
+                    "forecast": int(row["forecast"]) if row["forecast"] else None,
+                    "actual": int(row["actual"]) if row["actual"] else None,
+                    "index": row["index"] or None,
+                }
+            )
+    return records
 
 
 def chunk_windows(start: str, end: str, max_days: int = 7) -> list[tuple[str, str]]:

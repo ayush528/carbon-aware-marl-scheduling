@@ -13,8 +13,8 @@
 - [ ] Get guide sign-off on `docs/research/report/executive-summary.md` (Step 0 gate)
 - [x] Enable branch protection on `main` (require CI checks, no force push)
 - [x] NESO regional puller, weekly-chunked (`src/carbon_scheduling/data/neso.py`) — exp002 verifies live pull == audit sample
-- [ ] 14-region × full-month matrix pull (all 14 DNO regions, Jan 2025) on top of the puller
-- [ ] exp003: forecast-error histogram → first conformal band prototype
+- [x] 14-region x full-month matrix pull (`make data-pull-matrix`) — validated by exp003
+- [ ] exp004: forecast-error histogram → first conformal band prototype (national error + regional scaling)
 - [ ] Azure LLM trace sampled stream loader (unit-tested)
 
 ## Backlog / later phases
