@@ -91,6 +91,9 @@ Keep this section in sync with the code after every change (rule 2 above).
 
 **Data flow:** NESO / Azure / EIA sources → fetchers + audit
 (`docs/datasets/data-audit/scripts/`, invoked via `make data-fetch`) →
+regional puller `src/carbon_scheduling/data/neso.py` (all 18 region ids,
+weekly-chunked ranges, injected HTTP + retry; parse + chunk + fetch are
+unit-tested, live-API correctness pinned by exp002) →
 loaders in `src/carbon_scheduling/carbon.py` → Phase 1: conformal bands +
 demand models (`src/data/`, planned) → Phase 2: simulator env → Phase 3:
 agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
@@ -104,6 +107,7 @@ agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 | Configs | `experiments/<id>/config.yaml` | committed before running; the versioned experiment definition |
 | Run records | `experiments/<id>/runs/` | append-only evidence: git SHA, config SHA-256, data SHA-256s, seed, metrics |
 | Registry | `experiments/registry.yaml` | status + rollback tag per experiment |
+| NESO regional puller | `src/carbon_scheduling/data/neso.py` | `fetch_regional(region_id, start, end)`: weekly-chunked GETs, retries, verified REGIONS registry (1–14 DNO, 15–18 aggregates) |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -159,6 +163,7 @@ docs/
 | 2026-11-04 | Feasibility study complete (report, 30-paper survey, data audit) | initial commit |
 | 2026-11-08 | Phase 0 infra: docs restructure, experiment framework, CI/CD, Docker, Makefile | PR #1 |
 | 2026-11-08 | Working-context doc + TDD protocol | PR #2 |
+| 2026-11-08 | Phase 1 start: NESO regional puller + exp002 (live pull matches audit sample exactly) | PR #4 |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 

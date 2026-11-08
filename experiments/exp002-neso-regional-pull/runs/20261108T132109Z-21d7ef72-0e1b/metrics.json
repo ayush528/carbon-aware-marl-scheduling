@@ -1,0 +1,11 @@
+{
+  "window": "2025-01-01T00:00Z/2025-01-08T00:00Z",
+  "region": "13 (London)",
+  "n_sample": 337,
+  "n_live": 337,
+  "n_shared_slots": 337,
+  "n_forecast_compared": 337,
+  "forecast_mismatches": 0,
+  "forecast_max_abs_diff": 0,
+  "forecast_mean_abs_diff": 0.0
+}

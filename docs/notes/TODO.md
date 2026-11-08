@@ -11,8 +11,9 @@
 - [x] TDD adopted for all code changes (ADR-0004)
 - [x] README: architecture + data model + experiment lifecycle diagrams
 - [ ] Get guide sign-off on `docs/research/report/executive-summary.md` (Step 0 gate)
-- [ ] Enable branch protection on `main` (require CI checks, no force push)
-- [ ] exp002: NESO 14-region pull prototype, chunked weekly
+- [x] Enable branch protection on `main` (require CI checks, no force push)
+- [x] NESO regional puller, weekly-chunked (`src/carbon_scheduling/data/neso.py`) — exp002 verifies live pull == audit sample
+- [ ] 14-region × full-month matrix pull (all 14 DNO regions, Jan 2025) on top of the puller
 - [ ] exp003: forecast-error histogram → first conformal band prototype
 - [ ] Azure LLM trace sampled stream loader (unit-tested)
 
