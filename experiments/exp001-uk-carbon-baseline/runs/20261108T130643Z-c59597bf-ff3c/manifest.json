@@ -1,0 +1,14 @@
+{
+  "exp_id": "exp001-uk-carbon-baseline",
+  "git_sha": "c3bc40ac5a44e4b300328dbe5b1c116db83731cf",
+  "git_dirty": true,
+  "config_hash": "c59597bf5553e94128606ca6d0969a0bff784099cf20cb33a1393af991939f91",
+  "seed": 42,
+  "data_hashes": {
+    "docs/datasets/data-audit/downloads/uk_national_2025-01_full_month.json": "b343a5ca2e8573d391a11ddffffcb0526706961c374125483b16e646ba1350f6"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.6-76070206-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261108T130643Z",
+  "run_dir": "20261108T130643Z-c59597bf-ff3c"
+}

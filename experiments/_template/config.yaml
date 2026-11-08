@@ -1,0 +1,11 @@
+# Experiment configuration -- COMMIT BEFORE RUNNING.
+# The runner SHA-256 hashes this file; the hash travels with every run record.
+# After a config + its results are merged to main, the merge commit is tagged
+# exp/<id> -- that tag is the rollback point.
+
+id: expNNN-slug            # must equal the directory name
+title: One-line description of the hypothesis being tested
+phase: "0-infra"           # roadmap phase this belongs to (0-infra, 1-data-freeze, 2-simulator, 3-agents, 4-eval)
+seed: 42                   # runs must be deterministic given seed + config + data
+data:                      # repo-relative input paths; each is SHA-256'd into the manifest
+  - docs/datasets/data-audit/downloads/REPLACE_ME.json
