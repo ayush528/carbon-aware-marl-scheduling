@@ -100,6 +100,9 @@ Jan-2025, tidy CSV, built by `make data-pull-matrix`, validated by exp003) →
 national forecast residuals; exp004: calibrate Jan → hold-out Feb coverage
 92.1% vs 90% target — Phase 1 exit test PASSED; exp005: per-region bands via
 national scaling — 12/14 regions ≥ 90% on held-out Feb, mean 91.9%) →
+**demand stream** `src/carbon_scheduling/demand.py` (Azure LLM trace →
+per-half-hour arrivals+tokens on the NESO slot grid; exp006: 16.8M requests
+validated, mean 50k/peak 155k per slot) →
 Phase 2: simulator env → Phase 3:
 agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 
@@ -116,6 +119,7 @@ agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 | Regional matrix | `make data-pull-matrix` (`scripts/pull_regional_matrix.py`) | 14-region x month pull -> `data/uk_regional_2025-01_tidy.csv` (forecast + actual columns; actuals empty, see Data rules) |
 | National puller | `make data-pull-national` (`scripts/pull_national.py`) | national window -> API-consumable JSON (e.g. `data/uk_national_2025-02.json`, the Feb holdout) |
 | Conformal bands | `src/carbon_scheduling/bands.py` | `conformal_quantile` (finite-sample corrected), `absolute_residuals`, `regional_residuals` (national-scaling estimator), `coverage` — deterministic, stdlib-only |
+| Demand loader | `src/carbon_scheduling/demand.py` | `requests_per_slot(path, slot_minutes=30)`: streams the Azure LLM trace (16.8M rows) into per-slot arrivals + token sums on the NESO half-hour grid; idle slots zero-filled |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -182,6 +186,7 @@ docs/
 | 2026-11-09 | 14-region Jan-2025 matrix pulled + validated (exp003); regional-actuals gap pinned | PR #5 |
 | 2026-11-09 | exp004: conformal bands, held-out Feb coverage 92.1% (target 90%) — **Phase 1 exit test passed** | PR #6 |
 | 2026-11-09 | exp005: regional bands via national scaling — 12/14 regions ≥ 90% on held-out Feb; **Phase 1 complete** | PR #7 |
+| 2026-11-09 | exp006: Azure LLM trace demand loader validated on the real 1-week sample (16.8M requests) | PR #8 |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 

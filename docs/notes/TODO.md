@@ -17,7 +17,8 @@
 - [x] exp003: matrix validation + actuals-gap pinned
 - [x] exp004: split-conformal bands — held-out Feb 2025 coverage 92.1% (target 90%); Phase 1 exit test passed
 - [x] exp005: regional bands via national scaling — 12/14 regions ≥ 90% on held-out Feb (mean 91.9%); Phase 1 complete
-- [ ] Azure LLM trace sampled stream loader (unit-tested)
+- [x] exp006: Azure LLM trace loader — 16.8M requests streamed, per-half-hour demand on the NESO grid
+- [ ] Phase 2: SustainCluster simulator (cluster model → NESO regional carbon → baseline policy reproduced)
 
 ## Backlog / later phases
 
