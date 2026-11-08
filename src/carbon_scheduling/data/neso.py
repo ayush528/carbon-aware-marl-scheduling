@@ -180,6 +180,19 @@ def write_tidy_csv(records: list[dict[str, Any]], path: str | Path) -> None:
         writer.writerows(records)
 
 
+def load_slot_json(path: str | Path) -> list[dict[str, Any]]:
+    """Load slot records from a national JSON file, either producer shape.
+
+    The audit downloads are API-shaped (rows carry an ``intensity``
+    sub-dict); the pull scripts write normalized rows. Returns normalized
+    records either way.
+    """
+    rows = json.loads(Path(path).read_text())["data"]
+    if rows and "intensity" in rows[0]:
+        return parse_rows(rows)
+    return [dict(r) for r in rows]
+
+
 def read_tidy_csv(path: str | Path) -> list[dict[str, Any]]:
     """Read a tidy CSV back into records, restoring types (ints, None)."""
     records = []

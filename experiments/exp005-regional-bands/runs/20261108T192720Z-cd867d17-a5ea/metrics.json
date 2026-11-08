@@ -1,0 +1,95 @@
+{
+  "alpha": 0.1,
+  "target_coverage": 0.9,
+  "n_regions": 14,
+  "mean_coverage": 0.9188,
+  "min_coverage": 0.8472,
+  "max_coverage": 0.9622,
+  "n_regions_at_target": 12,
+  "per_region": {
+    "1": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 13.939,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9503
+    },
+    "2": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 5.8,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9622
+    },
+    "3": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 7.463,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.8665
+    },
+    "4": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 3.305,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9006
+    },
+    "5": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 20.996,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9258
+    },
+    "6": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 16.614,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9481
+    },
+    "7": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 45.409,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9451
+    },
+    "8": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 18.889,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9251
+    },
+    "9": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 28.262,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9199
+    },
+    "10": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 15.214,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.8472
+    },
+    "11": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 43.909,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9347
+    },
+    "12": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 30.309,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9021
+    },
+    "13": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 22.0,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9117
+    },
+    "14": {
+      "n_calibration": 1467,
+      "band_half_width_gco2_per_kwh": 29.178,
+      "holdout_n_slots": 1348,
+      "holdout_coverage": 0.9243
+    }
+  }
+}

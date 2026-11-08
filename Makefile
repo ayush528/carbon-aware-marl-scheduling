@@ -41,8 +41,8 @@ rollback: ## Roll back to a tagged experiment: make rollback EXP=exp001-...
 data-fetch: ## Re-fetch audit datasets: make data-fetch TARGET=uk-month
 	bash scripts/fetch_data.sh $(TARGET)
 
-data-pull-matrix: ## Pull 14-region carbon matrix (Jan 2025) -> data/uk_regional_2025-01_tidy.csv
-	$(PYTHON) scripts/pull_regional_matrix.py
+data-pull-matrix: ## Pull 14-region carbon matrix: make data-pull-matrix [START=...] [END=...] [OUT=...] (default Jan 2025)
+	$(PYTHON) scripts/pull_regional_matrix.py $(if $(START),--start $(START),) $(if $(END),--end $(END),) $(if $(OUT),--out $(OUT),)
 
 data-pull-national: ## Pull national carbon intensity: make data-pull-national START=... END=... OUT=data/uk_national_2025-02.json
 	$(PYTHON) scripts/pull_national.py $(if $(START),--start $(START),) $(if $(END),--end $(END),) $(if $(OUT),--out $(OUT),)

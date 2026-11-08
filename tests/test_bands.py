@@ -12,7 +12,12 @@ from __future__ import annotations
 
 import pytest
 
-from carbon_scheduling.bands import absolute_residuals, conformal_quantile, coverage
+from carbon_scheduling.bands import (
+    absolute_residuals,
+    conformal_quantile,
+    coverage,
+    regional_residuals,
+)
 
 RECORDS = [
     {"forecast": 100, "actual": 90},  # residual 10
@@ -57,3 +62,31 @@ def test_coverage_counts_slots_inside_band() -> None:
 def test_coverage_no_actuals_raises() -> None:
     with pytest.raises(ValueError):
         coverage([{"forecast": 1, "actual": None}], q=5.0)
+
+
+# --- regional residuals via national scaling (the disclosed estimator) --------
+
+REGIONAL = [
+    # ratio 45/90 = 0.5 -> regional residual = national residual x 0.5
+    {"from": "t1", "forecast": 45},
+    {"from": "t2", "forecast": 60},  # ratio 60/90 -> 10 x 2/3
+    {"from": "t3", "forecast": 30},  # national actual missing -> skipped
+    {"from": "t4", "forecast": None},  # regional forecast missing -> skipped
+]
+NATIONAL = [
+    {"from": "t1", "forecast": 90, "actual": 100},  # national residual 10
+    {"from": "t2", "forecast": 90, "actual": 100},
+    {"from": "t3", "forecast": 90, "actual": None},  # no actual -> skip
+    {"from": "t4", "forecast": 90, "actual": 100},
+]
+
+
+def test_regional_residuals_scale_national_error_by_forecast_ratio() -> None:
+    residuals = regional_residuals(REGIONAL, NATIONAL)
+    assert residuals[0] == 5.0  # 10 x 0.5, exact
+    assert residuals[1] == pytest.approx(20 / 3)  # 10 x (60/90)
+
+
+def test_regional_residuals_skip_missing_sides() -> None:
+    assert regional_residuals(REGIONAL[:1], NATIONAL[2:]) == []  # no national actual
+    assert regional_residuals(REGIONAL[3:], NATIONAL[:1]) == []  # no regional forecast

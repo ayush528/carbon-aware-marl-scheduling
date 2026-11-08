@@ -98,7 +98,8 @@ unit-tested, live-API correctness pinned by exp002) →
 Jan-2025, tidy CSV, built by `make data-pull-matrix`, validated by exp003) →
 **conformal bands** `src/carbon_scheduling/bands.py` (split conformal on
 national forecast residuals; exp004: calibrate Jan → hold-out Feb coverage
-92.1% vs 90% target — Phase 1 exit test PASSED) →
+92.1% vs 90% target — Phase 1 exit test PASSED; exp005: per-region bands via
+national scaling — 12/14 regions ≥ 90% on held-out Feb, mean 91.9%) →
 Phase 2: simulator env → Phase 3:
 agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 
@@ -114,7 +115,7 @@ agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 | NESO regional puller | `src/carbon_scheduling/data/neso.py` | `fetch_regional(region_id, start, end)`: weekly-chunked GETs, retries, verified REGIONS registry (1–14 DNO, 15–18 aggregates); tidy CSV read/write |
 | Regional matrix | `make data-pull-matrix` (`scripts/pull_regional_matrix.py`) | 14-region x month pull -> `data/uk_regional_2025-01_tidy.csv` (forecast + actual columns; actuals empty, see Data rules) |
 | National puller | `make data-pull-national` (`scripts/pull_national.py`) | national window -> API-consumable JSON (e.g. `data/uk_national_2025-02.json`, the Feb holdout) |
-| Conformal bands | `src/carbon_scheduling/bands.py` | `conformal_quantile` (finite-sample corrected), `absolute_residuals`, `coverage` — deterministic, stdlib-only |
+| Conformal bands | `src/carbon_scheduling/bands.py` | `conformal_quantile` (finite-sample corrected), `absolute_residuals`, `regional_residuals` (national-scaling estimator), `coverage` — deterministic, stdlib-only |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -180,6 +181,7 @@ docs/
 | 2026-11-08 | Phase 1 start: NESO regional puller + exp002 (live pull matches audit sample exactly) | PR #4 |
 | 2026-11-09 | 14-region Jan-2025 matrix pulled + validated (exp003); regional-actuals gap pinned | PR #5 |
 | 2026-11-09 | exp004: conformal bands, held-out Feb coverage 92.1% (target 90%) — **Phase 1 exit test passed** | PR #6 |
+| 2026-11-09 | exp005: regional bands via national scaling — 12/14 regions ≥ 90% on held-out Feb; **Phase 1 complete** | PR #7 |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 

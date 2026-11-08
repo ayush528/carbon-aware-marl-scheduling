@@ -48,3 +48,15 @@ experiments:
       national forecast residuals: calibrate on January 2025 (alpha = 0.1,
       target coverage 90%), evaluate empirical coverage and MAE on the
       held-out month (February 2025).
+
+  - id: exp005-regional-bands
+    title: Regional conformal bands via national scaling -- calibrate Jan, hold-out Feb per region
+    phase: "1-data-freeze"
+    status: merged
+    rollback_tag: exp/exp005-regional-bands
+    description: >
+      Completes the uncertainty layer. Per DNO region (1-14): residuals
+      under the national-scaling estimator (regional residual = national
+      residual x forecast ratio, exact identity -- regional API ships no
+      actuals, exp003), band calibrated on January 2025, coverage evaluated
+      on held-out February 2025. Target 90% per region.
