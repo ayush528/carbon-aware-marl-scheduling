@@ -41,6 +41,9 @@ rollback: ## Roll back to a tagged experiment: make rollback EXP=exp001-...
 data-fetch: ## Re-fetch audit datasets: make data-fetch TARGET=uk-month
 	bash scripts/fetch_data.sh $(TARGET)
 
+data-pull-matrix: ## Pull 14-region carbon matrix (Jan 2025) -> data/uk_regional_2025-01_tidy.csv
+	$(PYTHON) scripts/pull_regional_matrix.py
+
 
 docker-build: ## Build the reproducible image
 	docker build -f docker/Dockerfile -t carbon-scheduling:dev .

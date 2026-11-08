@@ -1,0 +1,15 @@
+{
+  "n_regions": 14,
+  "slots_per_region": [
+    1476
+  ],
+  "n_rows": 20664,
+  "n_with_actual": 0,
+  "london_forecast_slots_compared": 1472,
+  "london_forecast_mismatches": 0,
+  "london_forecast_max_abs_diff": 0,
+  "verified_literal_checks": {
+    "region3_forecast_4": true,
+    "london_forecast_56": true
+  }
+}

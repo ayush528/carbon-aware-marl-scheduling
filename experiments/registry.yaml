@@ -25,3 +25,15 @@ experiments:
       for the first week of January 2025 live from the NESO API and diff it
       against the committed audit sample (the oracle). Metrics: shared-slot
       count, forecast mismatch count, mean/max absolute forecast difference.
+
+  - id: exp003-regional-matrix-check
+    title: 14-region Jan-2025 matrix validation + the regional-actuals gap
+    phase: "1-data-freeze"
+    status: merged
+    rollback_tag: exp/exp003-regional-matrix-check
+    description: >
+      Validates the 14-region x January-2025 tidy-CSV matrix against the
+      audit samples (grid shape, London forecast consistency across
+      endpoints, verified literals) and pins the Phase 1 finding that the
+      NESO regional endpoint ships no actual intensities -- regional
+      actuals must be estimated by national scaling (disclosed).
