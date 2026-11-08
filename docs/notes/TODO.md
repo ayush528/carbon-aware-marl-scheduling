@@ -14,7 +14,9 @@
 - [x] Enable branch protection on `main` (require CI checks, no force push)
 - [x] NESO regional puller, weekly-chunked (`src/carbon_scheduling/data/neso.py`) — exp002 verifies live pull == audit sample
 - [x] 14-region x full-month matrix pull (`make data-pull-matrix`) — validated by exp003
-- [ ] exp004: forecast-error histogram → first conformal band prototype (national error + regional scaling)
+- [x] exp003: matrix validation + actuals-gap pinned
+- [x] exp004: split-conformal bands — held-out Feb 2025 coverage 92.1% (target 90%); Phase 1 exit test passed
+- [ ] exp005: regional bands via national scaling (regional error = national error + forecast-ratio term)
 - [ ] Azure LLM trace sampled stream loader (unit-tested)
 
 ## Backlog / later phases

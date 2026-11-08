@@ -1,0 +1,15 @@
+{
+  "exp_id": "exp004-conformal-bands",
+  "git_sha": "329b73135c1e33457a2a18d8e96f08a7f4ff2fe0",
+  "git_dirty": true,
+  "config_hash": "02f0d37920fc52dd13818a28e2d4b2da5648a11dee0400a953d259789ed6f4bd",
+  "seed": 42,
+  "data_hashes": {
+    "docs/datasets/data-audit/downloads/uk_national_2025-01_full_month.json": "b343a5ca2e8573d391a11ddffffcb0526706961c374125483b16e646ba1350f6",
+    "data/uk_national_2025-02.json": "64de1f280fbb08574f06c54c8a14e2ce870637b8f5feb785df5c83404726da41"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.6-76070206-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261108T185509Z",
+  "run_dir": "20261108T185509Z-02f0d379-7b2a"
+}

@@ -1,0 +1,9 @@
+{
+  "alpha": 0.1,
+  "n_calibration": 1467,
+  "band_half_width_gco2_per_kwh": 20.0,
+  "calibration_coverage": 0.9059,
+  "holdout_n_slots": 1348,
+  "holdout_coverage": 0.9214,
+  "holdout_mae_gco2_per_kwh": 8.783
+}

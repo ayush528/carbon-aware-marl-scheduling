@@ -17,6 +17,7 @@ from carbon_scheduling.data.neso import (
     LONDON_REGION_ID,
     REGIONS,
     chunk_windows,
+    fetch_national,
     fetch_regional,
     parse_single_region,
 )
@@ -171,6 +172,63 @@ def test_fetch_regional_gives_up_after_retries() -> None:
 def test_fetch_regional_rejects_unknown_region() -> None:
     with pytest.raises(ValueError, match="unknown region id"):
         fetch_regional(99, "2025-01-01T00:00Z", "2025-01-02T00:00Z", http_get=_fake_http([]))
+
+
+# --- national fetcher (injected HTTP; no network) -----------------------------
+
+
+def test_fetch_national_uses_national_endpoint_and_parses() -> None:
+    window = {
+        "data": [
+            {
+                "from": "2025-02-01T00:00Z",
+                "to": "2025-02-01T00:30Z",
+                "intensity": {"forecast": 100, "actual": 98, "index": "low"},
+            },
+            {
+                "from": "2025-02-01T00:30Z",
+                "to": "2025-02-01T01:00Z",
+                "intensity": {"forecast": 90},
+            },  # actual omitted entirely
+        ]
+    }
+    http = _fake_http([(200, window)])
+
+    records = fetch_national("2025-02-01T00:00Z", "2025-02-04T00:00Z", http_get=http)
+
+    assert len(http.calls) == 1  # 3 days -> single window
+    assert http.calls[0].startswith("https://api.carbonintensity.org.uk/intensity/")
+    assert "/regional/" not in http.calls[0]
+    assert records[0] == {
+        "from": "2025-02-01T00:00Z",
+        "to": "2025-02-01T00:30Z",
+        "forecast": 100,
+        "actual": 98,
+        "index": "low",
+    }
+    assert records[1]["actual"] is None  # omitted key -> None
+
+
+def test_fetch_national_chunks_month_weekly() -> None:
+    http = _fake_http(
+        [
+            (
+                200,
+                {
+                    "data": [
+                        {
+                            "from": "x",
+                            "to": "y",
+                            "intensity": {"forecast": 1, "actual": 1, "index": "low"},
+                        }
+                    ]
+                },
+            )
+        ]
+    )
+    records = fetch_national("2025-02-01T00:00Z", "2025-03-01T00:00Z", http_get=http)
+    assert len(http.calls) == 4  # 28 days -> 7+7+7+7
+    assert len(records) == 4  # one row per (repeated) fake window
 
 
 # --- seam 3: parsing, against the committed real payload ----------------------
