@@ -1,9 +1,31 @@
 # PROJECT.md — living context for AI agents (and humans)
 
-> **Update rule:** whenever a milestone or a unit-tested component/module is
-> merged, update the *Status / milestone log* and any protocol changes in this
-> file, in the same PR. This file is the single source of context — keep it
-> current.
+> **Update rules:**
+> 1. Whenever a milestone or a unit-tested component/module is merged, update
+>    the *Status / milestone log* and any protocol changes here, in the same PR.
+> 2. **After every change or update in code, update the *Architecture* section
+>    below** so it always reflects how the system actually works.
+> This file is the single source of context — keep it current.
+
+## What is this project?
+
+Final-semester **B.Tech major project**: an uncertainty-aware, decentralized
+multi-agent reinforcement learning (MARL) scheduler that places GPU/LLM
+workloads across data centers in different electricity grid regions to cut
+carbon emissions without missing deadlines — built on real-world data only.
+
+- **The problem:** public workload traces never name the grid region their
+  data center sits in, so carbon-aware scheduling rests on an unverifiable
+  assumption.
+- **Our angle:** UK carbon data (NESO) as region-matched ground truth, with
+  **calibrated forecast-uncertainty bands** (conformal prediction) as a
+  first-class input to the scheduler, plus a CVaR risk term on SLA
+  violations.
+- **The moat:** measured uncertainty — every design decision protects it.
+  Claims are relative only (identical demand); absolutes are labelled
+  illustrative. The region-mapping assumption is disclosed early.
+- Full study, literature survey (30 papers) and data audit:
+  `docs/research/findings-and-plan.md` — the roadmap phases come from there.
 
 ## Project
 
@@ -34,6 +56,11 @@ carbon-aware workload scheduling across geo-distributed data centers**
    Makefile target. No ad-hoc magic commands — the Makefile is the entrypoint.
 5. **Never commit files > 50 MB.** Large raw datasets are re-fetchable via
    `make data-fetch`; see `docs/datasets/DATASETS.md`.
+6. **TDD always** (ADR-0004): no production code lands without
+   a failing test written first — **red** (test defines the behavior, watch
+   it fail) → **green** (minimum code to pass) → **refactor**. Bug fixes add
+   the reproducing regression test before the fix. Pure doc/config commits
+   are exempt.
 
 ## Experiment protocol (the reproducibility contract)
 
@@ -57,6 +84,31 @@ Goal: *go back to any past experiment configuration and re-run it exactly.*
 6. **Never edit a merged config.** Changed hypothesis → new experiment id.
    An experiment replaces an earlier one → mark it `superseded` in
    `experiments/registry.yaml`.
+
+## Architecture
+
+Keep this section in sync with the code after every change (rule 2 above).
+
+**Data flow:** NESO / Azure / EIA sources → fetchers + audit
+(`docs/datasets/data-audit/scripts/`, invoked via `make data-fetch`) →
+loaders in `src/carbon_scheduling/carbon.py` → Phase 1: conformal bands +
+demand models (`src/data/`, planned) → Phase 2: simulator env → Phase 3:
+agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
+
+**Experiment framework (working today):**
+
+| Component | File | Role |
+|---|---|---|
+| Runner | `src/carbon_scheduling/runner.py` | loads config, hashes config+data, seeds RNG, writes run records (manifest + metrics) |
+| Experiment functions | `src/carbon_scheduling/experiments/` | pure `config → metrics` callables, registered in `__init__.py` |
+| Configs | `experiments/<id>/config.yaml` | committed before running; the versioned experiment definition |
+| Run records | `experiments/<id>/runs/` | append-only evidence: git SHA, config SHA-256, data SHA-256s, seed, metrics |
+| Registry | `experiments/registry.yaml` | status + rollback tag per experiment |
+| Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
+| CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
+
+**Data store:** flat files + git (no DB server) — catalog in
+`docs/datasets/DATASETS.md`, small evidence committed, large raw refetched.
 
 ## Repo map
 
@@ -106,6 +158,7 @@ docs/
 |---|---|---|
 | 2026-11-04 | Feasibility study complete (report, 30-paper survey, data audit) | initial commit |
 | 2026-11-08 | Phase 0 infra: docs restructure, experiment framework, CI/CD, Docker, Makefile | PR #1 |
+| 2026-11-08 | Agent skills vendored in-repo + load-before-work protocol (ADR-0004) | PR #2 |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 

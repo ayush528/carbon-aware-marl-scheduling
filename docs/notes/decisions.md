@@ -38,3 +38,18 @@ scripts stay inside `data-audit/scripts/` and are invoked via
 
 *Why:* separates durable reference material (docs) from code (src/scripts)
 and experiments (experiments/), so agents and humans can find each by role.
+
+## ADR-0004 — TDD is mandatory for all code changes
+
+**Date:** 2026-11-08 · **Status:** accepted
+
+No production code merges without a test written first: red (the failing
+test defines the behavior) → green (minimum code to pass) → refactor. Bug
+fixes land their reproducing regression test before the fix. Pure
+docs/config changes are exempt. CI (pytest on py3.11/3.12) is the
+enforcement gate.
+
+*Why:* the project's core claim is reproducibility — tests-first is the
+same discipline applied to code: behavior is pinned before it exists, and
+every PR's CI run re-proves the pinned behavior.
+

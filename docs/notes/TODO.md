@@ -8,6 +8,8 @@
 - [x] Dockerfile + compose; everything behind `make` targets
 - [x] PROJECT.md with full context + protocol
 - [x] exp001: NESO Jan-2025 national baseline, reproducible end-to-end
+- [x] TDD adopted for all code changes (ADR-0004)
+- [x] README: architecture + data model + experiment lifecycle diagrams
 - [ ] Get guide sign-off on `docs/research/report/executive-summary.md` (Step 0 gate)
 - [ ] Enable branch protection on `main` (require CI checks, no force push)
 - [ ] exp002: NESO 14-region pull prototype, chunked weekly
