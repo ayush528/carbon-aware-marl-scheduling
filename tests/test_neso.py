@@ -19,6 +19,7 @@ from carbon_scheduling.data.neso import (
     chunk_windows,
     fetch_national,
     fetch_regional,
+    load_slot_json,
     parse_single_region,
 )
 
@@ -246,3 +247,40 @@ def test_parse_london_month_sample() -> None:
     assert len(records) == 1476
     assert records[0]["from"] == "2024-12-31T23:30Z"
     assert records[-1]["to"] == "2025-02-01T00:00Z"
+
+
+# --- seam 4: slot-JSON loader (both producer shapes) ---------------------------
+
+
+def test_load_slot_json_reads_api_shape(tmp_path: Path) -> None:
+    # audit downloads: rows carry an "intensity" sub-dict
+    path = tmp_path / "api.json"
+    path.write_text(
+        json.dumps(
+            {
+                "data": [
+                    {"from": "f", "to": "t", "intensity": {"forecast": 56, "actual": 54}},
+                ]
+            }
+        )
+    )
+    assert load_slot_json(path) == [
+        {"from": "f", "to": "t", "forecast": 56, "actual": 54, "index": None}
+    ]
+
+
+def test_load_slot_json_reads_normalized_shape(tmp_path: Path) -> None:
+    # our pulls: rows already normalized
+    path = tmp_path / "norm.json"
+    path.write_text(
+        json.dumps(
+            {
+                "data": [
+                    {"from": "f", "to": "t", "forecast": 90, "actual": 100, "index": "low"},
+                ]
+            }
+        )
+    )
+    assert load_slot_json(path) == [
+        {"from": "f", "to": "t", "forecast": 90, "actual": 100, "index": "low"}
+    ]

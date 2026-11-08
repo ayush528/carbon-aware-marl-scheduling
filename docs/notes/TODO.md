@@ -16,7 +16,7 @@
 - [x] 14-region x full-month matrix pull (`make data-pull-matrix`) — validated by exp003
 - [x] exp003: matrix validation + actuals-gap pinned
 - [x] exp004: split-conformal bands — held-out Feb 2025 coverage 92.1% (target 90%); Phase 1 exit test passed
-- [ ] exp005: regional bands via national scaling (regional error = national error + forecast-ratio term)
+- [x] exp005: regional bands via national scaling — 12/14 regions ≥ 90% on held-out Feb (mean 91.9%); Phase 1 complete
 - [ ] Azure LLM trace sampled stream loader (unit-tested)
 
 ## Backlog / later phases

@@ -58,3 +58,41 @@ def coverage(records: list[dict[str, Any]], q: float) -> dict[str, Any]:
         "coverage": n_inside / n,
         "band": f"[-{q}, +{q}] gCO2/kWh around forecast",
     }
+
+
+def regional_residuals(
+    regional_records: list[dict[str, Any]],
+    national_records: list[dict[str, Any]],
+) -> list[float]:
+    """|regional error| under the national-scaling estimator (disclosed).
+
+    The NESO regional API ships no actuals (verified: exp003), so the
+    regional actual is estimated as
+
+        actual_region = actual_national * forecast_region / forecast_national
+
+    Substituting into |actual - forecast| gives an exact identity: the
+    regional residual is the national residual scaled by the forecast
+    ratio,
+
+        |actual_region - forecast_region|
+            = |actual_national - forecast_national| * forecast_region / forecast_national
+
+    Records join on "from". Slots are skipped when either side lacks the
+    forecast pair needed for the ratio, or the national slot has no actual.
+    """
+    national = {
+        r["from"]: r
+        for r in national_records
+        if r.get("from") is not None
+        and r.get("forecast") not in (None, 0)
+        and r.get("actual") is not None
+    }
+    residuals = []
+    for reg in regional_records:
+        nat = national.get(reg.get("from"))
+        if nat is None or reg.get("forecast") is None:
+            continue
+        ratio = reg["forecast"] / nat["forecast"]
+        residuals.append(abs(nat["actual"] - nat["forecast"]) * ratio)
+    return residuals

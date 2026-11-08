@@ -8,32 +8,22 @@ never saw. Target coverage 90% (alpha = 0.1), finite-sample corrected.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
 from carbon_scheduling.bands import absolute_residuals, conformal_quantile, coverage
-from carbon_scheduling.data.neso import parse_rows
+from carbon_scheduling.data.neso import load_slot_json
 from carbon_scheduling.runner import REPO_ROOT
 
 ALPHA = 0.1
-
-
-def _load_national(path: Path) -> list[dict[str, Any]]:
-    """Load slot rows from either producer: the audit file is API-shaped
-    (rows carry an "intensity" sub-dict), our pulls store normalized rows."""
-    rows = json.loads(path.read_text())["data"]
-    if rows and "intensity" in rows[0]:
-        rows = parse_rows(rows)
-    return rows
 
 
 def run(config: dict[str, Any]) -> dict[str, Any]:
     paths = [Path(rel) if Path(rel).is_absolute() else REPO_ROOT / rel for rel in config["data"]]
     by_name = {p.name: p for p in paths}
 
-    january = _load_national(by_name["uk_national_2025-01_full_month.json"])
-    february = _load_national(by_name["uk_national_2025-02.json"])
+    january = load_slot_json(by_name["uk_national_2025-01_full_month.json"])
+    february = load_slot_json(by_name["uk_national_2025-02.json"])
 
     calib_residuals = absolute_residuals(january)
     q = conformal_quantile(calib_residuals, alpha=ALPHA)

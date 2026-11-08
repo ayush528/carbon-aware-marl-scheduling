@@ -1,0 +1,9 @@
+id: exp005-regional-bands
+title: Regional conformal bands via national scaling -- calibrate Jan, hold-out Feb per region
+phase: "1-data-freeze"
+seed: 42
+data:
+  - data/uk_regional_2025-01_tidy.csv
+  - data/uk_regional_2025-02_tidy.csv
+  - docs/datasets/data-audit/downloads/uk_national_2025-01_full_month.json
+  - data/uk_national_2025-02.json
