@@ -2,7 +2,7 @@
 
 Modules:
     carbon       -- NESO carbon-intensity loading + summary statistics
-    runner       -- reproducible, versioned experiment runner (see PROJECT.md)
+    runner       -- reproducible, versioned experiment runner
     experiments  -- registry of runnable experiments
 """
 

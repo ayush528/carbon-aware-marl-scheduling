@@ -47,7 +47,6 @@ data-pull-matrix: ## Pull 14-region carbon matrix: make data-pull-matrix [START=
 data-pull-national: ## Pull national carbon intensity: make data-pull-national START=... END=... OUT=data/uk_national_2025-02.json
 	$(PYTHON) scripts/pull_national.py $(if $(START),--start $(START),) $(if $(END),--end $(END),) $(if $(OUT),--out $(OUT),)
 
-
 docker-build: ## Build the reproducible image
 	docker build -f docker/Dockerfile -t carbon-scheduling:dev .
 
