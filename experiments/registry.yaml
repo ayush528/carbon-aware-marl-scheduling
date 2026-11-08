@@ -14,3 +14,14 @@ experiments:
       of half-hourly national carbon intensity for January 2025 from the NESO
       Carbon Intensity API. Reference fixture for Phase 1 (data freeze):
       every future re-pull of the same window must reproduce these numbers.
+
+  - id: exp002-neso-regional-pull
+    title: Live NESO regional pull vs verified audit sample (London, 2025 week 1)
+    phase: "1-data-freeze"
+    status: merged
+    rollback_tag: exp/exp002-neso-regional-pull
+    description: >
+      First exercise of the Phase 1 regional puller: fetch London (region 13)
+      for the first week of January 2025 live from the NESO API and diff it
+      against the committed audit sample (the oracle). Metrics: shared-slot
+      count, forecast mismatch count, mean/max absolute forecast difference.

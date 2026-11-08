@@ -1,0 +1,14 @@
+{
+  "exp_id": "exp002-neso-regional-pull",
+  "git_sha": "4f857c46c4ebad523355e61676e12ceac1ae24ac",
+  "git_dirty": true,
+  "config_hash": "21d7ef7206128b0a59feb59021b2db2fa586a9c04046887877003d9061207a83",
+  "seed": 42,
+  "data_hashes": {
+    "docs/datasets/data-audit/downloads/uk_region13_london_2025-01-01_to_2025-01-08.json": "cf79d69968c8ff25bbf8a1e89b231e037089b0dac26f8c4783edcbaa1522d644"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.6-76070206-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261108T132109Z",
+  "run_dir": "20261108T132109Z-21d7ef72-0e1b"
+}
