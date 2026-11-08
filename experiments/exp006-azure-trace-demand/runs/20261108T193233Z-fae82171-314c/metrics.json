@@ -1,0 +1,11 @@
+{
+  "n_requests": 16803695,
+  "n_slots": 336,
+  "first_slot": "2024-05-10T00:00Z",
+  "last_slot": "2024-05-16T23:30Z",
+  "mean_requests_per_slot": 50011.0,
+  "peak_requests_per_slot": 154722,
+  "peak_slot": "2024-05-15T20:00Z",
+  "mean_context_tokens_per_request": 2511.3,
+  "mean_generated_tokens_per_request": 22.7
+}

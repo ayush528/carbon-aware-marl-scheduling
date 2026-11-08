@@ -1,0 +1,14 @@
+{
+  "exp_id": "exp006-azure-trace-demand",
+  "git_sha": "1e1d0cee7b609caada2c2b5dfa92ed454db7743a",
+  "git_dirty": true,
+  "config_hash": "fae82171063c837bdf8a30f3f3a800d3c709ca1aa3cd47d5f0e67a05008c2199",
+  "seed": 42,
+  "data_hashes": {
+    "docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.6-76070206-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261108T193233Z",
+  "run_dir": "20261108T193233Z-fae82171-314c"
+}

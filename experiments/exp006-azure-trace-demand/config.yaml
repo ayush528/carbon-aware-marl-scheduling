@@ -1,0 +1,6 @@
+id: exp006-azure-trace-demand
+title: Azure LLM trace demand stream -- loader validation on the real 1-week sample
+phase: "1-data-freeze"
+seed: 42
+data:
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv

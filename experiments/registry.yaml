@@ -60,3 +60,15 @@ experiments:
       residual x forecast ratio, exact identity -- regional API ships no
       actuals, exp003), band calibrated on January 2025, coverage evaluated
       on held-out February 2025. Target 90% per region.
+
+  - id: exp006-azure-trace-demand
+    title: Azure LLM trace demand stream -- loader validation on the real 1-week sample
+    phase: "1-data-freeze"
+    status: merged
+    rollback_tag: exp/exp006-azure-trace-demand
+    description: >
+      Streams the full 1-week Azure LLM inference trace (16.8M requests)
+      through the demand loader and records the per-half-hour demand shape:
+      span, mean/peak arrivals per slot, token workload. Pins the loader
+      against the real file; demand input envelope for the Phase 2
+      simulator.
