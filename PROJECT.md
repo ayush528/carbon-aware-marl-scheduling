@@ -14,6 +14,12 @@ multi-agent reinforcement learning (MARL) scheduler that places GPU/LLM
 workloads across data centers in different electricity grid regions to cut
 carbon emissions without missing deadlines — built on real-world data only.
 
+- **Main goal: a publishable journal paper**, and the bar for that is a
+  **novel experiment** — the first demonstrated combination of decentralized
+  limited-communication MARL + calibrated forecast uncertainty + real
+  region-matched carbon + risk-aware deadlines (verified unpublished across
+  the 30-paper survey). Every phase must produce evidence toward that
+  claim; work that doesn't is scaffolding and is kept minimal.
 - **The problem:** public workload traces never name the grid region their
   data center sits in, so carbon-aware scheduling rests on an unverifiable
   assumption.
