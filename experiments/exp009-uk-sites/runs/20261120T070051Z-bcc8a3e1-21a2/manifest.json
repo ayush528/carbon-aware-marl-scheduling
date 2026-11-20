@@ -1,0 +1,19 @@
+{
+  "exp_id": "exp009-uk-sites",
+  "git_sha": "dc39e35757f28726779d152507e294ab8a86fa9a",
+  "git_dirty": false,
+  "config_hash": "bcc8a3e172fce1462a0585c3c2272964b31d50e9556f488c35a39766a855e6fb",
+  "seed": 42,
+  "data_hashes": {
+    "data/sustaincluster_uk/carbon/GB-London_2024_hourly.csv": "e50f327a8d9cbabeb32925e8709604d6eb6a328fa6e0642bad524387455c64b0",
+    "data/sustaincluster_uk/carbon/GB-SouthWales_2024_hourly.csv": "a397ffc9ec9367e80e80ce2b6d55d6bc73de39df494a2d3a3d12ae665353b02b",
+    "data/sustaincluster_uk/carbon/GB-NorthWestEngland_2024_hourly.csv": "55da6277dcc87be5d67aa92fe918542f137f88a10f7525ec5a312c276d8727cf",
+    "data/sustaincluster_uk/carbon/GB-SouthScotland_2024_hourly.csv": "29357f40123b6bc2080be9c73c3783a744d1ecc71fb83f7b3e0f39ccf9d67203",
+    "data/sustaincluster_uk/prices/gb_2024_hourly.csv": "b94ba374f338e9120018e1b9fb91e4cca2c626fe6626dcd048c3ea165616d0ba",
+    "data/sustaincluster_uk/provenance.json": "c61c693474b525b357f754fd499c89f894a2f50310014c0677d9296ba2e71c0b"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.15-76070215-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261120T070051Z",
+  "run_dir": "20261120T070051Z-bcc8a3e1-21a2"
+}
