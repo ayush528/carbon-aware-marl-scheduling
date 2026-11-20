@@ -1,0 +1,26 @@
+# Visualization backend: read-only projection of experiment artifacts.
+#
+# Deliberately separate from the scheduler image (docker/Dockerfile). The
+# visualization service never imports the scheduler package; it reads the
+# committed run records and serves them to the frontend.
+#
+# Build:  docker build -f docker/Dockerfile.viz-api -t carbon-scheduling-viz-api .
+# Run:    docker compose up viz-api
+FROM python:3.11.9-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+RUN pip install fastapi==0.115.6 "uvicorn[standard]==0.34.0" pyyaml
+
+COPY viz/__init__.py ./viz/
+COPY viz/backend ./viz/backend
+# Run records are mounted read-only at run time; a baked-in copy keeps the
+# image self-contained for demos.
+COPY experiments ./experiments
+
+EXPOSE 8000
+CMD ["uvicorn", "viz.backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

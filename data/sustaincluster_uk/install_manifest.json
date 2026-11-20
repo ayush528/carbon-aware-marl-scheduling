@@ -1,0 +1,77 @@
+{
+  "checkout": "external/sustain-cluster",
+  "checkout_commit": "3f6ea95cb835b89ba50b0ef76d66d14b8037643e",
+  "generated_utc": "2026-11-20T06:38:40Z",
+  "price_source": "gb_2024_hourly.csv",
+  "sites": {
+    "GB-London": {
+      "carbon": {
+        "forward_filled": 15,
+        "path": "data/carbon_intensity/GB-London/2024/GB-London_2024_hourly.csv",
+        "rows": 8784,
+        "sha256": "29a491f0c79cc37b1c2ea777e4ba4e9e45e7ed6ccd16515c3f2aa647e6900926"
+      },
+      "price": {
+        "path": "data/electricity_prices/standardized/GB-London/2024/GB-London_electricity_prices_2024.csv",
+        "rows": 8784,
+        "sha256": "e4829085c9ec3ed4b0c06fa488072b1783e4526213f63b07c9e9c0d70bb1394d"
+      },
+      "weather": {
+        "status": "symlink",
+        "target": "data/weather/GB-London/2024.json"
+      }
+    },
+    "GB-NorthWestEngland": {
+      "carbon": {
+        "forward_filled": 15,
+        "path": "data/carbon_intensity/GB-NorthWestEngland/2024/GB-NorthWestEngland_2024_hourly.csv",
+        "rows": 8784,
+        "sha256": "d1398811e3c927f316cc2c6c37b1f65d0650974a843656afbad9e649c97e2006"
+      },
+      "price": {
+        "path": "data/electricity_prices/standardized/GB-NorthWestEngland/2024/GB-NorthWestEngland_electricity_prices_2024.csv",
+        "rows": 8784,
+        "sha256": "e4829085c9ec3ed4b0c06fa488072b1783e4526213f63b07c9e9c0d70bb1394d"
+      },
+      "weather": {
+        "status": "symlink",
+        "target": "data/weather/GB-NorthWestEngland/2024.json"
+      }
+    },
+    "GB-SouthScotland": {
+      "carbon": {
+        "forward_filled": 15,
+        "path": "data/carbon_intensity/GB-SouthScotland/2024/GB-SouthScotland_2024_hourly.csv",
+        "rows": 8784,
+        "sha256": "468f1d8f9c730d0d1758996190dc408f1ce97f07d5f07901413ba6a01e20bbc5"
+      },
+      "price": {
+        "path": "data/electricity_prices/standardized/GB-SouthScotland/2024/GB-SouthScotland_electricity_prices_2024.csv",
+        "rows": 8784,
+        "sha256": "e4829085c9ec3ed4b0c06fa488072b1783e4526213f63b07c9e9c0d70bb1394d"
+      },
+      "weather": {
+        "status": "symlink",
+        "target": "data/weather/GB-SouthScotland/2024.json"
+      }
+    },
+    "GB-SouthWales": {
+      "carbon": {
+        "forward_filled": 15,
+        "path": "data/carbon_intensity/GB-SouthWales/2024/GB-SouthWales_2024_hourly.csv",
+        "rows": 8784,
+        "sha256": "843d20dd3bb83f00ff65efc7b9b069789300b8a4f6a986e81232843f22fe7de1"
+      },
+      "price": {
+        "path": "data/electricity_prices/standardized/GB-SouthWales/2024/GB-SouthWales_electricity_prices_2024.csv",
+        "rows": 8784,
+        "sha256": "e4829085c9ec3ed4b0c06fa488072b1783e4526213f63b07c9e9c0d70bb1394d"
+      },
+      "weather": {
+        "status": "symlink",
+        "target": "data/weather/GB-SouthWales/2024.json"
+      }
+    }
+  },
+  "year": 2024
+}

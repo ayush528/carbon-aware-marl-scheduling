@@ -1,0 +1,15 @@
+{
+  "exp_id": "exp010-rolling-bands",
+  "git_sha": "60c1e15b92bdf7f861c8567715c0bb51a31e44a2",
+  "git_dirty": false,
+  "config_hash": "d83a1ac15c612cd808fe0581b42f7f28939634ee364025350eb9abec9551abab",
+  "seed": 42,
+  "data_hashes": {
+    "data/uk_national_2023-12_2024-12.json": "684811e39afc3e7632866fb2f97bdbe17220b97b490c50c03650b9947173009d",
+    "data/uk_regional_2024_tidy.csv": "a973c6c89071a64824c03c274531ad2a81e81652432e6a3c2b21121fcd3a782b"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.15-76070215-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261120T092118Z",
+  "run_dir": "20261120T092118Z-d83a1ac1-b2e4"
+}

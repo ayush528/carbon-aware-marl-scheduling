@@ -16,8 +16,8 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install ruff==0.9.6
-      - run: ruff check src tests scripts
-      - run: ruff format --check src tests
+      - run: ruff check src tests scripts viz/backend
+      - run: ruff format --check src tests viz/backend
 
   test:
     name: test (py${{ matrix.python-version }})
@@ -35,6 +35,44 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: python -m pytest -q
 
+  web:
+    name: web (next)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: viz/frontend/package-lock.json
+      - run: npm ci
+        working-directory: viz/frontend
+      # Pages are force-dynamic, so the build needs no running API: it compiles
+      # and typechecks the frontend, and a broken contract with viz/backend
+      # fails here rather than in the browser.
+      - run: npm run typecheck
+        working-directory: viz/frontend
+      - run: npm run build
+        working-directory: viz/frontend
+
+  viz:
+    name: viz (images)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend image
+        run: docker build -f docker/Dockerfile.viz-api -t carbon-scheduling-viz-api:ci .
+      - name: Build frontend image
+        run: docker build -f docker/Dockerfile.viz-web -t carbon-scheduling-viz-web:ci .
+      - name: Smoke-test the API
+        run: |
+          docker run -d --name viz-api -p 8000:8000 carbon-scheduling-viz-api:ci
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:8000/api/health && break
+            sleep 1
+          done
+          docker rm -f viz-api
+
   docker:
     name: docker
     runs-on: ubuntu-latest
@@ -42,5 +80,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build -f docker/Dockerfile -t carbon-scheduling:ci .
+      # The image is the scheduler only; the visualization backend lives in
+      # its own image, so its tests run in the host `test` job instead.
       - name: Run test suite inside the image
-        run: docker run --rm carbon-scheduling:ci
+        run: docker run --rm carbon-scheduling:ci python -m pytest -q --ignore=tests/test_api_service.py

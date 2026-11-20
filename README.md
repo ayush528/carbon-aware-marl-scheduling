@@ -80,6 +80,23 @@ Each agent level is only added after the previous one is beaten or matched —
 every run lands in the experiment record (below), so the progression is
 auditable.
 
+## Services
+
+The repository holds two deployables with a one-way contract:
+
+| Service | Code | Entry point | Reads |
+|---|---|---|---|
+| **Scheduler** | `src/carbon_scheduling/`, `experiments/` | `make exp-run`, Docker `exp` | NESO/Azure data; writes run records |
+| **Visualization** | `viz/frontend/` + `viz/backend/` | `make viz-up`, or `make api` + `make web-dev` | committed run records only |
+
+The visualization service never imports the scheduler package. Its backend
+projects artifacts the scheduler leaves behind (`experiments/<id>/config.yaml`,
+`runs/*/manifest.json`, `runs/*/metrics.json`, `registry.yaml`), so the
+scheduler can later be swapped for a live service without touching the UI.
+The two have separate images (`docker/Dockerfile` vs
+`docker/Dockerfile.viz-api` / `Dockerfile.viz-web`); the scheduler image does
+not contain the visualization code.
+
 ## Data storage
 
 There is no database server: the store is **flat files + git**, chosen so

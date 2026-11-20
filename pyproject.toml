@@ -11,6 +11,14 @@ dependencies = [
 dev = [
     "pytest==8.3.4",
     "ruff==0.9.6",
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
+    "httpx==0.28.1",
+]
+
+api = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
 ]
 
 [tool.ruff]

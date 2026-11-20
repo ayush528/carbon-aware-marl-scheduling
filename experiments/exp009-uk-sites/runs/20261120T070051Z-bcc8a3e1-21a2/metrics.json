@@ -1,0 +1,212 @@
+{
+  "sustaincluster_commit": "3f6ea95cb835b89ba50b0ef76d66d14b8037643e",
+  "carbon_window_start_utc": "2024-01-09T18:00Z",
+  "carbon_window_hours": 168,
+  "workload_clock_start_utc": "2024-01-09T18:00Z",
+  "clock_aligned_with_carbon": true,
+  "configured_anchor_utc": "2024-01-15T00:00Z",
+  "days": 7.0,
+  "seed": 42,
+  "n_sites": 4,
+  "controllers": {
+    "round_robin": {
+      "carbon_kg": 114306.2308,
+      "energy_kwh": 588234.3458,
+      "energy_cost_usd": 64371.8351,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 34815.59,
+          "energy_cost_usd": 16018.41,
+          "energy_kwh": 146405.3
+        },
+        "DC2": {
+          "carbon_kg": 49908.08,
+          "energy_cost_usd": 16128.39,
+          "energy_kwh": 147417.08
+        },
+        "DC3": {
+          "carbon_kg": 18644.07,
+          "energy_cost_usd": 16079.95,
+          "energy_kwh": 146969.73
+        },
+        "DC4": {
+          "carbon_kg": 10938.49,
+          "energy_cost_usd": 16145.08,
+          "energy_kwh": 147442.24
+        }
+      }
+    },
+    "lowest_carbon": {
+      "carbon_kg": 106449.1617,
+      "energy_kwh": 591223.785,
+      "energy_cost_usd": 64696.1826,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0005,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 31052.51,
+          "energy_cost_usd": 14286.51,
+          "energy_kwh": 130560.44
+        },
+        "DC2": {
+          "carbon_kg": 44102.96,
+          "energy_cost_usd": 14279.89,
+          "energy_kwh": 130478.29
+        },
+        "DC3": {
+          "carbon_kg": 16998.37,
+          "energy_cost_usd": 14500.47,
+          "energy_kwh": 132827.88
+        },
+        "DC4": {
+          "carbon_kg": 14295.33,
+          "energy_cost_usd": 21629.31,
+          "energy_kwh": 197357.17
+        }
+      }
+    },
+    "lowest_price": {
+      "carbon_kg": 117863.6672,
+      "energy_kwh": 591276.4377,
+      "energy_cost_usd": 64701.4088,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0005,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 47379.51,
+          "energy_cost_usd": 21830.13,
+          "energy_kwh": 199551.21
+        },
+        "DC2": {
+          "carbon_kg": 44211.48,
+          "energy_cost_usd": 14311.51,
+          "energy_kwh": 130768.64
+        },
+        "DC3": {
+          "carbon_kg": 16605.55,
+          "energy_cost_usd": 14279.89,
+          "energy_kwh": 130478.29
+        },
+        "DC4": {
+          "carbon_kg": 9667.12,
+          "energy_cost_usd": 14279.89,
+          "energy_kwh": 130478.29
+        }
+      }
+    },
+    "most_available": {
+      "carbon_kg": 114579.5188,
+      "energy_kwh": 588331.9043,
+      "energy_cost_usd": 64377.5567,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 35039.03,
+          "energy_cost_usd": 16108.33,
+          "energy_kwh": 147239.15
+        },
+        "DC2": {
+          "carbon_kg": 50018.01,
+          "energy_cost_usd": 16189.81,
+          "energy_kwh": 147750.9
+        },
+        "DC3": {
+          "carbon_kg": 18536.71,
+          "energy_cost_usd": 15989.68,
+          "energy_kwh": 146162.19
+        },
+        "DC4": {
+          "carbon_kg": 10985.77,
+          "energy_cost_usd": 16089.73,
+          "energy_kwh": 147179.67
+        }
+      }
+    },
+    "least_pending": {
+      "carbon_kg": 114240.8592,
+      "energy_kwh": 588228.6162,
+      "energy_cost_usd": 64371.2337,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 35092.76,
+          "energy_cost_usd": 16155.86,
+          "energy_kwh": 147584.78
+        },
+        "DC2": {
+          "carbon_kg": 49683.85,
+          "energy_cost_usd": 16050.79,
+          "energy_kwh": 146760.6
+        },
+        "DC3": {
+          "carbon_kg": 18608.91,
+          "energy_cost_usd": 16042.82,
+          "energy_kwh": 146644.07
+        },
+        "DC4": {
+          "carbon_kg": 10855.35,
+          "energy_cost_usd": 16121.76,
+          "energy_kwh": 147239.17
+        }
+      }
+    }
+  },
+  "carbon_vs_round_robin_pct": {
+    "lowest_carbon": -6.87,
+    "lowest_price": 3.11,
+    "most_available": 0.24,
+    "least_pending": -0.06
+  },
+  "best_carbon_controller": "lowest_carbon",
+  "best_carbon_kg": 106449.1617,
+  "min_sla_violation_rate": 0.0,
+  "regional_intensity": {
+    "GB-London": {
+      "neso_region_id": 13,
+      "neso_region_name": "London",
+      "input_mean_gco2_per_kwh": 237.69,
+      "simulated_gco2_per_kwh": 237.8,
+      "within_tolerance": true
+    },
+    "GB-SouthWales": {
+      "neso_region_id": 7,
+      "neso_region_name": "South Wales",
+      "input_mean_gco2_per_kwh": 337.78,
+      "simulated_gco2_per_kwh": 338.55,
+      "within_tolerance": true
+    },
+    "GB-NorthWestEngland": {
+      "neso_region_id": 3,
+      "neso_region_name": "North West England",
+      "input_mean_gco2_per_kwh": 127.48,
+      "simulated_gco2_per_kwh": 126.86,
+      "within_tolerance": true
+    },
+    "GB-SouthScotland": {
+      "neso_region_id": 2,
+      "neso_region_name": "South Scotland",
+      "input_mean_gco2_per_kwh": 74.31,
+      "simulated_gco2_per_kwh": 74.19,
+      "within_tolerance": true
+    }
+  },
+  "regional_spread_gco2_per_kwh": 263.47,
+  "max_intensity_error_gco2_per_kwh": 0.77,
+  "regional_ordering_matches_input": true,
+  "exit_test_passed": true,
+  "price_identical_across_sites": true
+}

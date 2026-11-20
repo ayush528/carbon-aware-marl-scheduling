@@ -1,0 +1,98 @@
+id: exp009-uk-sites
+title: SustainCluster on four UK sites -- NESO regional carbon, Elexon prices
+phase: "2-simulator"
+seed: 42
+data:
+  # Derived UK inputs (built by `make sc-uk-data`, then installed into the
+  # checkout by `make sc-uk-install`). Hashed so the run record pins them.
+  - data/sustaincluster_uk/carbon/GB-London_2024_hourly.csv
+  - data/sustaincluster_uk/carbon/GB-SouthWales_2024_hourly.csv
+  - data/sustaincluster_uk/carbon/GB-NorthWestEngland_2024_hourly.csv
+  - data/sustaincluster_uk/carbon/GB-SouthScotland_2024_hourly.csv
+  - data/sustaincluster_uk/prices/gb_2024_hourly.csv
+  - data/sustaincluster_uk/provenance.json
+
+sustaincluster:
+  checkout: external/sustain-cluster
+  device: cpu
+  baselines:
+    - round_robin
+    - lowest_carbon
+    - lowest_price
+    - most_available
+    - least_pending
+
+simulation:
+  year: 2024
+  month: 1
+  init_day: 15
+  init_hour: 0
+  duration_days: 7
+  timestep_minutes: 15
+  workload_path: data/workload/alibaba_2020_dataset/result_df_full_year_2020.pkl
+  cloud_provider: aws
+  shuffle_datacenters: false
+  use_tensorboard: false
+  log_dir: runs/uk
+  disable_defer_action: true
+  single_action_mode: true
+  aggregation_method: average
+  # Upstream's transmission table has no UK entries; all four sites map to
+  # AWS London (eu-west-2), so cross-site transfer is priced intra-region.
+  location_regions:
+    GB-London: eu-west-2
+    GB-SouthWales: eu-west-2
+    GB-NorthWestEngland: eu-west-2
+    GB-SouthScotland: eu-west-2
+  # Passed straight to the simulator instead of its own
+  # int(month*30.5 + init_day), which lands ~1 month after the timestamp.
+  # 2024-01-15 is day-of-year 14 (0-indexed). Equal weights keep the workload
+  # mix identical across sites so carbon is the only differentiator.
+  init_day_of_year: 14
+
+sites:
+  - dc_id: 1
+    location: GB-London
+    timezone_shift: 0        # GB is UTC in January; DST not modelled
+    population_weight: 0.25
+    total_cores: 50000
+    total_gpus: 1000
+    total_mem: 80000
+    dc_config_file: configs/dcs/dc_config.json
+  - dc_id: 2
+    location: GB-SouthWales
+    timezone_shift: 0
+    population_weight: 0.25
+    total_cores: 50000
+    total_gpus: 1000
+    total_mem: 80000
+    dc_config_file: configs/dcs/dc_config.json
+  - dc_id: 3
+    location: GB-NorthWestEngland
+    timezone_shift: 0
+    population_weight: 0.25
+    total_cores: 50000
+    total_gpus: 1000
+    total_mem: 80000
+    dc_config_file: configs/dcs/dc_config.json
+  - dc_id: 4
+    location: GB-SouthScotland
+    timezone_shift: 0
+    population_weight: 0.25
+    total_cores: 50000
+    total_gpus: 1000
+    total_mem: 80000
+    dc_config_file: configs/dcs/dc_config.json
+
+# Unused by rule-based controllers (they ignore the reward) but part of the
+# experiment definition, and the starting point for Phase 3 RL agents.
+reward:
+  normalize: false
+  freeze_stats_after_steps: 2000
+  components:
+    energy_price:
+      weight: 0.9
+      args: {}
+    carbon_emissions:
+      weight: 0.3
+      args: {}

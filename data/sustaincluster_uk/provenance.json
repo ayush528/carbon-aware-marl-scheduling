@@ -1,0 +1,87 @@
+{
+  "year": 2024,
+  "generated_utc": "2026-11-20T05:24:46Z",
+  "sources": {
+    "carbon": "NESO Carbon Intensity API (api.carbonintensity.org.uk)",
+    "prices": "Elexon BMRS market-index (data.elexon.co.uk), dataProviders=APXMIDP",
+    "fx": "ECB reference rates via api.frankfurter.app"
+  },
+  "carbon_formula": "regional_actual = national_actual * regional_forecast / national_forecast",
+  "disclosures": [
+    "NESO's regional endpoint ships forecasts only; `actual` is null for every regional row, so regional intensity is the documented national-scaling estimate.",
+    "GB electricity price is the national Elexon MID series, replicated for every site: regional wholesale price differences are not modelled.",
+    "Prices arrive in GBP/MWh and are converted to USD/MWh at the mean ECB rate for the year, because SustainCluster's column is 'Price (USD/MWh)'."
+  ],
+  "sites": {
+    "GB-London": {
+      "neso_region_id": 13,
+      "neso_region_name": "London",
+      "national_rows": 17590,
+      "regional_rows": 17598,
+      "regional_rows_with_actual": 0,
+      "paired_slots": 17537,
+      "skipped_slots": 9,
+      "hours_written": 8769,
+      "hours_missing": 15,
+      "mean_gco2_per_kwh": 127.37,
+      "min_gco2_per_kwh": 6.6,
+      "max_gco2_per_kwh": 884.95
+    },
+    "GB-SouthWales": {
+      "neso_region_id": 7,
+      "neso_region_name": "South Wales",
+      "national_rows": 17590,
+      "regional_rows": 17598,
+      "regional_rows_with_actual": 0,
+      "paired_slots": 17537,
+      "skipped_slots": 9,
+      "hours_written": 8769,
+      "hours_missing": 15,
+      "mean_gco2_per_kwh": 260.33,
+      "min_gco2_per_kwh": 3.1,
+      "max_gco2_per_kwh": 1652.04
+    },
+    "GB-NorthWestEngland": {
+      "neso_region_id": 3,
+      "neso_region_name": "North West England",
+      "national_rows": 17590,
+      "regional_rows": 17598,
+      "regional_rows_with_actual": 0,
+      "paired_slots": 17537,
+      "skipped_slots": 9,
+      "hours_written": 8769,
+      "hours_missing": 15,
+      "mean_gco2_per_kwh": 49.2,
+      "min_gco2_per_kwh": 0.0,
+      "max_gco2_per_kwh": 639.8
+    },
+    "GB-SouthScotland": {
+      "neso_region_id": 2,
+      "neso_region_name": "South Scotland",
+      "national_rows": 17590,
+      "regional_rows": 17598,
+      "regional_rows_with_actual": 0,
+      "paired_slots": 17537,
+      "skipped_slots": 9,
+      "hours_written": 8769,
+      "hours_missing": 15,
+      "mean_gco2_per_kwh": 25.12,
+      "min_gco2_per_kwh": 0.0,
+      "max_gco2_per_kwh": 288.04
+    }
+  },
+  "price": {
+    "fx_gbp_usd_mean": 1.278565,
+    "fx_stats": {
+      "days": 257,
+      "min": 1.2316,
+      "max": 1.3401
+    },
+    "windows": 53,
+    "rows": 17568,
+    "half_hours": 17568,
+    "hours_written": 8784,
+    "hours_forward_filled": 0,
+    "mean_usd_per_mwh": 91.262
+  }
+}

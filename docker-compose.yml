@@ -19,3 +19,27 @@ services:
     command: ["make", "exp-run", "EXP=${EXP:-exp001-uk-carbon-baseline}"]
     volumes:
       - ./experiments:/app/experiments
+
+  # Visualization service (frontend + read-only backend). Separate from the
+  # scheduler: it only reads committed experiment artifacts.
+  viz-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.viz-api
+    image: carbon-scheduling-viz-api:dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./experiments:/app/experiments:ro
+
+  viz-web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.viz-web
+    image: carbon-scheduling-viz-web:dev
+    environment:
+      EXPERIMENT_API_URL: http://viz-api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - viz-api

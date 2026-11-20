@@ -1,0 +1,22 @@
+# Visualization frontend: Next.js app over the read-only experiment API.
+#
+# Separate from the scheduler image (docker/Dockerfile). The scheduler is a
+# different service; this app only renders artifacts the viz API projects.
+#
+# Build:  docker build -f docker/Dockerfile.viz-web -t carbon-scheduling-viz-web .
+# Run:    docker compose up viz-web
+FROM node:22-slim AS build
+
+WORKDIR /app
+COPY viz/frontend/package.json viz/frontend/package-lock.json ./
+RUN npm ci
+COPY viz/frontend ./
+RUN npm run build
+
+FROM node:22-slim AS run
+
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app ./
+EXPOSE 3000
+CMD ["npm", "start"]
