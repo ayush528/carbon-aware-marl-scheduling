@@ -147,7 +147,7 @@ def test_coverage_is_identical_across_regions_within_a_month(config: dict[str, A
 def test_relative_coverage_hits_the_target_on_synthetic_data(config: dict[str, Any]) -> None:
     """90% of slots are 5% off and 10% are 50% off -> q=0.05 -> coverage ~90%."""
     metrics = exp010.run(config)
-    assert metrics["relative"]["mean_coverage"] == pytest.approx(0.9, abs=0.04)
+    assert metrics["relative"]["mean_coverage_positive_forecast"] == pytest.approx(0.9, abs=0.04)
     # The 90th percentile of U[0.02, 0.10) is 0.092 -> 9.2% of the forecast.
     assert metrics["relative"]["mean_half_width_pct_of_forecast"] == pytest.approx(9.2, abs=0.5)
 
@@ -158,7 +158,7 @@ def test_constant_scheme_pays_width_without_gaining_coverage(config: dict[str, A
     # dirtiest region needs the widest band for the same relative accuracy.
     widths = {c["regionid"]: c["constant_half_width_gco2_per_kwh"] for c in metrics["cells"]}
     assert widths[7] > widths[13] > widths[3] > widths[2]
-    assert metrics["constant"]["mean_coverage"] == pytest.approx(0.9, abs=0.04)
+    assert metrics["constant"]["mean_coverage_positive_forecast"] == pytest.approx(0.9, abs=0.04)
     # Same coverage, more width: the constant band cannot track the slot's
     # forecast, so it buys nothing on average and costs sharpness.
     assert (
@@ -204,7 +204,7 @@ def test_sim_sites_are_reported(config: dict[str, Any]) -> None:
         "GB-NorthWestEngland",
         "GB-SouthScotland",
     }
-    assert 0.8 <= metrics["sim_sites"]["min_coverage"] <= 1.0
+    assert 0.8 <= metrics["sim_sites"]["min_coverage_positive_forecast"] <= 1.0
 
 
 def test_missing_national_json_raises(config: dict[str, Any]) -> None:
@@ -256,4 +256,50 @@ def test_duplicate_slots_are_counted_once(config: dict[str, Any]) -> None:
     clean = exp010.run({**config, "data": [str(national), config["data"][1]]})
     assert clean["pairing"]["duplicate_slots_dropped"]["national"] == len(rows)
     assert clean["pairing"]["slots_per_month"]["1"] == 1488
-    assert clean["relative"]["mean_coverage"] == pytest.approx(0.9, abs=0.04)
+    assert clean["relative"]["mean_coverage_positive_forecast"] == pytest.approx(0.9, abs=0.04)
+
+
+# --- zero-forecast slots -----------------------------------------------------
+# 4.9% of 2024 regional slots carry forecast 0 (low-carbon hours are common in
+# Scotland). Under the national-scaling estimator the residual is
+# |nat_err| * (0 / nat_forecast) = 0, so those slots are covered by *any* band,
+# including a zero-width one. Counting them as evidence of calibration would
+# overstate coverage by up to ~5 points, so the experiment reports both and
+# treats the positive-forecast figure as the informative one.
+
+
+def test_zero_forecast_slots_are_reported_separately() -> None:
+    national = [
+        {"from": "t1", "forecast": 100, "actual": 110},
+        {"from": "t2", "forecast": 100, "actual": 120},
+    ]
+    regional = [
+        {"from": "t1", "forecast": 0},  # mechanically covered
+        {"from": "t2", "forecast": 100},  # residual 10 vs 0.05*100 = 5 -> outside
+    ]
+    got = exp010._band_coverage(regional, national, lambda f: 0.05 * (f or 0))
+    assert got["n_all"] == 2
+    assert got["n_zero_forecast"] == 1
+    assert got["all"] == pytest.approx(0.5)  # the zero-forecast slot is a free hit
+    assert got["positive"] == pytest.approx(0.0)  # the informative slots alone
+    assert got["zero_forecast_pct"] == pytest.approx(50.0)
+
+
+def test_constant_band_is_measured_on_the_same_slots_as_the_relative_band() -> None:
+    national = [{"from": "t1", "forecast": 100, "actual": 110}]
+    regional = [{"from": "t1", "forecast": 0}]
+    got = exp010._band_coverage(regional, national, lambda _f: 5.0)
+    # A zero-width band and a 5 g/kWh band must agree: the residual is 0 either way.
+    assert got["all"] == pytest.approx(1.0)
+    # But there is no positive-forecast slot to learn from.
+    assert got["positive"] is None
+
+
+def test_cells_expose_the_zero_forecast_share(config: dict[str, Any]) -> None:
+    metrics = exp010.run(config)
+    for cell in metrics["cells"]:
+        assert 0.0 <= cell["zero_forecast_pct"] <= 100.0
+        assert cell["relative_coverage"] == pytest.approx(cell["relative_coverage_positive"])
+    assert "mean_coverage_positive_forecast" in metrics["relative"]
+    assert "mean_coverage_all_slots" in metrics["relative"]
+    assert "zero_forecast_slot_pct" in metrics["relative"]

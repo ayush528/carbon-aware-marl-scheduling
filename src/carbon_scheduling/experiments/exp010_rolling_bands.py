@@ -43,6 +43,7 @@ from __future__ import annotations
 
 from bisect import bisect_left
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -128,34 +129,54 @@ def _relative_errors(records: list[dict[str, Any]]) -> list[float]:
     ]
 
 
-def _relative_coverage(
+def _band_coverage(
     regional: list[dict[str, Any]],
     national: list[dict[str, Any]],
-    q_rel: float,
-) -> float:
-    """Coverage of a band whose half-width is ``forecast * q_rel``.
+    half_width: Callable[[float | None], float],
+) -> dict[str, Any]:
+    """Coverage of a band of the given half-width over the national-scaled residual.
 
-    Computed per region from that region's own slots (residual under national
-    scaling against the slot's own band), so the "one calibration covers every
-    region" claim is tested rather than assumed.
+    The residual for a regional slot is the national one scaled by the forecast
+    ratio (see ``bands.regional_residuals``), i.e. exactly what
+    ``regional_residuals`` returns. Two figures come back:
+
+    ``all``       every slot that pairs with a national actual.
+    ``positive``  only slots whose regional forecast is > 0.
+
+    The second is the informative one. A forecast of 0 makes the scaled residual
+    0 no matter what the national error was, so such a slot is inside any band
+    (a zero-width one included). That is an artefact of the estimator, not
+    evidence of calibration, and 2024 has 4.9% of them.
     """
     nat = {
         r["from"]: r
         for r in national
         if r.get("actual") is not None and r.get("forecast") not in (None, 0)
     }
-    n = inside = 0
+    n_all = n_zero = inside_all = n_pos = inside_pos = 0
     for reg in regional:
         nat_row = nat.get(reg["from"])
         forecast = reg.get("forecast")
-        if nat_row is None or not forecast:
+        if nat_row is None or forecast is None:
             continue
         residual = abs(nat_row["actual"] - nat_row["forecast"]) * forecast / nat_row["forecast"]
-        n += 1
-        inside += residual <= forecast * q_rel
-    if not n:
+        covered = residual <= half_width(forecast)
+        n_all += 1
+        inside_all += covered
+        if forecast > 0:
+            n_pos += 1
+            inside_pos += covered
+        else:
+            n_zero += 1
+    if not n_all:
         raise ValueError("no evaluation slots")
-    return inside / n
+    return {
+        "all": inside_all / n_all,
+        "positive": (inside_pos / n_pos) if n_pos else None,
+        "n_all": n_all,
+        "n_zero_forecast": n_zero,
+        "zero_forecast_pct": 100 * n_zero / n_all,
+    }
 
 
 def _ranking_certainty(
@@ -196,6 +217,10 @@ def _ranking_certainty(
         ratios.append(ratio)
         robust += ratio < threshold
     return slots, robust, ratios
+
+
+def _rounded(value: float | None) -> float | None:
+    return None if value is None else round(value, 4)
 
 
 def _median(values: list[float]) -> float | None:
@@ -258,6 +283,8 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 continue
             q_const = conformal_quantile(calib_res, ALPHA)
             mean_fc = sum(r["forecast"] for r in eval_reg) / len(eval_reg)
+            rel = _band_coverage(eval_reg, eval_national, lambda f, q=q_rel: q * f)
+            con = _band_coverage(eval_reg, eval_national, lambda _f, q=q_const: q)
             cells.append(
                 {
                     "month": month,
@@ -268,10 +295,12 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                     "n_regional_slots": len(eval_reg),
                     "n_eval": len(eval_res),
                     "paired_pct": round(100 * len(eval_res) / len(eval_reg), 2),
-                    "relative_coverage": round(
-                        _relative_coverage(eval_reg, eval_national, q_rel), 4
-                    ),
-                    "constant_coverage": round(_coverage(eval_res, q_const), 4),
+                    "zero_forecast_pct": round(rel["zero_forecast_pct"], 2),
+                    "relative_coverage": _rounded(rel["positive"]),
+                    "relative_coverage_positive": _rounded(rel["positive"]),
+                    "relative_coverage_all_slots": round(rel["all"], 4),
+                    "constant_coverage": _rounded(con["positive"]),
+                    "constant_coverage_all_slots": round(con["all"], 4),
                     "constant_half_width_gco2_per_kwh": round(q_const, 2),
                     "relative_half_width_pct": round(100 * q_rel, 2),
                     "mean_forecast_gco2_per_kwh": round(mean_fc, 1),
@@ -293,11 +322,18 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         for month in {c["month"] for c in cells}
     )
 
-    def _mean(cs: list[dict[str, Any]], key: str) -> float:
-        return sum(c[key] for c in cs) / len(cs)
+    def _values(cs: list[dict[str, Any]], key: str) -> list[float]:
+        return [c[key] for c in cs if c.get(key) is not None]
 
-    def _at_target(cs: list[dict[str, Any]], key: str) -> float:
-        return round(100 * sum(1 for c in cs if c[key] >= TARGET) / len(cs), 2)
+    def _mean(cs: list[dict[str, Any]], key: str) -> float | None:
+        vals = _values(cs, key)
+        return sum(vals) / len(vals) if vals else None
+
+    def _at_target(cs: list[dict[str, Any]], key: str) -> float | None:
+        vals = _values(cs, key)
+        if not vals:
+            return None
+        return round(100 * sum(1 for v in vals if v >= TARGET) / len(vals), 2)
 
     per_region: dict[str, Any] = {}
     for rid in sorted({c["regionid"] for c in cells}):
@@ -306,16 +342,20 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             "shortname": own[0]["shortname"],
             "sim_site": rid in SIM_SITES,
             "months": len(own),
-            "relative_mean_coverage": round(_mean(own, "relative_coverage"), 4),
-            "relative_min_coverage": min(c["relative_coverage"] for c in own),
-            "relative_months_at_target": sum(1 for c in own if c["relative_coverage"] >= TARGET),
-            "constant_mean_coverage": round(_mean(own, "constant_coverage"), 4),
-            "constant_months_at_target": sum(1 for c in own if c["constant_coverage"] >= TARGET),
-            "constant_half_width_pct_of_mean": round(
+            "relative_mean_coverage": _rounded(_mean(own, "relative_coverage")),
+            "relative_min_coverage": _rounded(min(_values(own, "relative_coverage"), default=0)),
+            "relative_months_at_target": sum(
+                1 for c in own if (c["relative_coverage"] or 0) >= TARGET
+            ),
+            "zero_forecast_slot_pct": _rounded(_mean(own, "zero_forecast_pct")),
+            "constant_mean_coverage": _rounded(_mean(own, "constant_coverage")),
+            "constant_months_at_target": sum(
+                1 for c in own if (c["constant_coverage"] or 0) >= TARGET
+            ),
+            "constant_half_width_pct_of_mean": _rounded(
                 100
                 * _mean(own, "constant_half_width_gco2_per_kwh")
-                / _mean(own, "mean_forecast_gco2_per_kwh"),
-                2,
+                / _mean(own, "mean_forecast_gco2_per_kwh")
             ),
         }
 
@@ -352,10 +392,21 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             "slots_per_month": slots_per_month,
         },
         "relative": {
-            "mean_coverage": round(_mean(cells, "relative_coverage"), 4),
-            "min_cell_coverage": min(c["relative_coverage"] for c in cells),
-            "max_cell_coverage": max(c["relative_coverage"] for c in cells),
+            # Headline: coverage on slots with a positive forecast, i.e. slots
+            # the band can actually fail on. See _band_coverage.
+            "mean_coverage_positive_forecast": _rounded(_mean(cells, "relative_coverage")),
+            "min_cell_coverage": _rounded(min(_values(cells, "relative_coverage"), default=0)),
+            "max_cell_coverage": _rounded(max(_values(cells, "relative_coverage"), default=0)),
             "cells_at_target_pct": _at_target(cells, "relative_coverage"),
+            # Continuity with exp004/exp005, which counted every paired slot.
+            "mean_coverage_all_slots": round(_mean(cells, "relative_coverage_all_slots"), 4),
+            "zero_forecast_slot_pct": round(
+                100
+                * sum(c["zero_forecast_pct"] * c["n_eval"] for c in cells)
+                / 100
+                / sum(c["n_eval"] for c in cells),
+                2,
+            ),
             "mean_half_width_pct_of_forecast": round(_mean(cells, "relative_half_width_pct"), 2),
             "coverage_identical_across_regions": spread < 1e-9,
             "max_within_month_regional_spread": round(spread, 4),
@@ -363,10 +414,11 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             "coverage_stderr": round((TARGET * (1 - TARGET) / n_eval_total) ** 0.5, 4),
         },
         "constant": {
-            "mean_coverage": round(_mean(cells, "constant_coverage"), 4),
-            "min_cell_coverage": min(c["constant_coverage"] for c in cells),
-            "max_cell_coverage": max(c["constant_coverage"] for c in cells),
+            "mean_coverage_positive_forecast": _rounded(_mean(cells, "constant_coverage")),
+            "min_cell_coverage": _rounded(min(_values(cells, "constant_coverage"), default=0)),
+            "max_cell_coverage": _rounded(max(_values(cells, "constant_coverage"), default=0)),
             "cells_at_target_pct": _at_target(cells, "constant_coverage"),
+            "mean_coverage_all_slots": round(_mean(cells, "constant_coverage_all_slots"), 4),
             "mean_half_width_pct_of_forecast": round(
                 sum(
                     100 * c["constant_half_width_gco2_per_kwh"] / c["mean_forecast_gco2_per_kwh"]
@@ -378,8 +430,10 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         },
         "sim_sites": {
             "regions": [SIM_SITES[r] for r in sorted(SIM_SITES) if str(r) in per_region],
-            "mean_coverage": round(_mean(sim_cells, "relative_coverage"), 4),
-            "min_coverage": min(c["relative_coverage"] for c in sim_cells),
+            "mean_coverage_positive_forecast": _rounded(_mean(sim_cells, "relative_coverage")),
+            "min_coverage_positive_forecast": _rounded(
+                min(_values(sim_cells, "relative_coverage"), default=0)
+            ),
             "cells_at_target_pct": _at_target(sim_cells, "relative_coverage"),
         },
         "decision_relevance": {
