@@ -16,8 +16,8 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install ruff==0.9.6
-      - run: ruff check src tests scripts
-      - run: ruff format --check src tests
+      - run: ruff check src tests scripts services
+      - run: ruff format --check src tests services
 
   test:
     name: test (py${{ matrix.python-version }})

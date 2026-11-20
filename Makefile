@@ -14,11 +14,11 @@ setup: ## Create .venv and install pinned dependencies
 	bash scripts/setup.sh
 
 lint: ## Static checks (ruff check + format check)
-	$(PYTHON) -m ruff check src tests scripts
-	$(PYTHON) -m ruff format --check src tests
+	$(PYTHON) -m ruff check src tests scripts services
+	$(PYTHON) -m ruff format --check src tests services
 
 format: ## Auto-format and auto-fix
-	$(PYTHON) -m ruff format src tests
+	$(PYTHON) -m ruff format src tests services
 	$(PYTHON) -m ruff check --fix src tests scripts
 
 test: ## Run the unit-test suite
@@ -46,6 +46,9 @@ data-pull-matrix: ## Pull 14-region carbon matrix: make data-pull-matrix [START=
 
 data-pull-national: ## Pull national carbon intensity: make data-pull-national START=... END=... OUT=data/uk_national_2025-02.json
 	$(PYTHON) scripts/pull_national.py $(if $(START),--start $(START),) $(if $(END),--end $(END),) $(if $(OUT),--out $(OUT),)
+
+api: ## Serve the experiment API on :8000 (consumed by the Next.js frontend)
+	$(PYTHON) -m uvicorn services.api.main:app --host 127.0.0.1 --port 8000
 
 sc-setup: ## Fetch the external SustainCluster checkout + its venv (exp008)
 	bash scripts/sc_setup.sh
