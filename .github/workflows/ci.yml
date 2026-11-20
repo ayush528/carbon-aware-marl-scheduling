@@ -35,6 +35,26 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: python -m pytest -q
 
+  web:
+    name: web (next)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      # Pages are force-dynamic, so the build needs no running API: it compiles
+      # and typechecks the frontend, and a broken contract with services/api
+      # fails here rather than in the browser.
+      - run: npm run typecheck
+        working-directory: web
+      - run: npm run build
+        working-directory: web
+
   docker:
     name: docker
     runs-on: ubuntu-latest

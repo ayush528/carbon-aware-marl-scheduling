@@ -22,6 +22,7 @@ COPY pyproject.toml Makefile ./
 COPY src ./src
 COPY tests ./tests
 COPY scripts ./scripts
+COPY services ./services
 COPY experiments ./experiments
 COPY docs/datasets/data-audit/downloads ./docs/datasets/data-audit/downloads
 

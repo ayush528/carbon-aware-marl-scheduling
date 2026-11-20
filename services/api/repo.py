@@ -123,6 +123,38 @@ def summary(exp_id: str, metrics: dict[str, Any] | None) -> list[dict[str, str]]
     if not metrics:
         return []
     m = metrics
+    if exp_id == "exp001-uk-carbon-baseline":
+        return [
+            {"label": "slots", "value": _thousands(m["n_slots"])},
+            {
+                "label": "actual mean",
+                "value": f"{m['actual_mean']:.1f} g/kWh",
+            },
+            {
+                "label": "forecast-vs-actual MAE",
+                "value": f"{m['forecast_vs_actual_mae']:.2f} g/kWh",
+            },
+        ]
+    if exp_id == "exp002-neso-regional-pull":
+        return [
+            {"label": "slots compared", "value": _thousands(m["n_shared_slots"])},
+            {
+                "label": "forecast mismatches",
+                "value": str(m["forecast_mismatches"]),
+                "tone": "good" if m["forecast_mismatches"] == 0 else "bad",
+            },
+            {"label": "max abs diff", "value": f"{m['forecast_max_abs_diff']:g}"},
+        ]
+    if exp_id == "exp003-regional-matrix-check":
+        return [
+            {"label": "regions", "value": str(m["n_regions"])},
+            {"label": "rows", "value": _thousands(m["n_rows"])},
+            {
+                "label": "regional actuals",
+                "value": str(m["n_with_actual"]),
+                "tone": "warn",
+            },
+        ]
     if exp_id == "exp004-conformal-bands":
         return [
             {

@@ -30,3 +30,9 @@ Thumbs.db
 # Local tooling / assistant config (not part of the project)
 
 # local project-context file (not part of the public repo)
+
+# Next.js frontend (web/) -- dependencies and build output are re-installable
+web/node_modules/
+web/.next/
+web/out/
+web/*.tsbuildinfo

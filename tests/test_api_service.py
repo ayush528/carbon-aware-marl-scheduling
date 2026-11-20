@@ -171,3 +171,47 @@ def test_every_status_used_in_content_is_in_the_legend() -> None:
 def test_missing_run_yields_no_summary_instead_of_a_guess() -> None:
     """A registered experiment with no run must not invent metrics."""
     assert repo.summary("exp001-uk-carbon-baseline", None) == []
+
+
+def test_uncertainty_exposes_the_per_cell_grid() -> None:
+    """The heatmap needs one row per (region, month), not just the averages.
+
+    A mean coverage of 90% can hide half the cells being wrong, which is the
+    whole point of showing the grid.
+    """
+    rolling = client.get("/api/uncertainty").json()["rolling"]
+    grid = rolling["grid"]
+    assert len(grid) == rolling["n_cells"]
+    months = sorted({row["month"] for row in grid})
+    regions = {row["regionid"] for row in grid}
+    assert months == list(range(1, 13))
+    assert len(regions) == rolling["n_regions"]
+    assert len(grid) == len(months) * len(regions)
+    for row in grid:
+        assert 0 <= row["relative_coverage"] <= 1
+        # The four constructions must exist per cell, or the comparison is partial.
+        for key in (
+            "relative_coverage",
+            "constant_coverage",
+            "regime_conditional_coverage",
+            "regime_relative_coverage",
+        ):
+            assert row[key] is not None
+    sim = [row for row in grid if row["sim_site"]]
+    assert len(sim) == 4 * 12
+
+
+def test_uncertainty_carries_all_four_constructions() -> None:
+    """The comparison table is the finding; a missing block would silently drop it."""
+    rolling = client.get("/api/uncertainty").json()["rolling"]
+    for key in ("relative", "constant", "regime_conditional", "regime_relative"):
+        assert rolling[key] is not None, key
+    # Verdict the numbers support: the pooled relative band wins.
+    assert (
+        rolling["relative"]["mean_coverage_positive_forecast"]
+        > rolling["regime_conditional"]["mean_coverage_positive_forecast"]
+    )
+    assert (
+        rolling["regime_conditional"]["mean_half_width_pct_of_forecast"]
+        > rolling["regime_relative"]["mean_half_width_pct_of_forecast"]
+    )

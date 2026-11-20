@@ -232,6 +232,7 @@ def uncertainty() -> dict[str, Any]:
             "n_evaluation_slots": rolling.get("n_evaluation_slots"),
             "relative": rolling.get("relative"),
             "constant": rolling.get("constant"),
+            "regime_relative": rolling.get("regime_relative"),
             "regime_conditional": rolling.get("regime_conditional"),
             "residual_structure": rolling.get("residual_structure"),
             "decision_relevance": {
@@ -243,6 +244,23 @@ def uncertainty() -> dict[str, Any]:
             "sim_sites": rolling.get("sim_sites"),
             "by_region": sorted(by_region, key=lambda row: row["mean_coverage"] or 0),
             "by_month": by_month,
+            # One row per (region, month). A mean of 90% can hide half the cells
+            # being wrong, so the frontend renders the grid rather than the mean.
+            "grid": [
+                {
+                    "month": cell.get("month"),
+                    "regionid": cell.get("regionid"),
+                    "shortname": cell.get("shortname"),
+                    "sim_site": cell.get("is_sim_site"),
+                    "relative_coverage": cell.get("relative_coverage"),
+                    "constant_coverage": cell.get("constant_coverage"),
+                    "regime_conditional_coverage": cell.get("regime_coverage"),
+                    "regime_relative_coverage": cell.get("regime_relative_coverage"),
+                    "mean_forecast_gco2_per_kwh": cell.get("mean_forecast_gco2_per_kwh"),
+                    "n_eval": cell.get("n_eval"),
+                }
+                for cell in rolling.get("cells", [])
+            ],
         },
     }
 

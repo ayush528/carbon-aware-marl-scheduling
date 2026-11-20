@@ -4,7 +4,7 @@ ID     ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help setup lint format test check exp-new exp-run exp-show rollback \
-        data-fetch sc-setup sc-uk-data sc-uk-install docker-build docker-test clean
+        data-fetch sc-setup sc-uk-data sc-uk-install api web-install web-dev web-build clean
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -49,6 +49,15 @@ data-pull-national: ## Pull national carbon intensity: make data-pull-national S
 
 api: ## Serve the experiment API on :8000 (consumed by the Next.js frontend)
 	$(PYTHON) -m uvicorn services.api.main:app --host 127.0.0.1 --port 8000
+
+web-install: ## Install the frontend's pinned Node dependencies
+	cd web && npm ci
+
+web-dev: ## Run the frontend on :3000 (needs `make api` in another shell)
+	cd web && npm run dev
+
+web-build: ## Typecheck and build the frontend
+	cd web && npm run typecheck && npm run build
 
 sc-setup: ## Fetch the external SustainCluster checkout + its venv (exp008)
 	bash scripts/sc_setup.sh
