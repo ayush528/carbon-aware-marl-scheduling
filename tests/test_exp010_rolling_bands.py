@@ -303,3 +303,51 @@ def test_cells_expose_the_zero_forecast_share(config: dict[str, Any]) -> None:
     assert "mean_coverage_positive_forecast" in metrics["relative"]
     assert "mean_coverage_all_slots" in metrics["relative"]
     assert "zero_forecast_slot_pct" in metrics["relative"]
+
+
+# --- residual structure and regime-conditional bands ------------------------
+# Measured on 2024: |error| grows with intensity up to ~150 g/kWh, while
+# |error|/forecast falls from ~12% at low intensity to ~3% at high. A band that
+# is a fixed *fraction* of the forecast is therefore too tight exactly where a
+# scheduler wants to move work (low carbon) and far too wide where it does not.
+# A band calibrated per intensity regime fixes both ends.
+
+
+def test_intensity_buckets_tile_the_whole_range() -> None:
+    edges = exp010.INTENSITY_EDGES
+    assert exp010._bucket(0) == 0
+    assert exp010._bucket(49.999) == 0
+    assert exp010._bucket(edges[0]) == 1  # edges are upper bounds, exclusive
+    assert exp010._bucket(1e9) == len(edges)
+
+
+def test_regime_quantiles_use_each_bucket_and_fall_back_when_thin() -> None:
+    scores = [(10, 2.0)] * 50 + [(120, 9.0)] * 50  # low and mid regimes
+    q, fallbacks = exp010._regime_quantiles(scores, alpha=0.1, fallback=5.0)
+    low, mid = exp010._bucket(10), exp010._bucket(120)
+    assert q[low] == pytest.approx(2.0, abs=0.01)
+    assert q[mid] == pytest.approx(9.0, abs=0.01)
+    # Buckets with no calibration data (or too few points) borrow the global q
+    # and say so, rather than silently producing a zero-width band.
+    assert q[exp010._bucket(999)] == pytest.approx(5.0)
+    assert fallbacks > 0
+
+
+def test_regime_bands_fix_the_misallocation_of_a_relative_band() -> None:
+    """Errors are absolute-constant per level; a relative band still misfits."""
+    national = [
+        # low intensity: errors of 10 g/kWh on a 40 forecast (25% relative)
+        {"from": "a", "forecast": 40, "actual": 50},
+        {"from": "b", "forecast": 40, "actual": 30},
+        # high intensity: errors of 10 g/kWh on a 300 forecast (3.3% relative)
+        {"from": "c", "forecast": 300, "actual": 310},
+        {"from": "d", "forecast": 300, "actual": 290},
+    ]
+    low = national[0]
+    high = national[2]
+    assert exp010._bucket(low["forecast"]) != exp010._bucket(high["forecast"])
+    # A single relative q must satisfy the 25% bucket, so it is 3x too wide above.
+    q_rel = exp010.conformal_quantile(
+        [abs(r["actual"] - r["forecast"]) / r["forecast"] for r in national], alpha=0.5
+    )
+    assert 300 * q_rel > 3 * 40 * q_rel  # width scales with level, error does not

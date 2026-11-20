@@ -56,6 +56,13 @@ ALPHA = 0.1
 TARGET = 1 - ALPHA
 CALIB_DAYS = 28
 
+# Intensity regimes for regime-conditional (Mondrian) calibration, in
+# gCO2/kWh. Measured on 2024, |error| grows with intensity up to ~150 and
+# |error|/forecast falls from ~12% at 30 g/kWh to ~3% at 250, so a band that
+# scales with the forecast is too tight at low intensity (where work moves) and
+# too wide at high intensity. Calibrating per regime keeps both ends honest.
+INTENSITY_EDGES = (50.0, 100.0, 150.0, 200.0, 300.0)  # upper bounds
+
 # The four regions the simulator schedules on (exp009), by NESO region id.
 SIM_SITES = {13: "GB-London", 7: "GB-SouthWales", 3: "GB-NorthWestEngland", 2: "GB-SouthScotland"}
 
@@ -154,13 +161,16 @@ def _band_coverage(
         if r.get("actual") is not None and r.get("forecast") not in (None, 0)
     }
     n_all = n_zero = inside_all = n_pos = inside_pos = 0
+    widths: list[float] = []
     for reg in regional:
         nat_row = nat.get(reg["from"])
         forecast = reg.get("forecast")
         if nat_row is None or forecast is None:
             continue
         residual = abs(nat_row["actual"] - nat_row["forecast"]) * forecast / nat_row["forecast"]
-        covered = residual <= half_width(forecast)
+        width = half_width(forecast)
+        widths.append(width)
+        covered = residual <= width
         n_all += 1
         inside_all += covered
         if forecast > 0:
@@ -176,6 +186,7 @@ def _band_coverage(
         "n_all": n_all,
         "n_zero_forecast": n_zero,
         "zero_forecast_pct": 100 * n_zero / n_all,
+        "mean_half_width": sum(widths) / len(widths) if widths else None,
     }
 
 
@@ -219,6 +230,49 @@ def _ranking_certainty(
     return slots, robust, ratios
 
 
+def _bucket(forecast: float) -> int:
+    """Regime index: first edge strictly above the forecast, else the last one."""
+    for index, edge in enumerate(INTENSITY_EDGES):
+        if forecast < edge:
+            return index
+    return len(INTENSITY_EDGES)
+
+
+def _regime_quantiles(
+    scores: list[tuple[float, float]], alpha: float, fallback: float
+) -> tuple[dict[int, float], int]:
+    """One conformal quantile per intensity regime, falling back when thin.
+
+    ``scores`` is (forecast, |error|) pairs. A regime with fewer than
+    ``1/alpha + 1`` calibration points cannot support its own finite-sample
+    quantile, so it borrows the global one and the fallback count says how often
+    that happened -- a silent zero-width band would be worse.
+    """
+    by_bucket: dict[int, list[float]] = defaultdict(list)
+    for forecast, residual in scores:
+        by_bucket[_bucket(forecast)].append(residual)
+    minimum = int(1.0 / alpha) + 1
+    quantiles: dict[int, float] = {}
+    fallbacks = 0
+    for bucket in range(len(INTENSITY_EDGES) + 1):
+        values = by_bucket.get(bucket, [])
+        if len(values) >= minimum:
+            quantiles[bucket] = conformal_quantile(values, alpha)
+        else:
+            quantiles[bucket] = fallback
+            fallbacks += 1
+    return quantiles, fallbacks
+
+
+def _scores(records: list[dict[str, Any]]) -> list[tuple[float, float]]:
+    """(forecast, |actual - forecast|) for every slot with both."""
+    return [
+        (r["forecast"], abs(r["actual"] - r["forecast"]))
+        for r in records
+        if r.get("forecast") not in (None, 0) and r.get("actual") is not None
+    ]
+
+
 def _rounded(value: float | None) -> float | None:
     return None if value is None else round(value, 4)
 
@@ -251,6 +305,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
 
     cells: list[dict[str, Any]] = []
     monthly: dict[str, Any] = {}
+    regime_fallbacks_total = 0
     for month in range(1, 13):
         eval_start, eval_end = _month_bounds(year, month)
         calib_start = eval_start - timedelta(days=CALIB_DAYS)
@@ -258,6 +313,10 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         calib_national = _slice(national_index, calib_start, eval_start)
         eval_national = _slice(national_index, eval_start, eval_end)
         q_rel = conformal_quantile(_relative_errors(calib_national), ALPHA)
+        calib_scores = _scores(calib_national)
+        q_abs = conformal_quantile([e for _, e in calib_scores], ALPHA)
+        regime_q, regime_fallbacks = _regime_quantiles(calib_scores, ALPHA, q_abs)
+        regime_fallbacks_total += regime_fallbacks
         # Under national scaling a region's relative error equals the national
         # one, so the relative construction's coverage is the national coverage.
         coverage_from_national = _coverage(_relative_errors(eval_national), q_rel)
@@ -285,6 +344,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             mean_fc = sum(r["forecast"] for r in eval_reg) / len(eval_reg)
             rel = _band_coverage(eval_reg, eval_national, lambda f, q=q_rel: q * f)
             con = _band_coverage(eval_reg, eval_national, lambda _f, q=q_const: q)
+            reg = _band_coverage(eval_reg, eval_national, lambda f, q=regime_q: q[_bucket(f)])
             cells.append(
                 {
                     "month": month,
@@ -301,6 +361,9 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                     "relative_coverage_all_slots": round(rel["all"], 4),
                     "constant_coverage": _rounded(con["positive"]),
                     "constant_coverage_all_slots": round(con["all"], 4),
+                    "regime_coverage": _rounded(reg["positive"]),
+                    "regime_coverage_all_slots": round(reg["all"], 4),
+                    "regime_half_width_gco2_per_kwh": round(reg["mean_half_width"] or 0, 2),
                     "constant_half_width_gco2_per_kwh": round(q_const, 2),
                     "relative_half_width_pct": round(100 * q_rel, 2),
                     "mean_forecast_gco2_per_kwh": round(mean_fc, 1),
@@ -358,6 +421,54 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 / _mean(own, "mean_forecast_gco2_per_kwh")
             ),
         }
+
+    # --- residual structure: is the error proportional to the level? --------
+    # If it were, a relative band would be right. Measured 2024 says it is not:
+    # absolute error grows with intensity while relative error falls, so a
+    # relative band over-covers high-intensity slots and under-covers low ones.
+    year_scores = _scores(national)
+    structure: list[dict[str, Any]] = []
+    for bucket in range(len(INTENSITY_EDGES) + 1):
+        lo = 0.0 if bucket == 0 else INTENSITY_EDGES[bucket - 1]
+        hi = INTENSITY_EDGES[bucket] if bucket < len(INTENSITY_EDGES) else None
+        own = [(f, e) for f, e in year_scores if _bucket(f) == bucket]
+        if not own:
+            continue
+        errors = sorted(e for _, e in own)
+        structure.append(
+            {
+                "lo": lo,
+                "hi": hi,
+                "n": len(own),
+                "mean_abs_error": round(sum(errors) / len(errors), 2),
+                "q90_abs_error": round(errors[int(0.9 * (len(errors) - 1))], 2),
+                "mean_relative_error": round(sum(e / f for f, e in own) / len(own), 4),
+            }
+        )
+
+    # Alignment diagnostic: how much of the residual is pairing, not forecast
+    # skill? The documented pairing is same-slot (shift 0); this only reports
+    # whether a lead/lag would look better, and is never used for calibration.
+    ordered = sorted(national, key=lambda r: _ts(r["from"]))
+    alignment: dict[str, Any] = {"by_shift_slots": {}}
+    for shift in (-3, -2, -1, 0, 1, 2, 3):
+        pairs = []
+        for i in range(max(0, -shift), min(len(ordered), len(ordered) - shift)):
+            a, b = ordered[i], ordered[i + shift]
+            if a.get("forecast") and b.get("actual") is not None:
+                pairs.append(abs(b["actual"] - a["forecast"]))
+        if pairs:
+            alignment["by_shift_slots"][str(shift)] = round(sum(pairs) / len(pairs), 2)
+    if alignment["by_shift_slots"]:
+        best = min(alignment["by_shift_slots"].items(), key=lambda kv: kv[1])
+        alignment["best_shift_slots"] = int(best[0])
+        alignment["used_for_calibration"] = False
+        alignment["note"] = (
+            "Same-slot pairing (shift 0) is the documented one and is what every "
+            "number here uses. The best-shift column only shows how much of the "
+            "residual could be a timestamp convention rather than forecast error; "
+            "the optimum was not stable across windows, so no shift is applied."
+        )
 
     sim_cells = [c for c in cells if c["is_sim_site"]]
     n_eval_total = sum(c["n_eval"] for c in cells)
@@ -435,6 +546,35 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 min(_values(sim_cells, "relative_coverage"), default=0)
             ),
             "cells_at_target_pct": _at_target(sim_cells, "relative_coverage"),
+        },
+        "regime_conditional": {
+            "note": (
+                "Conformal on the absolute residual, one quantile per intensity "
+                "regime (edges in INTENSITY_EDGES). Keeps the guarantee inside "
+                "each regime instead of averaging over all of them."
+            ),
+            "edges_gco2_per_kwh": list(INTENSITY_EDGES),
+            "mean_coverage_positive_forecast": _rounded(_mean(cells, "regime_coverage")),
+            "min_cell_coverage": _rounded(min(_values(cells, "regime_coverage"), default=0)),
+            "cells_at_target_pct": _at_target(cells, "regime_coverage"),
+            "mean_half_width_pct_of_forecast": round(
+                sum(
+                    100 * c["regime_half_width_gco2_per_kwh"] / c["mean_forecast_gco2_per_kwh"]
+                    for c in cells
+                )
+                / len(cells),
+                2,
+            ),
+            "thin_regime_fallbacks": regime_fallbacks_total,
+        },
+        "residual_structure": {
+            "note": (
+                "Error is not proportional to intensity: |error| grows with the "
+                "level while |error|/forecast falls. That is why a single "
+                "relative band misallocates width."
+            ),
+            "by_bucket": structure,
+            "alignment": alignment,
         },
         "decision_relevance": {
             "note": (
