@@ -4,7 +4,7 @@ ID     ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help setup lint format test check exp-new exp-run exp-show rollback \
-        data-fetch sc-setup sc-uk-data sc-uk-install api web-install web-dev web-build clean
+        data-fetch sc-setup sc-uk-data sc-uk-install api web-install web-dev web-build viz-up viz-down clean
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -58,6 +58,12 @@ web-dev: ## Run the frontend on :3000 (needs `make api` in another shell)
 
 web-build: ## Typecheck and build the frontend
 	cd web && npm run typecheck && npm run build
+
+viz-up: ## Run the visualization service (frontend + backend) in Docker
+	docker compose up --build viz-api viz-web
+
+viz-down: ## Stop the visualization service
+	docker compose down
 
 sc-setup: ## Fetch the external SustainCluster checkout + its venv (exp008)
 	bash scripts/sc_setup.sh

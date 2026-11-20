@@ -134,6 +134,16 @@ degenerate (+3.11% carbon); and the cluster reset **jitters the data window**
 clock on the same window before verifying carbon against it → Phase 3: agents
 (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 
+**Service boundary.** The scheduler (`src/carbon_scheduling/`,
+`experiments/`) and the visualization service (`web/` + `services/api/`) are
+separate deployables with a one-way contract: the visualization reads committed
+run records and never imports the scheduler package. The scheduler image
+(`docker/Dockerfile`) does not contain the visualization code; the
+visualization has its own images (`docker/Dockerfile.viz-api`,
+`docker/Dockerfile.viz-web`) and compose services (`make viz-up`). This keeps
+the UI independent of scheduler internals and lets the scheduler become a
+service the visualization consumes later.
+
 **Experiment framework (working today):**
 
 | Component | File | Role |
