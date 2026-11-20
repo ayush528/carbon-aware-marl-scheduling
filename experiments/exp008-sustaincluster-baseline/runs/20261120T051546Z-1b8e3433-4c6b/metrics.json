@@ -1,0 +1,106 @@
+{
+  "sustaincluster_commit": "3f6ea95cb835b89ba50b0ef76d66d14b8037643e",
+  "days": 7.0,
+  "seed": 42,
+  "n_controllers": 9,
+  "controllers": {
+    "round_robin": {
+      "carbon_kg": 329321.0205,
+      "energy_kwh": 1086317.4504,
+      "energy_cost_usd": 96204.2807,
+      "transmission_cost_usd": 3581.9949,
+      "sla_violation_rate": 0.0,
+      "tasks_finished": 18687,
+      "mean_gpu_util_percent": 11.8646
+    },
+    "lowest_carbon": {
+      "carbon_kg": 308033.0879,
+      "energy_kwh": 1104778.9274,
+      "energy_cost_usd": 94980.4466,
+      "transmission_cost_usd": 3730.1731,
+      "sla_violation_rate": 0.0098,
+      "tasks_finished": 18687,
+      "mean_gpu_util_percent": 11.302
+    },
+    "lowest_price": {
+      "carbon_kg": 325837.0107,
+      "energy_kwh": 1088611.3636,
+      "energy_cost_usd": 89520.3259,
+      "transmission_cost_usd": 3797.6183,
+      "sla_violation_rate": 0.0042,
+      "tasks_finished": 18687,
+      "mean_gpu_util_percent": 11.3216
+    },
+    "most_available": {
+      "carbon_kg": 326811.2007,
+      "energy_kwh": 1164297.1912,
+      "energy_cost_usd": 104449.7267,
+      "transmission_cost_usd": 2960.3608,
+      "sla_violation_rate": 0.017,
+      "tasks_finished": 18687,
+      "mean_gpu_util_percent": 15.5697
+    },
+    "least_pending": {
+      "carbon_kg": 328133.2017,
+      "energy_kwh": 1084772.7642,
+      "energy_cost_usd": 96112.0177,
+      "transmission_cost_usd": 3678.2407,
+      "sla_violation_rate": 0.0,
+      "tasks_finished": 18687,
+      "mean_gpu_util_percent": 11.6255
+    },
+    "sac:train_multiaction_defer_20250527_210534": {
+      "carbon_kg": 313969.1817,
+      "energy_kwh": 1088864.169,
+      "energy_cost_usd": 91888.2845,
+      "transmission_cost_usd": 3553.6748,
+      "sla_violation_rate": 0.4807,
+      "tasks_finished": 18658,
+      "mean_gpu_util_percent": 10.6157
+    },
+    "sac:train_multiaction_nodefer_20250527_212105": {
+      "carbon_kg": 310714.7755,
+      "energy_kwh": 1109745.7743,
+      "energy_cost_usd": 94582.3643,
+      "transmission_cost_usd": 3789.8134,
+      "sla_violation_rate": 0.2729,
+      "tasks_finished": 18672,
+      "mean_gpu_util_percent": 11.6414
+    },
+    "sac:train_single_action_enable_defer_20250527_222926": {
+      "carbon_kg": 306533.4819,
+      "energy_kwh": 1099728.8715,
+      "energy_cost_usd": 93967.5,
+      "transmission_cost_usd": 3550.8573,
+      "sla_violation_rate": 0.4173,
+      "tasks_finished": 18598,
+      "mean_gpu_util_percent": 10.6683
+    },
+    "sac:train_single_action_disable_defer_20250527_223002": {
+      "carbon_kg": 310171.5101,
+      "energy_kwh": 1097158.4057,
+      "energy_cost_usd": 92096.6079,
+      "transmission_cost_usd": 3893.4866,
+      "sla_violation_rate": 0.2693,
+      "tasks_finished": 18672,
+      "mean_gpu_util_percent": 11.0854
+    }
+  },
+  "carbon_vs_round_robin_pct": {
+    "lowest_carbon": -6.46,
+    "lowest_price": -1.06,
+    "most_available": -0.76,
+    "least_pending": -0.36,
+    "sac:train_multiaction_defer_20250527_210534": -4.66,
+    "sac:train_multiaction_nodefer_20250527_212105": -5.65,
+    "sac:train_single_action_enable_defer_20250527_222926": -6.92,
+    "sac:train_single_action_disable_defer_20250527_223002": -5.81
+  },
+  "best_carbon_controller": "sac:train_single_action_enable_defer_20250527_222926",
+  "best_carbon_kg": 306533.4819,
+  "min_sla_violation_rate": 0.0,
+  "sac_best_carbon_kg": 306533.4819,
+  "sac_min_sla_violation_rate": 0.2693,
+  "rbc_best_carbon_kg": 308033.0879,
+  "rbc_min_sla_violation_rate": 0.0
+}

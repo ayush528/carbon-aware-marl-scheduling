@@ -1,0 +1,31 @@
+id: exp008-sustaincluster-baseline
+title: SustainCluster as-is -- rule-based baselines and shipped SAC checkpoints
+phase: "2-simulator"
+seed: 42
+data:
+  # Exogenous inputs that determine every number below (all upstream-tracked,
+  # re-fetchable via `make sc-setup`; the .pkl is auto-unzipped from the .zip).
+  - external/sustain-cluster/data/workload/alibaba_2020_dataset/result_df_full_year_2020.zip
+  - external/sustain-cluster/data/carbon_intensity/US-CAL-CISO/2023/US-CAL-CISO_2023_hourly.csv
+  - external/sustain-cluster/data/carbon_intensity/DE-LU/2023/DE-LU_2023_hourly.csv
+  - external/sustain-cluster/data/carbon_intensity/CL-SIC/2023/CL-SIC_2023_hourly.csv
+  - external/sustain-cluster/data/carbon_intensity/SG/2023/SG_2023_hourly.csv
+  - external/sustain-cluster/data/carbon_intensity/AU-NSW/2023/AU-NSW_2023_hourly.csv
+
+sustaincluster:
+  checkout: external/sustain-cluster
+  days: 7          # upstream's own Table-1 duration
+  device: cuda     # falls back to cpu when no GPU is present
+  # Upstream sim_config.yaml window: 2023-08-01 05:00Z, 5 sites
+  # (US-CAL-CISO, DE-LU, CL-SIC, SG, AU-NSW), 15-minute timesteps.
+  baselines:
+    - round_robin
+    - lowest_carbon
+    - lowest_price
+    - most_available
+    - least_pending
+  checkpoints:
+    - checkpoints/train_multiaction_defer_20250527_210534/best_eval_checkpoint.pth
+    - checkpoints/train_multiaction_nodefer_20250527_212105/best_eval_checkpoint.pth
+    - checkpoints/train_single_action_enable_defer_20250527_222926/best_eval_checkpoint.pth
+    - checkpoints/train_single_action_disable_defer_20250527_223002/best_eval_checkpoint.pth

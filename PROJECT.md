@@ -112,7 +112,14 @@ validated, mean 50k/peak 155k per slot) →
 **cluster model** `src/carbon_scheduling/cluster.py` (linear idle→peak
 per-GPU power from NLR profiles × PUE; exp007 envelope on the real trace:
 mean u 0.70, 90/336 slots saturate, 0.45 Wh/request — sanity range OK) →
-simulator env (SustainCluster-derived, planned) → Phase 3:
+**external simulator** SustainCluster (MIT, HPE Labs; cloned into a gitignored
+`external/` dir via `make sc-setup`) driven headless — exp008 reproduces it
+unmodified: 5 rule-based controllers + 4 shipped SAC checkpoints, 7 days,
+seed 42. `lowest_carbon` 308,033 kg vs `round_robin` 329,321 kg (−6.5%); no
+SAC checkpoint beats the best heuristic, and all four violate 27–48% of task
+SLAs because upstream's reward config leaves its timeliness penalty disabled.
+UK substitution is not yet done: upstream's GB carbon data is national
+single-zone and hourly, and it ships no GB electricity-price series → Phase 3:
 agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 
 **Experiment framework (working today):**
@@ -198,6 +205,7 @@ docs/
 | 2026-11-09 | exp005: regional bands via national scaling — 12/14 regions ≥ 90% on held-out Feb; **Phase 1 complete** | PR #7 |
 | 2026-11-09 | exp006: Azure LLM trace demand loader validated on the real 1-week sample (16.8M requests) | PR #8 |
 | 2026-11-09 | exp007: cluster energy model + real-trace energy envelope (Phase 2 starts) | PR #9 |
+| 2026-11-20 | exp008: SustainCluster run as-is (5 rule-based controllers + 4 SAC checkpoints) through in-repo headless drivers | branch |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 

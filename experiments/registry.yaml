@@ -84,3 +84,16 @@ experiments:
       knob) for one London-sized site. Records the energy envelope:
       utilization distribution, saturated slots, energy per request
       (sanity range vs DynamoLLM/TAPAS magnitudes).
+
+  - id: exp008-sustaincluster-baseline
+    title: SustainCluster as-is -- rule-based baselines and shipped SAC checkpoints
+    phase: "2-simulator"
+    status: draft
+    rollback_tag: null
+    description: >
+      Runs upstream SustainCluster unmodified (their 5 sites, their carbon
+      data, 7 days, seed 42) through in-repo headless drivers: 5 rule-based
+      controllers plus all 4 shipped SAC checkpoints. Reference point for the
+      NESO substitution. Finding: no SAC checkpoint beats lowest_carbon on
+      carbon, and every SAC checkpoint violates 27-48% of task SLAs because
+      upstream's reward config leaves the timeliness penalty commented out.

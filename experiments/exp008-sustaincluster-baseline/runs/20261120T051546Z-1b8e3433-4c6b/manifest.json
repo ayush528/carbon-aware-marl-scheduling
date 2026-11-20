@@ -1,0 +1,19 @@
+{
+  "exp_id": "exp008-sustaincluster-baseline",
+  "git_sha": "727b870f2ea17d1ea8c9b5b4ef1e44b2da952f9e",
+  "git_dirty": true,
+  "config_hash": "1b8e34334a2c3f97f253698c0d6834fb1e9328e5924646f9772d67a2dd475607",
+  "seed": 42,
+  "data_hashes": {
+    "external/sustain-cluster/data/workload/alibaba_2020_dataset/result_df_full_year_2020.zip": "907090a42863c46887cdf9c66f99ac77b2a3b351544362d8c6c34b9ace6754a9",
+    "external/sustain-cluster/data/carbon_intensity/US-CAL-CISO/2023/US-CAL-CISO_2023_hourly.csv": "44bafab775c6b0d4762b1dc971eb293cfea154f80799a5230f9268d32e1ad55b",
+    "external/sustain-cluster/data/carbon_intensity/DE-LU/2023/DE-LU_2023_hourly.csv": "b6040328169313ca91b28806f3d69191cb6c035f45a7bcdd338a7c090d914dcb",
+    "external/sustain-cluster/data/carbon_intensity/CL-SIC/2023/CL-SIC_2023_hourly.csv": "1f5287c0143ec2638f67ed8f367a13cddfc25f3ba3307c49dd4df6e49d8fc44c",
+    "external/sustain-cluster/data/carbon_intensity/SG/2023/SG_2023_hourly.csv": "d668136330b50887e9736d194586b984b71f32c3192382b7df65739a37839de3",
+    "external/sustain-cluster/data/carbon_intensity/AU-NSW/2023/AU-NSW_2023_hourly.csv": "cc6cea81513c83442219f9b1891d0d514e7fe7a6d0b15fc7447b2fad4b359809"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.15-76070215-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261120T051546Z",
+  "run_dir": "20261120T051546Z-1b8e3433-4c6b"
+}
