@@ -113,3 +113,19 @@ experiments:
       matches, and lowest_carbon cuts carbon 6.9% vs round_robin at 0.1% SLA.
       The workload clock is aligned onto the simulator's jittered data window
       so demand and carbon are the same week.
+
+  - id: exp010-rolling-bands
+    title: Rolling-origin conformal bands on 2024 (calibrate 28 days before each month)
+    phase: "2-simulator"
+    status: draft
+    rollback_tag: null
+    description: >
+      Replaces exp004/exp005's single Jan->Feb split with walk-forward
+      evaluation on 2024. Every month is calibrated on the 28 days before it
+      and evaluated on itself, so the coverage number is what an online
+      scheduler could achieve, and 12 months x 14 DNO regions give 168 cells
+      instead of one. Compares the national-relative band (half-width =
+      forecast x q) against exp005's per-region constant band, and quantifies
+      the decision effect: a proportional band cannot reorder regions, but it
+      raises the carbon-gap ratio a risk-averse rule needs from "any gap" to
+      (1-q)/(1+q).

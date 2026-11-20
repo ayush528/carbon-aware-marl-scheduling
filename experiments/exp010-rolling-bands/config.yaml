@@ -1,0 +1,11 @@
+id: exp010-rolling-bands
+title: Rolling-origin conformal bands on 2024 -- calibrate the 28 days before each month
+phase: "2-simulator"
+seed: 42
+# Rolling origin: every 2024 month is evaluated on a band calibrated only on
+# the 28 days before it, so no evaluation month ever informs its own band.
+# Starts 2023-12-01 so January has a full calibration window.
+year: 2024
+data:
+  - data/uk_national_2023-12_2024-12.json
+  - data/uk_regional_2024_tidy.csv

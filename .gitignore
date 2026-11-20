@@ -12,6 +12,9 @@ __pycache__/
 # Rollback worktrees (created by scripts/rollback.sh)
 .worktrees/
 
+# Per-window pull cache (resume state for flaky APIs), re-fetchable
+data/.cache/
+
 # Large raw datasets -- re-fetchable via scripts/fetch_data.sh
 # (catalog + URLs: docs/datasets/DATASETS.md). Small evidence JSONs are kept.
 docs/datasets/data-audit/downloads/*.csv

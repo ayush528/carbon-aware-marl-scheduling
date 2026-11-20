@@ -284,3 +284,91 @@ def test_load_slot_json_reads_normalized_shape(tmp_path: Path) -> None:
     assert load_slot_json(path) == [
         {"from": "f", "to": "t", "forecast": 90, "actual": 100, "index": "low"}
     ]
+
+
+# --- bulk all-regions regional endpoint --------------------------------------
+# The single-region endpoint costs one request per (region, window); the bulk
+# endpoint returns every region per slot in one request. Verified live
+# 2026-11-20: the two agree slot-for-slot on forecasts, and the bulk payload
+# still carries no actuals. A 14-region year is therefore 52 requests, not 728.
+
+
+def _bulk_payload() -> dict:
+    def region(rid: int, name: str, forecast: int) -> dict:
+        return {
+            "regionid": rid,
+            "dnoregion": "x",
+            "shortname": name,
+            "intensity": {"forecast": forecast, "index": "low"},
+        }
+
+    return {
+        "data": [
+            {
+                "from": "2024-01-15T00:00Z",
+                "to": "2024-01-15T00:30Z",
+                "regions": [region(13, "London", 200), region(2, "South Scotland", 20)],
+            },
+            {
+                "from": "2024-01-15T00:30Z",
+                "to": "2024-01-15T01:00Z",
+                "regions": [region(13, "London", 210), region(2, "South Scotland", 25)],
+            },
+        ]
+    }
+
+
+def test_parse_bulk_regional_flattens_regions_per_slot() -> None:
+    from carbon_scheduling.data.neso import parse_bulk_regional
+
+    records = parse_bulk_regional(_bulk_payload(), max_region_id=14)
+    assert len(records) == 4
+    assert records[0] == {
+        "from": "2024-01-15T00:00Z",
+        "to": "2024-01-15T00:30Z",
+        "regionid": 13,
+        "shortname": "London",
+        "forecast": 200,
+        "actual": None,
+        "index": "low",
+    }
+    # Aggregates (ids 15-18) are dropped: they are not DNO regions.
+    assert {r["regionid"] for r in records} == {13, 2}
+
+
+def test_parse_bulk_regional_keeps_aggregates_when_asked() -> None:
+    from carbon_scheduling.data.neso import parse_bulk_regional
+
+    payload = _bulk_payload()
+    payload["data"][0]["regions"].append(
+        {"regionid": 17, "shortname": "GB", "intensity": {"forecast": 5, "index": "low"}}
+    )
+    assert {r["regionid"] for r in parse_bulk_regional(payload, max_region_id=None)} == {
+        13,
+        2,
+        17,
+    }
+
+
+def test_fetch_regional_bulk_chunks_and_concatenates() -> None:
+    from carbon_scheduling.data.neso import fetch_regional_bulk
+
+    urls: list[str] = []
+
+    def fake_get(url: str):
+        urls.append(url)
+        return 200, _bulk_payload()
+
+    rows = fetch_regional_bulk(
+        "2024-01-01T00:00Z", "2024-01-15T00:00Z", http_get=fake_get, sleep=lambda _: None
+    )
+    assert len(urls) == 2  # 14 days -> exactly two 7-day windows
+    assert "/regional/intensity/" in urls[0]
+    assert len(rows) == 8  # 2 slots x 2 regions x 2 windows
+
+
+def test_fetch_regional_bulk_rejects_bad_window() -> None:
+    from carbon_scheduling.data.neso import fetch_regional_bulk
+
+    with pytest.raises(ValueError):
+        fetch_regional_bulk("2024-01-02T00:00Z", "2024-01-01T00:00Z", http_get=lambda _: (200, {}))

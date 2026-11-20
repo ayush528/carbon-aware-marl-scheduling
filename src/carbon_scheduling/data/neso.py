@@ -140,6 +140,65 @@ def fetch_regional(
     return records
 
 
+def parse_bulk_regional(
+    payload: dict[str, Any], max_region_id: int | None = 14
+) -> list[dict[str, Any]]:
+    """Flatten the all-regions payload into tidy records, one per (slot, region).
+
+    Shape: ``{"data": [{"from", "to", "regions": [{"regionid", "shortname",
+    "intensity": {"forecast", "index"}}]}]}``. The bulk endpoint never ships
+    actuals, so those stay None (the national-scaling estimator supplies them).
+    ``max_region_id=14`` keeps DNO regions only; pass None to keep 15-18 too.
+    """
+    records: list[dict[str, Any]] = []
+    for slot in payload.get("data", []) or []:
+        for region in slot.get("regions", []) or []:
+            rid = region.get("regionid")
+            if max_region_id is not None and rid is not None and rid > max_region_id:
+                continue
+            intensity = region.get("intensity", {}) or {}
+            records.append(
+                {
+                    "from": slot.get("from"),
+                    "to": slot.get("to"),
+                    "regionid": rid,
+                    "shortname": region.get("shortname"),
+                    "forecast": intensity.get("forecast"),
+                    "actual": intensity.get("actual"),
+                    "index": intensity.get("index"),
+                }
+            )
+    return records
+
+
+def fetch_regional_bulk(
+    start: str,
+    end: str,
+    http_get: HttpGet | None = None,
+    retries: int = 3,
+    sleep: Callable[[float], None] | None = None,
+) -> list[dict[str, Any]]:
+    """Fetch every region's half-hourly forecast over [start, end) in one pass.
+
+    One request per <=7-day window instead of one per (region, window): a
+    14-region year is 52 requests rather than 728. Verified slot-for-slot
+    against ``fetch_regional`` on a live day (2026-11-20), which is what makes
+    the cheaper path admissible. Forecasts only -- the bulk endpoint has no
+    actuals.
+    """
+    if http_get is None:
+        http_get = _urllib_get
+    if sleep is None:
+        sleep = time.sleep
+
+    records: list[dict[str, Any]] = []
+    for window_start, window_end in chunk_windows(start, end):
+        url = f"{BASE}/regional/intensity/{window_start}/{window_end}"
+        payload = _get_with_retry(url, http_get, retries, sleep)
+        records.extend(parse_bulk_regional(payload))
+    return records
+
+
 def _get_with_retry(
     url: str, http_get: HttpGet, retries: int, sleep: Callable[[float], None]
 ) -> dict[str, Any]:
