@@ -126,13 +126,13 @@ by the simulator's own accounting matches the input series over the window it
 actually read (max error 0.77 gCO₂/kWh, 0.32%), the site ordering matches, and
 `lowest_carbon` cuts 6.87% vs `round_robin` at 0.1% SLA. Window: 2024-01-09
 18:00Z + 7 days; regional spread 263 gCO₂/kWh (South Wales 338 vs South
-Scotland 74). Three upstream limits
-the UK run must disclose: GB has one AWS region, so **transmission cost is
-exactly 0** and that term is inoperative; the price series is national, so
-`lowest_price` has nothing to differentiate and is degenerate (+3.5% carbon);
-and the cluster reset **jitters the data window** ±7 days/random hour, so the
-drivers probe that seeded draw and put the workload clock on the same window
-before verifying carbon against it → Phase 3: agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
+Scotland 74). Three upstream limits the UK run must disclose: GB has one AWS
+region, so **transmission cost is exactly 0** and that term is inoperative; the
+price series is national, so `lowest_price` has nothing to differentiate and is
+degenerate (+3.11% carbon); and the cluster reset **jitters the data window**
+±7 days/random hour, so the drivers probe that seeded draw and put the workload
+clock on the same window before verifying carbon against it → Phase 3: agents
+(heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 
 **Experiment framework (working today):**
 
