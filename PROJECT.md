@@ -118,9 +118,19 @@ unmodified: 5 rule-based controllers + 4 shipped SAC checkpoints, 7 days,
 seed 42. `lowest_carbon` 308,033 kg vs `round_robin` 329,321 kg (−6.5%); no
 SAC checkpoint beats the best heuristic, and all four violate 27–48% of task
 SLAs because upstream's reward config leaves its timeliness penalty disabled.
-UK substitution is not yet done: upstream's GB carbon data is national
-single-zone and hourly, and it ships no GB electricity-price series → Phase 3:
-agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
+UK substitution is **done** (exp009): four UK sites (London, South Wales,
+North West England, South Scotland) are fed by our derived NESO regional
+series and a real GB wholesale price series (Elexon Market Index Data) written
+in upstream's CSV schema. Exit test **passed**: the per-site intensity implied
+by the simulator's own accounting matches the input series over the window it
+actually read (max error 0.42 gCO₂/kWh, 0.18%), the site ordering matches, and
+`lowest_carbon` cuts 7.01% vs `round_robin` at 0.1% SLA. Three upstream limits
+the UK run must disclose: GB has one AWS region, so **transmission cost is
+exactly 0** and that term is inoperative; the price series is national, so
+`lowest_price` has nothing to differentiate and is degenerate (+3.5% carbon);
+and the cluster reset **jitters the data window** ±7 days/random hour, so
+carbon is verified against the jittered window, not the configured date →
+Phase 3: agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 
 **Experiment framework (working today):**
 
@@ -137,6 +147,9 @@ agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 | Conformal bands | `src/carbon_scheduling/bands.py` | `conformal_quantile` (finite-sample corrected), `absolute_residuals`, `regional_residuals` (national-scaling estimator), `coverage` — deterministic, stdlib-only |
 | Demand loader | `src/carbon_scheduling/demand.py` | `requests_per_slot(path, slot_minutes=30)`: streams the Azure LLM trace (16.8M rows) into per-slot arrivals + token sums on the NESO half-hour grid; idle slots zero-filled |
 | Cluster model | `src/carbon_scheduling/cluster.py` | `Site` (NLR idle→peak W per GPU, PUE, throughput knob) + `slot_energy(demand, site)` → per-slot GPU-seconds, utilization (raw, may exceed 1; capped at peak power), kWh |
+| Simulator adapter | `src/carbon_scheduling/sim/sustaincluster.py` | resolves the external checkout + its python, runs the headless drivers with `cwd=checkout` (upstream reads `configs/`/`data/` relatively), parses their JSON; passes UK overrides (site list, window, reward, explicit day index, transmission-region map) only when asked |
+| UK input puller | `make sc-uk-data` (`scripts/sustaincluster/pull_uk_inputs.py`) | NESO regional carbon (national-scaling estimate, hourly) + Elexon GB prices (GBP→USD at the ECB 2024 mean) → `data/sustaincluster_uk/` + `provenance.json` |
+| UK input installer | `make sc-uk-install` (`scripts/sustaincluster/install_uk_inputs.py`) | writes those series into the simulator's hardcoded paths, forward-fills the 15 missing NESO hours, symlinks GB weather per site, emits an install manifest (rows/fills/sha256) |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -174,6 +187,7 @@ docs/
 | `make exp-show EXP=...` | config + tag + run history + latest metrics |
 | `make rollback EXP=...` | worktree at the experiment's tag |
 | `make data-fetch TARGET=uk-month` | re-fetch audit datasets |
+| `make sc-uk-data` / `make sc-uk-install` | pull the 2024 UK carbon + price inputs, then install them into the simulator checkout |
 | `make docker-build` / `docker-test` | build image / run tests in it |
 | `docker compose run --rm exp` with `EXP=...` | run experiment in container, records land on host |
 
@@ -191,6 +205,18 @@ docs/
   `national_actual x regional_forecast / national_forecast` — disclosed
   assumption (findings-and-plan.md risk table). Bands work (exp004+) builds
   on this.
+- **The 2024 NESO pull has a real outage**: 15 hourly slots missing on 11–12
+  Jun 2024 in every region (8769 of 8784 rows). The simulator indexes carbon
+  positionally, so the installer forward-fills them (count recorded in the
+  install manifest). Carbon is not interpolated anywhere else; `provenance.json`
+  records row counts, paired slots and gaps per site.
+- **GB electricity price is national, not regional**: Elexon Market Index Data
+  (GBP/MWh, half-hourly → hourly mean) converted to USD/MWh at the mean ECB
+  2024 rate (1.2786). Regional wholesale-price differences are not modelled,
+  so `lowest_price` cannot differentiate UK sites — report it as degenerate.
+- **GB has exactly one AWS region** (`eu-west-2`), so the simulator's
+  transmission-cost matrix is 0 on the diagonal and the term is inoperative for
+  a UK-only run. Never read that as a finding about transmission cost.
 
 ## Status / milestone log
 
@@ -206,6 +232,7 @@ docs/
 | 2026-11-09 | exp006: Azure LLM trace demand loader validated on the real 1-week sample (16.8M requests) | PR #8 |
 | 2026-11-09 | exp007: cluster energy model + real-trace energy envelope (Phase 2 starts) | PR #9 |
 | 2026-11-20 | exp008: SustainCluster run as-is (5 rule-based controllers + 4 SAC checkpoints) through in-repo headless drivers | branch |
+| 2026-11-20 | exp009: SustainCluster on 4 UK sites with NESO regional carbon + Elexon prices; **Phase 2 exit test passed** (simulated vs input intensity max err 0.42 gCO₂/kWh, ordering matches; `lowest_carbon` −7.01% vs RR at 0.1% SLA) | branch |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 
@@ -217,10 +244,15 @@ docs/
 | 3. Agents | 11–18 | RR/EDF/carbon-greedy → centralized PPO → IPPO → MAPPO → +CVaR | each level beats/matches previous |
 | 4. Evaluate & write | 19–24 | ablations, robustness, thesis | claims inside EuroSys-2024 envelope |
 
-## Next up (Phase 1 — data freeze)
+## Next up (Phase 2 — simulator)
 
-- [ ] Guide sign-off on `docs/research/report/executive-summary.md` (Step 0 gate)
-- [ ] NESO 14-region long-window puller, chunked weekly (`src/data/`)
-- [ ] Forecast-error conformal bands; coverage eval on held-out month (exp002+)
-- [ ] Azure LLM trace sampled stream loader + demand-model sketch
-- [ ] Branch protection on `main` requiring CI checks
+- [x] ~~Guide sign-off on `docs/research/report/executive-summary.md` (Step 0 gate)~~
+- [x] ~~NESO 14-region puller, conformal bands (exp002–005), Azure trace loader (exp006) — Phase 1 complete~~
+- [x] Branch protection on `main` requiring CI checks
+- [x] Cluster energy model (exp007) — NLR power × PUE, real-trace envelope sanity-checked
+- [x] ~~Run SustainCluster as-is — reproduce their baseline~~ (exp008)
+- [x] ~~Swap in NESO regional carbon + real GB prices for four UK sites~~ (exp009); exit test
+      passed. Upstream limits found: GB has one AWS region (transmission cost = 0), the price is
+      national (`lowest_price` degenerate), and the cluster reset jitters the data window.
+- [ ] Bands into observations (recalibrate exp004/exp005 on the 2024 window first)
+- [ ] Phase 3 start: IPPO/MAPPO + CVaR against these UK baselines

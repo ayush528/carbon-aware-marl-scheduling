@@ -97,3 +97,17 @@ experiments:
       NESO substitution. Finding: no SAC checkpoint beats lowest_carbon on
       carbon, and every SAC checkpoint violates 27-48% of task SLAs because
       upstream's reward config leaves the timeliness penalty commented out.
+
+  - id: exp009-uk-sites
+    title: SustainCluster on four UK sites -- NESO regional carbon, Elexon prices
+    phase: "2-simulator"
+    status: draft
+    rollback_tag: null
+    description: >
+      Re-runs exp008's unmodified simulator code but swaps in four UK sites
+      (London, South Wales, North West England, South Scotland) fed by real
+      NESO regional carbon and real GB wholesale prices (Elexon MID, GBP->USD
+      at the ECB 2024 mean). Phase 2 exit test: the per-site intensity implied
+      by the simulator's own accounting matches the input series over the
+      window it actually read (max error 0.42 gCO2/kWh), the site ordering
+      matches, and lowest_carbon cuts carbon 7.0% vs round_robin at 0.1% SLA.

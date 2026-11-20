@@ -38,6 +38,10 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--init-day-of-year", type=int, default=None)
+    ap.add_argument("--sim-config", type=Path, default=None)
+    ap.add_argument("--datacenters", type=Path, default=None)
+    ap.add_argument("--reward-config", type=Path, default=None)
     args = ap.parse_args()
 
     checkout = Path(args.checkout).resolve()
@@ -53,6 +57,10 @@ def main() -> int:
         days=args.days,
         single_action=single_action,
         disable_defer=disable_defer,
+        init_day_of_year=args.init_day_of_year,
+        sim_config_path=args.sim_config,
+        datacenters_path=args.datacenters,
+        reward_config_path=args.reward_config,
     )
     policy = greedy_policy(actor, single_action, device)
     metrics = run_episode(env, days=args.days, seed=args.seed, policy=policy)
@@ -68,6 +76,10 @@ def main() -> int:
         "device": device,
         "seed": args.seed,
         "days": args.days,
+        "init_day_of_year": args.init_day_of_year,
+        "sim_config": str(args.sim_config) if args.sim_config else None,
+        "datacenters": str(args.datacenters) if args.datacenters else None,
+        "reward_config": str(args.reward_config) if args.reward_config else None,
         **metrics.summary(),
     }
     out = Path(args.out)

@@ -90,6 +90,25 @@ def _invoke(driver: Path, checkout: Path, python: str, argv: list[str]) -> dict[
     return json.loads(out_path.read_text())
 
 
+def _config_flags(
+    init_day_of_year: int | None,
+    sim_config: str | Path | None,
+    datacenters: str | Path | None,
+    reward_config: str | Path | None,
+) -> list[str]:
+    """Only pass overrides that were asked for (keeps upstream runs untouched)."""
+    flags: list[str] = []
+    if init_day_of_year is not None:
+        flags += ["--init-day-of-year", str(init_day_of_year)]
+    if sim_config is not None:
+        flags += ["--sim-config", str(sim_config)]
+    if datacenters is not None:
+        flags += ["--datacenters", str(datacenters)]
+    if reward_config is not None:
+        flags += ["--reward-config", str(reward_config)]
+    return flags
+
+
 def run_strategy(
     checkout: Path,
     python: str,
@@ -98,13 +117,27 @@ def run_strategy(
     days: float,
     seed: int,
     out_path: Path,
+    init_day_of_year: int | None = None,
+    sim_config: str | Path | None = None,
+    datacenters: str | Path | None = None,
+    reward_config: str | Path | None = None,
 ) -> dict[str, Any]:
     """Run one rule-based controller headless; return its metrics JSON."""
     return _invoke(
         BASELINE_DRIVER,
         checkout,
         python,
-        ["--strategy", strategy, "--days", str(days), "--seed", str(seed), "--out", str(out_path)],
+        [
+            "--strategy",
+            strategy,
+            "--days",
+            str(days),
+            "--seed",
+            str(seed),
+            "--out",
+            str(out_path),
+            *_config_flags(init_day_of_year, sim_config, datacenters, reward_config),
+        ],
     )
 
 
@@ -117,6 +150,10 @@ def run_checkpoint(
     seed: int,
     out_path: Path,
     device: str = "cpu",
+    init_day_of_year: int | None = None,
+    sim_config: str | Path | None = None,
+    datacenters: str | Path | None = None,
+    reward_config: str | Path | None = None,
 ) -> dict[str, Any]:
     """Evaluate one shipped SAC checkpoint headless; return its metrics JSON."""
     return _invoke(
@@ -134,5 +171,6 @@ def run_checkpoint(
             device,
             "--out",
             str(out_path),
+            *_config_flags(init_day_of_year, sim_config, datacenters, reward_config),
         ],
     )

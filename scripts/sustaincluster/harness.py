@@ -66,6 +66,30 @@ def base_configs(checkout: Path) -> tuple[dict, dict, dict]:
     )
 
 
+_REGION_MAPS = {
+    "aws": "location_to_aws_region",
+    "gcp": "location_to_gcp_region",
+    "azure": "location_to_azure_region",
+}
+
+
+def apply_location_regions(provider: str, mapping: dict[str, str]) -> None:
+    """Teach the transmission mapper about locations upstream doesn't ship.
+
+    Upstream hardcodes a location->cloud-region table and raises on anything
+    else (fuzzy matching only rescues near-misses). Our UK sites are not in it,
+    so the experiment's sim config carries the mapping; all four map to
+    ``eu-west-2`` (AWS London), i.e. cross-site transfer is priced as
+    intra-region -- a disclosed approximation.
+    """
+    from utils import transmission_region_mapper as mapper
+
+    attribute = _REGION_MAPS.get(provider.lower())
+    if attribute is None:
+        raise ValueError(f"no region map for provider {provider!r}")
+    getattr(mapper, attribute).update(mapping)
+
+
 def build_env(
     checkout: Path,
     *,
@@ -73,19 +97,38 @@ def build_env(
     days: float,
     single_action: bool,
     disable_defer: bool,
+    init_day_of_year: int | None = None,
+    sim_config_path: Path | None = None,
+    datacenters_path: Path | None = None,
+    reward_config_path: Path | None = None,
 ):
-    """Environment configured exactly as upstream's evaluation path."""
+    """Environment configured exactly as upstream's evaluation path.
+
+    The three ``*_path`` overrides let an experiment supply its own site list,
+    window and reward (the UK variant does); omitting them reproduces upstream.
+    """
     from envs.task_scheduling_env import TaskSchedulingEnv
     from rewards.predefined.composite_reward import CompositeReward
     from simulation.cluster_manager import DatacenterClusterManager
 
     sim_cfg, dc_cfg, reward_cfg = base_configs(checkout)
+    if sim_config_path is not None:
+        sim_cfg = load_yaml(sim_config_path)
+    if datacenters_path is not None:
+        dc_cfg = load_yaml(datacenters_path)
+    if reward_config_path is not None:
+        reward_cfg = load_yaml(reward_config_path)
+
     sim = sim_cfg["simulation"]
     sim["strategy"] = strategy
     sim["duration_days"] = days
     sim["single_action_mode"] = single_action
     sim["disable_defer_action"] = disable_defer
     sim["use_tensorboard"] = False
+
+    # Optional: locations upstream's transmission table doesn't know (UK sites).
+    if sim.get("location_regions"):
+        apply_location_regions(sim["cloud_provider"], sim["location_regions"])
 
     start = pd.Timestamp(
         dt.datetime(
@@ -102,7 +145,17 @@ def build_env(
     cluster = DatacenterClusterManager(
         config_list=dc_cfg["datacenters"],
         simulation_year=sim["year"],
-        init_day=int(sim["month"] * 30.5 + sim["init_day"]),
+        # Upstream indexes carbon/price/workload by
+        # ``int(month * 30.5 + init_day)``, which lands ~1 month *after* the
+        # timestamp it also builds from the same fields (month=8, day=1 reads
+        # 2 Sep data while the clock says 1 Aug). Passing the index directly
+        # keeps data and timestamps on the same date; omit it to stay
+        # bit-faithful to upstream.
+        init_day=(
+            int(sim["month"] * 30.5 + sim["init_day"])
+            if init_day_of_year is None
+            else int(init_day_of_year)
+        ),
         init_hour=sim["init_hour"],
         strategy=strategy,
         tasks_file_path=sim["workload_path"],
@@ -139,6 +192,11 @@ class Metrics:
         self._gpu: list[float] = []
         self._mem: list[float] = []
         self.per_dc: dict[str, dict[str, float]] = {}
+        # The window the simulator *actually* read. Upstream's cluster reset
+        # jitters the start day by +/-7 and picks a random hour, so this is
+        # not the configured date and has to be reported for carbon to be
+        # verifiable against the input series.
+        self.window: dict[str, int] | None = None
 
     def add(self, info: dict[str, Any]) -> None:
         self.transmission_cost_usd += float(info.get("transmission_cost_total_usd", 0.0))
@@ -184,6 +242,7 @@ class Metrics:
             "mean_cpu_util_percent": mean(self._cpu),
             "mean_gpu_util_percent": mean(self._gpu),
             "mean_mem_util_percent": mean(self._mem),
+            "window": self.window,
             "per_dc": self.per_dc,
         }
 
@@ -192,6 +251,17 @@ def run_episode(env, *, days: float, seed: int, policy) -> Metrics:
     """Drive one episode; ``policy(obs) -> int | list[int]`` or ``None`` for RBCs."""
     obs, _ = env.reset(seed=seed)
     metrics = Metrics()
+
+    # Capture the jittered data window the cluster manager settled on. Carbon,
+    # price and weather all index off it, so this is the window to verify.
+    cluster = getattr(env, "cluster_manager", None)
+    start_day = getattr(cluster, "random_init_day", None)
+    if start_day is not None:
+        metrics.window = {
+            "start_day_index": int(start_day),
+            "start_hour_utc": int(getattr(cluster, "random_init_hour", 0)),
+            "year": int(getattr(cluster, "random_year", 0)),
+        }
     for _ in range(int(days * 24 * 4)):
         actions = [] if policy is None else policy(obs)
         obs, _reward, done, truncated, info = env.step(actions)

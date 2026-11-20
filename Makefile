@@ -4,7 +4,7 @@ ID     ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help setup lint format test check exp-new exp-run exp-show rollback \
-        data-fetch sc-setup docker-build docker-test clean
+        data-fetch sc-setup sc-uk-data sc-uk-install docker-build docker-test clean
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -49,6 +49,12 @@ data-pull-national: ## Pull national carbon intensity: make data-pull-national S
 
 sc-setup: ## Fetch the external SustainCluster checkout + its venv (exp008)
 	bash scripts/sc_setup.sh
+
+sc-uk-data: ## Pull UK carbon/price inputs for SustainCluster: make sc-uk-data [YEAR=2024] (~30 min)
+	$(PYTHON) scripts/sustaincluster/pull_uk_inputs.py --year $(or $(YEAR),2024) --out data/sustaincluster_uk
+
+sc-uk-install: ## Install the pulled UK inputs where SustainCluster reads them
+	$(PYTHON) scripts/sustaincluster/install_uk_inputs.py --source data/sustaincluster_uk --checkout external/sustain-cluster --year $(or $(YEAR),2024)
 
 docker-build: ## Build the reproducible image
 	docker build -f docker/Dockerfile -t carbon-scheduling:dev .

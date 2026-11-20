@@ -14,10 +14,20 @@ from carbon_scheduling.sim import sustaincluster
 STUB = """\
 import argparse, json, pathlib, sys
 p = argparse.ArgumentParser()
-for flag in ("--checkout", "--strategy", "--checkpoint", "--device", "--out"):
+for flag in (
+    "--checkout",
+    "--strategy",
+    "--checkpoint",
+    "--device",
+    "--datacenters",
+    "--sim-config",
+    "--reward-config",
+    "--out",
+):
     p.add_argument(flag)
 p.add_argument("--days", type=float)
 p.add_argument("--seed", type=int)
+p.add_argument("--init-day-of-year", dest="init_day_of_year", type=int)
 a = p.parse_args()
 payload = {"argv": sys.argv[1:], "cwd": str(pathlib.Path.cwd())}
 payload.update({k: v for k, v in vars(a).items() if k not in ("out",)})
@@ -158,3 +168,54 @@ def test_driver_failure_propagates(tmp_path: Path, monkeypatch: pytest.MonkeyPat
             seed=7,
             out_path=tmp_path / "out.json",
         )
+
+
+def test_default_run_passes_no_overrides(tmp_path: Path, stub_driver: Path) -> None:
+    checkout = _checkout(tmp_path)
+    payload = sustaincluster.run_strategy(
+        checkout,
+        sys.executable,
+        "round_robin",
+        days=1.0,
+        seed=7,
+        out_path=tmp_path / "a.json",
+    )
+    for flag in ("--init-day-of-year", "--sim-config", "--datacenters", "--reward-config"):
+        assert flag not in payload["argv"]
+
+
+def test_strategy_forwards_config_overrides(tmp_path: Path, stub_driver: Path) -> None:
+    checkout = _checkout(tmp_path)
+    payload = sustaincluster.run_strategy(
+        checkout,
+        sys.executable,
+        "lowest_carbon",
+        days=2.0,
+        seed=1,
+        out_path=tmp_path / "b.json",
+        init_day_of_year=14,
+        sim_config="sim.yaml",
+        datacenters="dcs.yaml",
+        reward_config="reward.yaml",
+    )
+    assert payload["init_day_of_year"] == 14
+    assert payload["sim_config"] == "sim.yaml"
+    assert payload["datacenters"] == "dcs.yaml"
+    assert payload["reward_config"] == "reward.yaml"
+
+
+def test_checkpoint_forwards_config_overrides(tmp_path: Path, stub_driver: Path) -> None:
+    checkout = _checkout(tmp_path)
+    payload = sustaincluster.run_checkpoint(
+        checkout,
+        sys.executable,
+        "checkpoints/x/best.pth",
+        days=1.0,
+        seed=2,
+        out_path=tmp_path / "c.json",
+        init_day_of_year=32,
+        datacenters="dcs.yaml",
+    )
+    assert payload["init_day_of_year"] == 32
+    assert payload["datacenters"] == "dcs.yaml"
+    assert payload["sim_config"] is None

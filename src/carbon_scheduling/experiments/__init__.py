@@ -17,6 +17,7 @@ from carbon_scheduling.experiments.exp005_regional_bands import run as exp005
 from carbon_scheduling.experiments.exp006_azure_trace_demand import run as exp006
 from carbon_scheduling.experiments.exp007_site_energy import run as exp007
 from carbon_scheduling.experiments.exp008_sustaincluster_baseline import run as exp008
+from carbon_scheduling.experiments.exp009_uk_sites import run as exp009
 
 REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp001-uk-carbon-baseline": exp001,
@@ -27,4 +28,5 @@ REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp006-azure-trace-demand": exp006,
     "exp007-site-energy": exp007,
     "exp008-sustaincluster-baseline": exp008,
+    "exp009-uk-sites": exp009,
 }
