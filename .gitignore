@@ -32,7 +32,7 @@ Thumbs.db
 # local project-context file (not part of the public repo)
 
 # Next.js frontend (web/) -- dependencies and build output are re-installable
-web/node_modules/
-web/.next/
-web/out/
-web/*.tsbuildinfo
+viz/frontend/node_modules/
+viz/frontend/.next/
+viz/frontend/out/
+viz/frontend/*.tsbuildinfo

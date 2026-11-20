@@ -12,8 +12,8 @@ src/*.egg-info
 docs/datasets/data-audit/downloads/*.csv
 
 # Frontend dependencies/build output (installed inside the image)
-web/node_modules
-web/.next
-web/out
-web/*.tsbuildinfo
+viz/frontend/node_modules
+viz/frontend/.next
+viz/frontend/out
+viz/frontend/*.tsbuildinfo
 external/

@@ -87,7 +87,7 @@ The repository holds two deployables with a one-way contract:
 | Service | Code | Entry point | Reads |
 |---|---|---|---|
 | **Scheduler** | `src/carbon_scheduling/`, `experiments/` | `make exp-run`, Docker `exp` | NESO/Azure data; writes run records |
-| **Visualization** | `web/` (frontend) + `services/api/` (backend) | `make viz-up`, or `make api` + `make web-dev` | committed run records only |
+| **Visualization** | `viz/frontend/` + `viz/backend/` | `make viz-up`, or `make api` + `make web-dev` | committed run records only |
 
 The visualization service never imports the scheduler package. Its backend
 projects artifacts the scheduler leaves behind (`experiments/<id>/config.yaml`,

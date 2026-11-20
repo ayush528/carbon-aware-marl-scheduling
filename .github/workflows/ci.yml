@@ -16,8 +16,8 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install ruff==0.9.6
-      - run: ruff check src tests scripts services
-      - run: ruff format --check src tests services
+      - run: ruff check src tests scripts viz/backend
+      - run: ruff format --check src tests viz/backend
 
   test:
     name: test (py${{ matrix.python-version }})
@@ -44,16 +44,34 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: web/package-lock.json
+          cache-dependency-path: viz/frontend/package-lock.json
       - run: npm ci
-        working-directory: web
+        working-directory: viz/frontend
       # Pages are force-dynamic, so the build needs no running API: it compiles
-      # and typechecks the frontend, and a broken contract with services/api
+      # and typechecks the frontend, and a broken contract with viz/backend
       # fails here rather than in the browser.
       - run: npm run typecheck
-        working-directory: web
+        working-directory: viz/frontend
       - run: npm run build
-        working-directory: web
+        working-directory: viz/frontend
+
+  viz:
+    name: viz (images)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend image
+        run: docker build -f docker/Dockerfile.viz-api -t carbon-scheduling-viz-api:ci .
+      - name: Build frontend image
+        run: docker build -f docker/Dockerfile.viz-web -t carbon-scheduling-viz-web:ci .
+      - name: Smoke-test the API
+        run: |
+          docker run -d --name viz-api -p 8000:8000 carbon-scheduling-viz-api:ci
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:8000/api/health && break
+            sleep 1
+          done
+          docker rm -f viz-api
 
   docker:
     name: docker

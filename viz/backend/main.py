@@ -17,7 +17,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from services.api import content, repo
+from viz.backend import content, repo
 
 app = FastAPI(
     title="Carbon-aware scheduling API",

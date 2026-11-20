@@ -1,8 +1,8 @@
-# Frontend (`web/`)
+# Frontend (`viz/frontend/`)
 
 Next.js app that presents the project's experiment evidence. It is a **view**:
 it computes nothing. Every figure comes from the Python service in
-`services/api`, which reads committed artifacts (`config.yaml`,
+`viz/backend`, which reads committed artifacts (`config.yaml`,
 `run/manifest.json`, `run/metrics.json`, `registry.yaml`).
 
 ```

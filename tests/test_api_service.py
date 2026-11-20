@@ -10,8 +10,8 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from services.api import content, repo
-from services.api.main import app
+from viz.backend import content, repo
+from viz.backend.main import app
 
 client = TestClient(app)
 

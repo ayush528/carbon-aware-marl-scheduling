@@ -48,16 +48,16 @@ data-pull-national: ## Pull national carbon intensity: make data-pull-national S
 	$(PYTHON) scripts/pull_national.py $(if $(START),--start $(START),) $(if $(END),--end $(END),) $(if $(OUT),--out $(OUT),)
 
 api: ## Serve the experiment API on :8000 (consumed by the Next.js frontend)
-	$(PYTHON) -m uvicorn services.api.main:app --host 127.0.0.1 --port 8000
+	$(PYTHON) -m uvicorn viz.backend.main:app --host 127.0.0.1 --port 8000
 
 web-install: ## Install the frontend's pinned Node dependencies
-	cd web && npm ci
+	cd viz/frontend && npm ci
 
 web-dev: ## Run the frontend on :3000 (needs `make api` in another shell)
-	cd web && npm run dev
+	cd viz/frontend && npm run dev
 
 web-build: ## Typecheck and build the frontend
-	cd web && npm run typecheck && npm run build
+	cd viz/frontend && npm run typecheck && npm run build
 
 viz-up: ## Run the visualization service (frontend + backend) in Docker
 	docker compose up --build viz-api viz-web

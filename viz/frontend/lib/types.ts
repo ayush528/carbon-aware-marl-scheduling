@@ -1,5 +1,5 @@
 /**
- * Shapes returned by the Python experiment service (`services/api`).
+ * Shapes returned by the Python experiment service (`viz/backend`).
  *
  * Only the fields the pages read are typed. Optional marks values the service
  * may return as null when an artifact is missing: pages must render a "not

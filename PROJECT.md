@@ -135,7 +135,7 @@ clock on the same window before verifying carbon against it → Phase 3: agents
 (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 
 **Service boundary.** The scheduler (`src/carbon_scheduling/`,
-`experiments/`) and the visualization service (`web/` + `services/api/`) are
+`experiments/`) and the visualization service (`viz/frontend/` + `viz/backend/`) are
 separate deployables with a one-way contract: the visualization reads committed
 run records and never imports the scheduler package. The scheduler image
 (`docker/Dockerfile`) does not contain the visualization code; the
