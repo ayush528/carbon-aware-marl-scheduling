@@ -101,6 +101,8 @@ def build_env(
     sim_config_path: Path | None = None,
     datacenters_path: Path | None = None,
     reward_config_path: Path | None = None,
+    seed: int | None = None,
+    align_clock: bool = False,
 ):
     """Environment configured exactly as upstream's evaluation path.
 
@@ -140,7 +142,6 @@ def build_env(
             tzinfo=dt.UTC,
         )
     )
-    end = start + dt.timedelta(days=sim["duration_days"])
 
     cluster = DatacenterClusterManager(
         config_list=dc_cfg["datacenters"],
@@ -163,6 +164,23 @@ def build_env(
         cloud_provider=sim["cloud_provider"],
         logger=None,
     )
+
+    if align_clock:
+        if seed is None:
+            raise ValueError("align_clock needs the episode seed")
+        # The cluster reset jitters the *data* window (+/-7 days, random hour)
+        # but the env clock stays on the configured date, so the workload would
+        # be dispatched against a different week than the carbon it sees. The
+        # jitter is a seeded draw that depends only on (seed, init_day), so
+        # probing it here and putting the clock on the same window is exact;
+        # the env's own reset reproduces the identical draw.
+        cluster.reset(seed=seed)
+        start = pd.Timestamp(dt.datetime(sim["year"], 1, 1, tzinfo=dt.UTC)) + dt.timedelta(
+            days=int(cluster.random_init_day),
+            hours=int(cluster.random_init_hour),
+        )
+
+    end = start + dt.timedelta(days=sim["duration_days"])
     reward_fn = CompositeReward(
         components=reward_cfg["reward"]["components"],
         normalize=False,  # no reward normalization during eval
@@ -197,6 +215,9 @@ class Metrics:
         # not the configured date and has to be reported for carbon to be
         # verifiable against the input series.
         self.window: dict[str, int] | None = None
+        # The wall clock the workload was dispatched against (equal to the data
+        # window only when the caller asked for alignment).
+        self.clock_start_utc: str | None = None
 
     def add(self, info: dict[str, Any]) -> None:
         self.transmission_cost_usd += float(info.get("transmission_cost_total_usd", 0.0))
@@ -243,6 +264,7 @@ class Metrics:
             "mean_gpu_util_percent": mean(self._gpu),
             "mean_mem_util_percent": mean(self._mem),
             "window": self.window,
+            "clock_start_utc": self.clock_start_utc,
             "per_dc": self.per_dc,
         }
 
@@ -262,6 +284,9 @@ def run_episode(env, *, days: float, seed: int, policy) -> Metrics:
             "start_hour_utc": int(getattr(cluster, "random_init_hour", 0)),
             "year": int(getattr(cluster, "random_year", 0)),
         }
+    start_time = getattr(env, "start_time", None)
+    if start_time is not None:
+        metrics.clock_start_utc = pd.Timestamp(start_time).strftime("%Y-%m-%dT%H:%MZ")
     for _ in range(int(days * 24 * 4)):
         actions = [] if policy is None else policy(obs)
         obs, _reward, done, truncated, info = env.step(actions)

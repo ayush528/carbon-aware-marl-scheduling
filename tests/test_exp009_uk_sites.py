@@ -57,6 +57,7 @@ def config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
             "sustaincluster_commit": "deadbeef",
             # Simulator jitters the window; here it happens to match the config.
             "window": {"start_day_index": 14, "start_hour_utc": 0, "year": 2024},
+            "clock_start_utc": "2024-01-15T00:00Z",
             **{
                 "round_robin": _row("round_robin", 200.0, 0.0),
                 "lowest_carbon": _row("lowest_carbon", 180.0, 0.01),
@@ -136,6 +137,8 @@ def test_carbon_deltas_and_exit_test_values(config: dict[str, Any]) -> None:
     assert metrics["regional_ordering_matches_input"] is True
     assert metrics["carbon_window_start_utc"] == "2024-01-15T00:00Z"
     assert metrics["workload_clock_start_utc"] == "2024-01-15T00:00Z"
+    assert metrics["clock_aligned_with_carbon"] is True
+    assert metrics["configured_anchor_utc"] == "2024-01-15T00:00Z"
 
 
 def test_exit_test_follows_the_window_the_simulator_reported(
@@ -148,6 +151,7 @@ def test_exit_test_follows_the_window_the_simulator_reported(
         payload = original(checkout, python, strategy, **kwargs)
         # Read from 06:00, so the 7-day window runs past the fixture's end.
         payload["window"] = {"start_day_index": 14, "start_hour_utc": 6, "year": 2024}
+        payload["clock_start_utc"] = "2024-01-15T06:00Z"
         return payload
 
     monkeypatch.setattr(exp009.sustaincluster, "run_strategy", shifted)
@@ -164,6 +168,7 @@ def test_controllers_on_different_windows_are_rejected(
         payload = original(checkout, python, strategy, **kwargs)
         if strategy == "lowest_carbon":
             payload["window"] = {"start_day_index": 8, "start_hour_utc": 18, "year": 2024}
+            payload["clock_start_utc"] = "2024-01-09T18:00Z"
         return payload
 
     monkeypatch.setattr(exp009.sustaincluster, "run_strategy", jittered)

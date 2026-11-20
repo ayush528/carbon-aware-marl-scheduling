@@ -123,14 +123,16 @@ North West England, South Scotland) are fed by our derived NESO regional
 series and a real GB wholesale price series (Elexon Market Index Data) written
 in upstream's CSV schema. Exit test **passed**: the per-site intensity implied
 by the simulator's own accounting matches the input series over the window it
-actually read (max error 0.42 gCO₂/kWh, 0.18%), the site ordering matches, and
-`lowest_carbon` cuts 7.01% vs `round_robin` at 0.1% SLA. Three upstream limits
+actually read (max error 0.77 gCO₂/kWh, 0.32%), the site ordering matches, and
+`lowest_carbon` cuts 6.87% vs `round_robin` at 0.1% SLA. Window: 2024-01-09
+18:00Z + 7 days; regional spread 263 gCO₂/kWh (South Wales 338 vs South
+Scotland 74). Three upstream limits
 the UK run must disclose: GB has one AWS region, so **transmission cost is
 exactly 0** and that term is inoperative; the price series is national, so
 `lowest_price` has nothing to differentiate and is degenerate (+3.5% carbon);
-and the cluster reset **jitters the data window** ±7 days/random hour, so
-carbon is verified against the jittered window, not the configured date →
-Phase 3: agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
+and the cluster reset **jitters the data window** ±7 days/random hour, so the
+drivers probe that seeded draw and put the workload clock on the same window
+before verifying carbon against it → Phase 3: agents (heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
 
 **Experiment framework (working today):**
 
@@ -232,7 +234,7 @@ docs/
 | 2026-11-09 | exp006: Azure LLM trace demand loader validated on the real 1-week sample (16.8M requests) | PR #8 |
 | 2026-11-09 | exp007: cluster energy model + real-trace energy envelope (Phase 2 starts) | PR #9 |
 | 2026-11-20 | exp008: SustainCluster run as-is (5 rule-based controllers + 4 SAC checkpoints) through in-repo headless drivers | branch |
-| 2026-11-20 | exp009: SustainCluster on 4 UK sites with NESO regional carbon + Elexon prices; **Phase 2 exit test passed** (simulated vs input intensity max err 0.42 gCO₂/kWh, ordering matches; `lowest_carbon` −7.01% vs RR at 0.1% SLA) | branch |
+| 2026-11-20 | exp009: SustainCluster on 4 UK sites with NESO regional carbon + Elexon prices; **Phase 2 exit test passed** (simulated vs input intensity max err 0.77 gCO₂/kWh, ordering matches; `lowest_carbon` −6.87% vs RR at 0.1% SLA) | branch |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 
@@ -253,6 +255,7 @@ docs/
 - [x] ~~Run SustainCluster as-is — reproduce their baseline~~ (exp008)
 - [x] ~~Swap in NESO regional carbon + real GB prices for four UK sites~~ (exp009); exit test
       passed. Upstream limits found: GB has one AWS region (transmission cost = 0), the price is
-      national (`lowest_price` degenerate), and the cluster reset jitters the data window.
+      national (`lowest_price` degenerate), and the cluster reset jitters the data window
+      (the drivers now align the workload clock onto it).
 - [ ] Bands into observations (recalibrate exp004/exp005 on the 2024 window first)
 - [ ] Phase 3 start: IPPO/MAPPO + CVaR against these UK baselines

@@ -109,5 +109,7 @@ experiments:
       NESO regional carbon and real GB wholesale prices (Elexon MID, GBP->USD
       at the ECB 2024 mean). Phase 2 exit test: the per-site intensity implied
       by the simulator's own accounting matches the input series over the
-      window it actually read (max error 0.42 gCO2/kWh), the site ordering
-      matches, and lowest_carbon cuts carbon 7.0% vs round_robin at 0.1% SLA.
+      window it actually read (max error 0.77 gCO2/kWh), the site ordering
+      matches, and lowest_carbon cuts carbon 6.9% vs round_robin at 0.1% SLA.
+      The workload clock is aligned onto the simulator's jittered data window
+      so demand and carbon are the same week.

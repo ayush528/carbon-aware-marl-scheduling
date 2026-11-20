@@ -25,11 +25,11 @@ simulator is not consuming the NESO data we think it is.
 
 One upstream behaviour the verification has to respect: the cluster reset
 jitters the data window to a random day within +/-7 of the configured one and a
-random hour, so the reported ``carbon_window_start_utc`` -- not the configured
-date -- is what the series are checked against. The jitter is seeded, so every
-controller in a run sees the identical window (asserted); the workload clock
-stays on the configured date (``workload_clock_start_utc``), which is an
-upstream quirk we disclose rather than patch.
+random hour. We therefore pass ``align_clock``, which probes that (seeded, so
+repeatable) draw and puts the workload clock on the same window -- otherwise
+demand and carbon would sit on different weeks. Every controller in a run must
+then see the identical window, which is asserted; ``carbon_window_start_utc``
+and ``workload_clock_start_utc`` are both reported and must agree.
 """
 
 from __future__ import annotations
@@ -148,6 +148,9 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 sim_config=scratch / "sim_config.yaml",
                 datacenters=scratch / "datacenters.yaml",
                 reward_config=scratch / "reward_config.yaml",
+                # Put the workload clock on the same window as the data, so
+                # carbon and demand are the same week (see the docstring).
+                align_clock=True,
             )
         )
 
@@ -176,6 +179,10 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     start = datetime(window["year"], 1, 1) + timedelta(
         days=window["start_day_index"], hours=window["start_hour_utc"]
     )
+    clocks = {r.get("clock_start_utc") for r in results}
+    if len(clocks) != 1:
+        raise RuntimeError(f"controllers ran on different clocks: {sorted(clocks)}")
+    clock_start = datetime.strptime(clocks.pop(), "%Y-%m-%dT%H:%MZ")
 
     sites = config["sites"]
     data_paths = [REPO_ROOT / rel for rel in config["data"]]
@@ -220,7 +227,11 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         # jittered choice), and the clock the workload was dispatched against.
         "carbon_window_start_utc": start.strftime("%Y-%m-%dT%H:%MZ"),
         "carbon_window_hours": hours,
-        "workload_clock_start_utc": configured_start.strftime("%Y-%m-%dT%H:%MZ"),
+        # The clock was aligned onto the data window, so these must agree; the
+        # configured anchor is kept only to show which date was requested.
+        "workload_clock_start_utc": clock_start.strftime("%Y-%m-%dT%H:%MZ"),
+        "clock_aligned_with_carbon": clock_start == start,
+        "configured_anchor_utc": configured_start.strftime("%Y-%m-%dT%H:%MZ"),
         "days": days,
         "seed": seed,
         "n_sites": len(sites),

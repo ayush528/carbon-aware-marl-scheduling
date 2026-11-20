@@ -95,6 +95,7 @@ def _config_flags(
     sim_config: str | Path | None,
     datacenters: str | Path | None,
     reward_config: str | Path | None,
+    align_clock: bool = False,
 ) -> list[str]:
     """Only pass overrides that were asked for (keeps upstream runs untouched)."""
     flags: list[str] = []
@@ -106,6 +107,8 @@ def _config_flags(
         flags += ["--datacenters", str(datacenters)]
     if reward_config is not None:
         flags += ["--reward-config", str(reward_config)]
+    if align_clock:
+        flags += ["--align-clock"]
     return flags
 
 
@@ -121,6 +124,7 @@ def run_strategy(
     sim_config: str | Path | None = None,
     datacenters: str | Path | None = None,
     reward_config: str | Path | None = None,
+    align_clock: bool = False,
 ) -> dict[str, Any]:
     """Run one rule-based controller headless; return its metrics JSON."""
     return _invoke(
@@ -136,7 +140,7 @@ def run_strategy(
             str(seed),
             "--out",
             str(out_path),
-            *_config_flags(init_day_of_year, sim_config, datacenters, reward_config),
+            *_config_flags(init_day_of_year, sim_config, datacenters, reward_config, align_clock),
         ],
     )
 
@@ -154,6 +158,7 @@ def run_checkpoint(
     sim_config: str | Path | None = None,
     datacenters: str | Path | None = None,
     reward_config: str | Path | None = None,
+    align_clock: bool = False,
 ) -> dict[str, Any]:
     """Evaluate one shipped SAC checkpoint headless; return its metrics JSON."""
     return _invoke(
@@ -171,6 +176,6 @@ def run_checkpoint(
             device,
             "--out",
             str(out_path),
-            *_config_flags(init_day_of_year, sim_config, datacenters, reward_config),
+            *_config_flags(init_day_of_year, sim_config, datacenters, reward_config, align_clock),
         ],
     )

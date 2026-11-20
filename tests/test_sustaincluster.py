@@ -28,6 +28,7 @@ for flag in (
 p.add_argument("--days", type=float)
 p.add_argument("--seed", type=int)
 p.add_argument("--init-day-of-year", dest="init_day_of_year", type=int)
+p.add_argument("--align-clock", dest="align_clock", action="store_true")
 a = p.parse_args()
 payload = {"argv": sys.argv[1:], "cwd": str(pathlib.Path.cwd())}
 payload.update({k: v for k, v in vars(a).items() if k not in ("out",)})
@@ -219,3 +220,43 @@ def test_checkpoint_forwards_config_overrides(tmp_path: Path, stub_driver: Path)
     assert payload["init_day_of_year"] == 32
     assert payload["datacenters"] == "dcs.yaml"
     assert payload["sim_config"] is None
+
+
+def test_align_clock_flag_only_when_requested(tmp_path: Path, stub_driver: Path) -> None:
+    checkout = _checkout(tmp_path)
+    default = sustaincluster.run_strategy(
+        checkout,
+        sys.executable,
+        "round_robin",
+        days=1.0,
+        seed=7,
+        out_path=tmp_path / "d.json",
+    )
+    assert "--align-clock" not in default["argv"]
+    assert default["align_clock"] is False
+
+    aligned = sustaincluster.run_strategy(
+        checkout,
+        sys.executable,
+        "round_robin",
+        days=1.0,
+        seed=7,
+        out_path=tmp_path / "e.json",
+        align_clock=True,
+    )
+    assert "--align-clock" in aligned["argv"]
+    assert aligned["align_clock"] is True
+
+
+def test_checkpoint_forwards_align_clock(tmp_path: Path, stub_driver: Path) -> None:
+    checkout = _checkout(tmp_path)
+    payload = sustaincluster.run_checkpoint(
+        checkout,
+        sys.executable,
+        "checkpoints/x/best.pth",
+        days=1.0,
+        seed=2,
+        out_path=tmp_path / "f.json",
+        align_clock=True,
+    )
+    assert "--align-clock" in payload["argv"]

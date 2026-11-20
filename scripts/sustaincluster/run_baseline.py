@@ -50,6 +50,7 @@ def main() -> int:
     ap.add_argument("--sim-config", type=Path, default=None)
     ap.add_argument("--datacenters", type=Path, default=None)
     ap.add_argument("--reward-config", type=Path, default=None)
+    ap.add_argument("--align-clock", action="store_true")
     args = ap.parse_args()
 
     checkout = Path(args.checkout).resolve()
@@ -70,6 +71,8 @@ def main() -> int:
         sim_config_path=args.sim_config,
         datacenters_path=args.datacenters,
         reward_config_path=args.reward_config,
+        seed=args.seed,
+        align_clock=args.align_clock,
     )
     metrics = run_episode(env, days=args.days, seed=args.seed, policy=None)
 
@@ -83,6 +86,7 @@ def main() -> int:
         "sim_config": str(args.sim_config) if args.sim_config else None,
         "datacenters": str(args.datacenters) if args.datacenters else None,
         "reward_config": str(args.reward_config) if args.reward_config else None,
+        "align_clock": args.align_clock,
         **metrics.summary(),
     }
     out = Path(args.out)
