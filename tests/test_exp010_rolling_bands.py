@@ -277,7 +277,7 @@ def test_zero_forecast_slots_are_reported_separately() -> None:
         {"from": "t1", "forecast": 0},  # mechanically covered
         {"from": "t2", "forecast": 100},  # residual 10 vs 0.05*100 = 5 -> outside
     ]
-    got = exp010._band_coverage(regional, national, lambda f: 0.05 * (f or 0))
+    got = exp010._band_coverage(regional, national, lambda f, _n: 0.05 * (f or 0))
     assert got["n_all"] == 2
     assert got["n_zero_forecast"] == 1
     assert got["all"] == pytest.approx(0.5)  # the zero-forecast slot is a free hit
@@ -288,7 +288,7 @@ def test_zero_forecast_slots_are_reported_separately() -> None:
 def test_constant_band_is_measured_on_the_same_slots_as_the_relative_band() -> None:
     national = [{"from": "t1", "forecast": 100, "actual": 110}]
     regional = [{"from": "t1", "forecast": 0}]
-    got = exp010._band_coverage(regional, national, lambda _f: 5.0)
+    got = exp010._band_coverage(regional, national, lambda _f, _n: 5.0)
     # A zero-width band and a 5 g/kWh band must agree: the residual is 0 either way.
     assert got["all"] == pytest.approx(1.0)
     # But there is no positive-forecast slot to learn from.
@@ -351,3 +351,47 @@ def test_regime_bands_fix_the_misallocation_of_a_relative_band() -> None:
         [abs(r["actual"] - r["forecast"]) / r["forecast"] for r in national], alpha=0.5
     )
     assert 300 * q_rel > 3 * 40 * q_rel  # width scales with level, error does not
+
+
+def test_regime_relative_quantiles_bucket_on_the_national_level() -> None:
+    """q varies with the regime the *error* came from, not the region's level."""
+    national = [
+        # low-intensity month: 20% relative error
+        {"from": f"l{i}", "forecast": 40, "actual": 48}
+        for i in range(40)
+    ] + [
+        # high-intensity month: 3% relative error
+        {"from": f"h{i}", "forecast": 300, "actual": 309}
+        for i in range(40)
+    ]
+    q, fallbacks = exp010._regime_relative_quantiles(national, alpha=0.1, fallback=0.5)
+    low, high = exp010._bucket(40), exp010._bucket(300)
+    assert q[low] == pytest.approx(0.2, abs=0.01)
+    assert q[high] == pytest.approx(0.03, abs=0.01)
+    # Empty regimes borrow the fallback rather than inventing a width.
+    assert q[exp010._bucket(120)] == pytest.approx(0.5)
+    assert fallbacks > 0
+
+
+def test_regime_relative_band_scales_with_the_regional_forecast() -> None:
+    """The band stays proportional to the region, so it transfers across sites.
+
+    A regional residual is ``national_error * forecast_region / forecast_national``.
+    Widening the region's forecast by 2x must widen the band by 2x at an
+    unchanged national level -- that is what keeps one calibration usable for a
+    low-carbon Scottish site and a high-carbon Welsh one in the same month.
+    """
+    national = [{"from": "t1", "forecast": 200, "actual": 220}]
+    q = {exp010._bucket(200): 0.1}
+    bands = [
+        exp010._band_coverage(
+            [{"from": "t1", "forecast": f}],
+            national,
+            lambda reg_f, nat_f, q=q: q[exp010._bucket(nat_f)] * reg_f,
+        )
+        for f in (100, 200)
+    ]
+    assert bands[1]["mean_half_width"] == pytest.approx(2 * bands[0]["mean_half_width"])
+    # Residual is national_error * f/200 = 20 for f=200: outside a 20-wide band
+    # only when the comparison is strict, so check the boundary explicitly.
+    assert bands[0]["all"] == pytest.approx(1.0)  # 10-wide band, residual 10

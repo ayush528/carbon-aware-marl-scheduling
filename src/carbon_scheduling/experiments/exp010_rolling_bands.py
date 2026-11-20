@@ -139,7 +139,7 @@ def _relative_errors(records: list[dict[str, Any]]) -> list[float]:
 def _band_coverage(
     regional: list[dict[str, Any]],
     national: list[dict[str, Any]],
-    half_width: Callable[[float | None], float],
+    half_width: Callable[[float, float], float],
 ) -> dict[str, Any]:
     """Coverage of a band of the given half-width over the national-scaled residual.
 
@@ -168,7 +168,7 @@ def _band_coverage(
         if nat_row is None or forecast is None:
             continue
         residual = abs(nat_row["actual"] - nat_row["forecast"]) * forecast / nat_row["forecast"]
-        width = half_width(forecast)
+        width = half_width(forecast, nat_row["forecast"])
         widths.append(width)
         covered = residual <= width
         n_all += 1
@@ -273,6 +273,40 @@ def _scores(records: list[dict[str, Any]]) -> list[tuple[float, float]]:
     ]
 
 
+def _regime_relative_quantiles(
+    records: list[dict[str, Any]], alpha: float, fallback: float
+) -> tuple[dict[int, float], int]:
+    """One relative quantile per national-intensity regime.
+
+    The regional residual under national scaling is
+    ``national_error * forecast_region / forecast_national``, so it is
+    proportional to the *regional* forecast but its size is set by the
+    *national* level the error was measured at. Bucketing on the regional
+    forecast therefore mismatches the two: a high-intensity region has a large
+    residual that a low-intensity bucket under-covers, and a low-intensity
+    region is over-covered. Bucketing on the national forecast keeps the band
+    proportional to the regional forecast (so it transfers across regions) while
+    letting q vary with the regime the error came from.
+    """
+    by_bucket: dict[int, list[float]] = defaultdict(list)
+    for record in records:
+        forecast = record.get("forecast")
+        if forecast in (None, 0) or record.get("actual") is None:
+            continue
+        by_bucket[_bucket(forecast)].append(abs(record["actual"] - forecast) / forecast)
+    minimum = int(1.0 / alpha) + 1
+    quantiles: dict[int, float] = {}
+    fallbacks = 0
+    for bucket in range(len(INTENSITY_EDGES) + 1):
+        values = by_bucket.get(bucket, [])
+        if len(values) >= minimum:
+            quantiles[bucket] = conformal_quantile(values, alpha)
+        else:
+            quantiles[bucket] = fallback
+            fallbacks += 1
+    return quantiles, fallbacks
+
+
 def _rounded(value: float | None) -> float | None:
     return None if value is None else round(value, 4)
 
@@ -306,6 +340,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     cells: list[dict[str, Any]] = []
     monthly: dict[str, Any] = {}
     regime_fallbacks_total = 0
+    regime_rel_fallbacks_total = 0
     for month in range(1, 13):
         eval_start, eval_end = _month_bounds(year, month)
         calib_start = eval_start - timedelta(days=CALIB_DAYS)
@@ -317,6 +352,10 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         q_abs = conformal_quantile([e for _, e in calib_scores], ALPHA)
         regime_q, regime_fallbacks = _regime_quantiles(calib_scores, ALPHA, q_abs)
         regime_fallbacks_total += regime_fallbacks
+        regime_rel_q, regime_rel_fallbacks = _regime_relative_quantiles(
+            calib_national, ALPHA, q_rel
+        )
+        regime_rel_fallbacks_total += regime_rel_fallbacks
         # Under national scaling a region's relative error equals the national
         # one, so the relative construction's coverage is the national coverage.
         coverage_from_national = _coverage(_relative_errors(eval_national), q_rel)
@@ -342,9 +381,15 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 continue
             q_const = conformal_quantile(calib_res, ALPHA)
             mean_fc = sum(r["forecast"] for r in eval_reg) / len(eval_reg)
-            rel = _band_coverage(eval_reg, eval_national, lambda f, q=q_rel: q * f)
-            con = _band_coverage(eval_reg, eval_national, lambda _f, q=q_const: q)
-            reg = _band_coverage(eval_reg, eval_national, lambda f, q=regime_q: q[_bucket(f)])
+            rel = _band_coverage(eval_reg, eval_national, lambda f, _n, q=q_rel: q * f)
+            con = _band_coverage(eval_reg, eval_national, lambda _f, _n, q=q_const: q)
+            reg = _band_coverage(eval_reg, eval_national, lambda f, _n, q=regime_q: q[_bucket(f)])
+            # Bucketed on the national level, scaled by the regional forecast.
+            reg_rel = _band_coverage(
+                eval_reg,
+                eval_national,
+                lambda f, n, q=regime_rel_q: q[_bucket(n)] * f,
+            )
             cells.append(
                 {
                     "month": month,
@@ -364,6 +409,11 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                     "regime_coverage": _rounded(reg["positive"]),
                     "regime_coverage_all_slots": round(reg["all"], 4),
                     "regime_half_width_gco2_per_kwh": round(reg["mean_half_width"] or 0, 2),
+                    "regime_relative_coverage": _rounded(reg_rel["positive"]),
+                    "regime_relative_coverage_all_slots": round(reg_rel["all"], 4),
+                    "regime_relative_half_width_gco2_per_kwh": round(
+                        reg_rel["mean_half_width"] or 0, 2
+                    ),
                     "constant_half_width_gco2_per_kwh": round(q_const, 2),
                     "relative_half_width_pct": round(100 * q_rel, 2),
                     "mean_forecast_gco2_per_kwh": round(mean_fc, 1),
@@ -546,6 +596,32 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 min(_values(sim_cells, "relative_coverage"), default=0)
             ),
             "cells_at_target_pct": _at_target(sim_cells, "relative_coverage"),
+        },
+        "regime_relative": {
+            "note": (
+                "One relative quantile per national-intensity regime, applied as a "
+                "fraction of the regional forecast. Buckets the *national* level "
+                "because that is the scale the residual was measured at; bucketing "
+                "the regional level over-covers low-carbon regions and under-covers "
+                "high-carbon ones, which the 'regime_conditional' block shows."
+            ),
+            "edges_gco2_per_kwh": list(INTENSITY_EDGES),
+            "mean_coverage_positive_forecast": _rounded(_mean(cells, "regime_relative_coverage")),
+            "min_cell_coverage": _rounded(
+                min(_values(cells, "regime_relative_coverage"), default=0)
+            ),
+            "cells_at_target_pct": _at_target(cells, "regime_relative_coverage"),
+            "mean_half_width_pct_of_forecast": round(
+                sum(
+                    100
+                    * c["regime_relative_half_width_gco2_per_kwh"]
+                    / c["mean_forecast_gco2_per_kwh"]
+                    for c in cells
+                )
+                / len(cells),
+                2,
+            ),
+            "thin_regime_fallbacks": regime_rel_fallbacks_total,
         },
         "regime_conditional": {
             "note": (
