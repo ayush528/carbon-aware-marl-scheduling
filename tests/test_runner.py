@@ -74,3 +74,23 @@ def test_exp001_run_record_files(tmp_path: Path) -> None:
     assert manifest["exp_id"] == EXP001
     assert manifest["data_hashes"]  # input data was hashed into the record
     assert metrics["n_slots"] > 0
+
+
+def test_git_dirty_ignores_the_run_record_the_test_itself_writes(tmp_path, monkeypatch) -> None:
+    """A run writes its own output into the tree. If that counted as 'dirty',
+    every record would say the code was uncommitted and the field would be
+    worthless -- so only tracked modifications count."""
+    import subprocess
+
+    from carbon_scheduling import runner
+
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    assert runner.git_is_dirty() is False
+    # Tracked modifications only: untracked run outputs must not count.
+    assert "--untracked-files=no" in calls[-1]
