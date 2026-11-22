@@ -46,6 +46,22 @@ class Site:
             raise ValueError("n_gpus and tokens_per_gpu_second must be positive")
 
 
+def site_energy_kwh(site: Site, gpu_seconds: float, slot_minutes: int = SLOT_MINUTES) -> float:
+    """Energy for ``gpu_seconds`` of work at one site in one slot (kWh).
+
+    The single definition of the power curve: :func:`slot_energy` uses it for
+    whole-site demand, and the dispatch experiment uses it for the load a
+    policy assigns to a site, so both paths price energy identically.
+    """
+    if gpu_seconds < 0:
+        raise ValueError(f"gpu_seconds must be >= 0, got {gpu_seconds!r}")
+    slot_hours = slot_minutes / 60
+    gpu_seconds_available = site.n_gpus * slot_minutes * 60
+    utilization = gpu_seconds / gpu_seconds_available
+    power_per_gpu_w = site.gpu_idle_w + (site.gpu_peak_w - site.gpu_idle_w) * min(utilization, 1.0)
+    return site.n_gpus * power_per_gpu_w * site.pue * slot_hours / 1000
+
+
 def slot_energy(
     demand_slots: list[dict[str, Any]],
     site: Site,
@@ -60,23 +76,18 @@ def slot_energy(
     utilization = gpu-seconds demanded / gpu-seconds available (may be > 1);
     energy uses min(utilization, 1) at the power curve.
     """
-    slot_hours = slot_minutes / 60
     gpu_seconds_available = site.n_gpus * slot_minutes * 60
     rows: list[dict[str, Any]] = []
     for slot in demand_slots:
         tokens = slot["context_tokens"] + slot["generated_tokens"]
         gpu_seconds = tokens / site.tokens_per_gpu_second
         utilization = gpu_seconds / gpu_seconds_available
-        power_per_gpu_w = site.gpu_idle_w + (site.gpu_peak_w - site.gpu_idle_w) * min(
-            utilization, 1.0
-        )
-        energy_kwh = site.n_gpus * power_per_gpu_w * site.pue * slot_hours / 1000
         rows.append(
             {
                 "from": slot["from"],
                 "gpu_seconds": gpu_seconds,
                 "utilization": utilization,
-                "energy_kwh": energy_kwh,
+                "energy_kwh": site_energy_kwh(site, gpu_seconds, slot_minutes),
             }
         )
     return rows

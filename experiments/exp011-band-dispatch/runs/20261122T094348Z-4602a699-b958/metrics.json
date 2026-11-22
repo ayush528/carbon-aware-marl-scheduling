@@ -1,0 +1,307 @@
+{
+  "window": {
+    "start_utc": "2024-05-10T00:00Z",
+    "end_utc": "2024-05-17T00:00Z",
+    "n_slots": 336,
+    "dropped_slots": 0,
+    "slot_minutes": 30
+  },
+  "calibration": {
+    "start_utc": "2024-04-12T00:00Z",
+    "end_utc": "2024-05-10T00:00Z",
+    "days": 28,
+    "alpha": 0.1,
+    "sites_with_residuals": {
+      "GB-London": 1344,
+      "GB-SouthWales": 1344,
+      "GB-NorthWestEngland": 1337,
+      "GB-SouthScotland": 1343
+    },
+    "absolute_half_width_gco2_per_kwh": {
+      "GB-London": 22.619,
+      "GB-SouthWales": 46.174,
+      "GB-NorthWestEngland": 6.494,
+      "GB-SouthScotland": 3.498
+    },
+    "pooled_relative_fraction": 0.0303,
+    "per_site_relative_fraction": {
+      "GB-London": 0.004,
+      "GB-SouthWales": 0.0021,
+      "GB-NorthWestEngland": 0.0432,
+      "GB-SouthScotland": 0.1159
+    }
+  },
+  "forecast_error_in_window": {
+    "mean_abs_error_gco2_per_kwh": {
+      "GB-London": 11.032,
+      "GB-SouthWales": 25.681,
+      "GB-NorthWestEngland": 4.967,
+      "GB-SouthScotland": 2.18
+    },
+    "mean_realized_gco2_per_kwh": {
+      "GB-London": 134.08,
+      "GB-SouthWales": 282.91,
+      "GB-NorthWestEngland": 58.69,
+      "GB-SouthScotland": 25.82
+    },
+    "regional_spread_gco2_per_kwh": 257.09
+  },
+  "sites": {
+    "GB-London": {
+      "neso_region_id": 13
+    },
+    "GB-SouthWales": {
+      "neso_region_id": 7
+    },
+    "GB-NorthWestEngland": {
+      "neso_region_id": 3
+    },
+    "GB-SouthScotland": {
+      "neso_region_id": 2
+    }
+  },
+  "fleets": {
+    "unconstrained": {
+      "n_gpus_per_site": 100,
+      "policies": {
+        "forecast_greedy": {
+          "carbon_kg_realized": 1005.2,
+          "carbon_kg_forecast": 997.8,
+          "carbon_vs_forecast_greedy_pct": 0.0,
+          "regret_vs_oracle_pct": 0.0,
+          "carbon_kg_slot_mean": 2.992,
+          "carbon_kg_slot_p95": 6.849,
+          "carbon_kg_slot_max": 10.056,
+          "carbon_cvar95_kg": 8.444,
+          "energy_kwh_total": 13662.0,
+          "unserved_fraction_pct": 0.0,
+          "flipped_slots": 0,
+          "flipped_slots_pct": 0.0
+        },
+        "oracle_realized": {
+          "carbon_kg_realized": 1005.2,
+          "carbon_kg_forecast": 997.8,
+          "carbon_vs_forecast_greedy_pct": 0.0,
+          "regret_vs_oracle_pct": 0.0,
+          "carbon_kg_slot_mean": 2.992,
+          "carbon_kg_slot_p95": 6.849,
+          "carbon_kg_slot_max": 10.056,
+          "carbon_cvar95_kg": 8.444,
+          "energy_kwh_total": 13662.0,
+          "unserved_fraction_pct": 0.0,
+          "flipped_slots": 0,
+          "flipped_slots_pct": 0.0
+        },
+        "band_absolute_lam0.5": {
+          "carbon_kg_realized": 1005.4,
+          "carbon_kg_forecast": 998.0,
+          "carbon_vs_forecast_greedy_pct": 0.016,
+          "regret_vs_oracle_pct": 0.016,
+          "carbon_kg_slot_mean": 2.992,
+          "carbon_kg_slot_p95": 6.849,
+          "carbon_kg_slot_max": 10.056,
+          "carbon_cvar95_kg": 8.444,
+          "energy_kwh_total": 13662.0,
+          "unserved_fraction_pct": 0.0,
+          "flipped_slots": 6,
+          "flipped_slots_pct": 1.79
+        },
+        "band_absolute_lam1.0": {
+          "carbon_kg_realized": 1005.4,
+          "carbon_kg_forecast": 998.0,
+          "carbon_vs_forecast_greedy_pct": 0.016,
+          "regret_vs_oracle_pct": 0.016,
+          "carbon_kg_slot_mean": 2.992,
+          "carbon_kg_slot_p95": 6.849,
+          "carbon_kg_slot_max": 10.056,
+          "carbon_cvar95_kg": 8.444,
+          "energy_kwh_total": 13662.0,
+          "unserved_fraction_pct": 0.0,
+          "flipped_slots": 6,
+          "flipped_slots_pct": 1.79
+        },
+        "band_absolute_lam2.0": {
+          "carbon_kg_realized": 1005.7,
+          "carbon_kg_forecast": 998.3,
+          "carbon_vs_forecast_greedy_pct": 0.044,
+          "regret_vs_oracle_pct": 0.044,
+          "carbon_kg_slot_mean": 2.993,
+          "carbon_kg_slot_p95": 6.849,
+          "carbon_kg_slot_max": 10.056,
+          "carbon_cvar95_kg": 8.444,
+          "energy_kwh_total": 13662.0,
+          "unserved_fraction_pct": 0.0,
+          "flipped_slots": 8,
+          "flipped_slots_pct": 2.38
+        },
+        "band_absolute_lam4.0": {
+          "carbon_kg_realized": 1005.9,
+          "carbon_kg_forecast": 998.5,
+          "carbon_vs_forecast_greedy_pct": 0.067,
+          "regret_vs_oracle_pct": 0.067,
+          "carbon_kg_slot_mean": 2.994,
+          "carbon_kg_slot_p95": 6.849,
+          "carbon_kg_slot_max": 10.056,
+          "carbon_cvar95_kg": 8.444,
+          "energy_kwh_total": 13662.0,
+          "unserved_fraction_pct": 0.0,
+          "flipped_slots": 10,
+          "flipped_slots_pct": 2.98
+        },
+        "band_relative_lam1.0": {
+          "carbon_kg_realized": 1005.2,
+          "carbon_kg_forecast": 997.8,
+          "carbon_vs_forecast_greedy_pct": 0.0,
+          "regret_vs_oracle_pct": 0.0,
+          "carbon_kg_slot_mean": 2.992,
+          "carbon_kg_slot_p95": 6.849,
+          "carbon_kg_slot_max": 10.056,
+          "carbon_cvar95_kg": 8.444,
+          "energy_kwh_total": 13662.0,
+          "unserved_fraction_pct": 0.0,
+          "flipped_slots": 0,
+          "flipped_slots_pct": 0.0
+        },
+        "band_relative_lam2.0": {
+          "carbon_kg_realized": 1005.2,
+          "carbon_kg_forecast": 997.8,
+          "carbon_vs_forecast_greedy_pct": 0.0,
+          "regret_vs_oracle_pct": 0.0,
+          "carbon_kg_slot_mean": 2.992,
+          "carbon_kg_slot_p95": 6.849,
+          "carbon_kg_slot_max": 10.056,
+          "carbon_cvar95_kg": 8.444,
+          "energy_kwh_total": 13662.0,
+          "unserved_fraction_pct": 0.0,
+          "flipped_slots": 0,
+          "flipped_slots_pct": 0.0
+        }
+      },
+      "relative_band_decision_invariant": true,
+      "oracle_reduction_vs_forecast_greedy_pct": 0.0,
+      "best_band_policy_by_total_carbon": "band_relative_lam1.0",
+      "best_band_policy_by_tail_carbon": "band_absolute_lam0.5"
+    },
+    "capacity_bound": {
+      "n_gpus_per_site": 25,
+      "policies": {
+        "forecast_greedy": {
+          "carbon_kg_realized": 783.3,
+          "carbon_kg_forecast": 775.9,
+          "carbon_vs_forecast_greedy_pct": 0.0,
+          "regret_vs_oracle_pct": 0.0,
+          "carbon_kg_slot_mean": 2.331,
+          "carbon_kg_slot_p95": 7.042,
+          "carbon_kg_slot_max": 8.798,
+          "carbon_cvar95_kg": 7.572,
+          "energy_kwh_total": 7600.7,
+          "unserved_fraction_pct": 24.816,
+          "flipped_slots": 0,
+          "flipped_slots_pct": 0.0
+        },
+        "oracle_realized": {
+          "carbon_kg_realized": 783.3,
+          "carbon_kg_forecast": 775.9,
+          "carbon_vs_forecast_greedy_pct": 0.0,
+          "regret_vs_oracle_pct": 0.0,
+          "carbon_kg_slot_mean": 2.331,
+          "carbon_kg_slot_p95": 7.042,
+          "carbon_kg_slot_max": 8.798,
+          "carbon_cvar95_kg": 7.572,
+          "energy_kwh_total": 7600.7,
+          "unserved_fraction_pct": 24.816,
+          "flipped_slots": 0,
+          "flipped_slots_pct": 0.0
+        },
+        "band_absolute_lam0.5": {
+          "carbon_kg_realized": 783.5,
+          "carbon_kg_forecast": 776.0,
+          "carbon_vs_forecast_greedy_pct": 0.017,
+          "regret_vs_oracle_pct": 0.017,
+          "carbon_kg_slot_mean": 2.332,
+          "carbon_kg_slot_p95": 7.042,
+          "carbon_kg_slot_max": 8.798,
+          "carbon_cvar95_kg": 7.572,
+          "energy_kwh_total": 7600.7,
+          "unserved_fraction_pct": 24.816,
+          "flipped_slots": 6,
+          "flipped_slots_pct": 1.79
+        },
+        "band_absolute_lam1.0": {
+          "carbon_kg_realized": 783.8,
+          "carbon_kg_forecast": 776.3,
+          "carbon_vs_forecast_greedy_pct": 0.055,
+          "regret_vs_oracle_pct": 0.055,
+          "carbon_kg_slot_mean": 2.333,
+          "carbon_kg_slot_p95": 7.042,
+          "carbon_kg_slot_max": 8.798,
+          "carbon_cvar95_kg": 7.572,
+          "energy_kwh_total": 7600.7,
+          "unserved_fraction_pct": 24.816,
+          "flipped_slots": 6,
+          "flipped_slots_pct": 1.79
+        },
+        "band_absolute_lam2.0": {
+          "carbon_kg_realized": 783.8,
+          "carbon_kg_forecast": 776.3,
+          "carbon_vs_forecast_greedy_pct": 0.055,
+          "regret_vs_oracle_pct": 0.055,
+          "carbon_kg_slot_mean": 2.333,
+          "carbon_kg_slot_p95": 7.042,
+          "carbon_kg_slot_max": 8.798,
+          "carbon_cvar95_kg": 7.572,
+          "energy_kwh_total": 7600.7,
+          "unserved_fraction_pct": 24.816,
+          "flipped_slots": 8,
+          "flipped_slots_pct": 2.38
+        },
+        "band_absolute_lam4.0": {
+          "carbon_kg_realized": 783.8,
+          "carbon_kg_forecast": 776.4,
+          "carbon_vs_forecast_greedy_pct": 0.061,
+          "regret_vs_oracle_pct": 0.061,
+          "carbon_kg_slot_mean": 2.333,
+          "carbon_kg_slot_p95": 7.042,
+          "carbon_kg_slot_max": 8.798,
+          "carbon_cvar95_kg": 7.572,
+          "energy_kwh_total": 7600.7,
+          "unserved_fraction_pct": 24.816,
+          "flipped_slots": 10,
+          "flipped_slots_pct": 2.98
+        },
+        "band_relative_lam1.0": {
+          "carbon_kg_realized": 783.3,
+          "carbon_kg_forecast": 775.9,
+          "carbon_vs_forecast_greedy_pct": 0.0,
+          "regret_vs_oracle_pct": 0.0,
+          "carbon_kg_slot_mean": 2.331,
+          "carbon_kg_slot_p95": 7.042,
+          "carbon_kg_slot_max": 8.798,
+          "carbon_cvar95_kg": 7.572,
+          "energy_kwh_total": 7600.7,
+          "unserved_fraction_pct": 24.816,
+          "flipped_slots": 0,
+          "flipped_slots_pct": 0.0
+        },
+        "band_relative_lam2.0": {
+          "carbon_kg_realized": 783.3,
+          "carbon_kg_forecast": 775.9,
+          "carbon_vs_forecast_greedy_pct": 0.0,
+          "regret_vs_oracle_pct": 0.0,
+          "carbon_kg_slot_mean": 2.331,
+          "carbon_kg_slot_p95": 7.042,
+          "carbon_kg_slot_max": 8.798,
+          "carbon_cvar95_kg": 7.572,
+          "energy_kwh_total": 7600.7,
+          "unserved_fraction_pct": 24.816,
+          "flipped_slots": 0,
+          "flipped_slots_pct": 0.0
+        }
+      },
+      "relative_band_decision_invariant": true,
+      "oracle_reduction_vs_forecast_greedy_pct": 0.0,
+      "best_band_policy_by_total_carbon": "band_relative_lam1.0",
+      "best_band_policy_by_tail_carbon": "band_absolute_lam0.5"
+    }
+  }
+}

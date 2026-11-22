@@ -129,3 +129,42 @@ experiments:
       the decision effect: a proportional band cannot reorder regions, but it
       raises the carbon-gap ratio a risk-averse rule needs from "any gap" to
       (1-q)/(1+q).
+
+  - id: exp011-band-dispatch
+    title: Band-aware dispatch on four real UK regions (Phase 3, rung 4)
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      First experiment where the calibrated band is an input to a decision: a
+      capacity-aware carbon-greedy dispatcher runs over the real Azure LLM week
+      (2024-05-10..17) on the four UK regions from exp009, driven by NESO's
+      regional forecast and scored against realized intensity. Bands are
+      calibrated on the 28 days before the week (no leakage). Result, reported
+      as a negative result: a pooled relative band is provably and empirically
+      decision-invariant (0 of 336 slots change, carbon identical), and a
+      per-region absolute band does reorder sites but only ever costs carbon
+      (+0.02..0.07%), because under the national-scaling estimator realized
+      intensity is a per-slot monotone transform of the forecast, so the
+      regional ordering is known exactly and oracle equals forecast-greedy.
+      The band's decision value therefore has to come from level/timing risk
+      (deadlines, CVaR), not from site ranking -- which sets the Phase 3 design.
+
+  - id: exp012-rl-dispatch
+    title: PPO dispatch with and without the band -- held-out 2024 weeks
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      Rung 5: the first learned agent. PPO (numpy, in-repo, gradients verified
+      against finite differences) over a weekly environment where each action is
+      a risk level (fill every site cheapest-first by forecast + lam*band, with
+      spill) or a wait; every task carries a deadline. Trained on 2024 weeks from
+      January to September, evaluated greedily on October-December, with the
+      calibrated band taken from the 28 days before each episode. Result: with a
+      one-kilo-per-GPU-hour deadline penalty the agent converges to immediate
+      carbon-greedy dispatch (+0.02% vs run_now), the deadline-aware rule buys
+      3.0% carbon for +10pp SLA violations, and putting the band in the
+      observation changes held-out carbon by 0.01% -- i.e. no effect. Reported as
+      the honest outcome: at this fleet size and penalty, uncertainty changes
+      risk reporting, not carbon.

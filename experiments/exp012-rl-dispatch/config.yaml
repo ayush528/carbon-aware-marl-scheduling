@@ -1,0 +1,47 @@
+id: exp012-rl-dispatch
+title: PPO dispatch with and without the calibrated band -- held-out 2024 weeks
+phase: "3-agents"
+seed: 42
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+# exp007's disclosed site spec, sized so capacity binds at the trace peak and
+# deferral therefore has a cost (a slot the fleet cannot absorb is a risk, not
+# a free option).
+sites:
+  n_gpus: 25
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+# One episode = one contiguous week of the NESO/NESO-estimate series with the
+# real Azure demand week laid over it.
+n_slots: 336
+deadline_slots: 8          # 4 hours; the deferral horizon the agent can use
+calibration_days: 28       # band from the 28 days before each episode's week
+sla_penalty_kg_per_kwh: 1.0
+hold_penalty_kg_per_kwh: 0.05
+
+# Disjoint months: train Jan-Sep, evaluate Oct-Dec, so the reported numbers are
+# on weeks no gradient step ever touched.
+train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+eval_months: [10, 11, 12]
+
+# The action space: one dispatch per risk level (score = forecast + lam*band,
+# filling sites cheapest-first) plus "wait". The rules act through the same
+# levels, so the agent is not given a decision the rules cannot make -- the
+# ablation is information (band in the observation), not capability.
+lam_grid: [0.0, 0.5, 1.0, 2.0]
+
+hidden: 32
+episodes: 60
+lr: 0.003

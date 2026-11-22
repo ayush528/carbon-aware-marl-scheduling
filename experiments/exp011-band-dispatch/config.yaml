@@ -1,0 +1,57 @@
+id: exp011-band-dispatch
+title: Band-aware dispatch on real UK regions -- does calibrated uncertainty change the schedule?
+phase: "3-agents"
+seed: 42
+data:
+  # Forecast and (national-scaling estimated) realized intensity for the four
+  # sites' NESO DNO regions, plus the demand week. All hashed into the record.
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+# The Azure LLM trace week (exp006): demand and carbon must cover it exactly.
+window:
+  start: 2024-05-10T00:00Z
+  end: 2024-05-17T00:00Z
+
+# Calibrate on the 28 days *before* the evaluation week: no leakage, and the
+# same rolling-origin rule exp010 uses on 2024.
+calibration_days: 28
+alpha: 0.1
+
+# Four UK sites already used in exp009, so Phase 3 numbers are comparable to
+# the simulator baselines.
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+# Two fleets over the same demand, both using exp007's disclosed site spec
+# (NLR idle->peak per GPU, PUE 1.1, throughput knob that cancels in relative
+# comparisons). The distinction matters: with a fleet big enough to absorb any
+# slot the cheapest site always wins and no band can change anything, so the
+# bound fleet is where dispatch actually has a choice to make.
+fleets:
+  # 100 GPUs/site: the fleet absorbs the trace's peak, so carbon-greedy just
+  # sends everything to the cleanest region. This is the "plenty of capacity"
+  # case and it is reported so the reader can see the band change nothing.
+  - label: unconstrained
+    n_gpus: 100
+    gpu_idle_w: 72.0
+    gpu_peak_w: 713.0
+    pue: 1.1
+    tokens_per_gpu_second: 1000.0
+  # 25 GPUs/site: capacity binds inside the week, load spills down the ranking,
+  # and unserved demand appears -- the regime where the order of the *second*
+  # and *third* sites (and therefore their bands) decides the outcome.
+  - label: capacity_bound
+    n_gpus: 25
+    gpu_idle_w: 72.0
+    gpu_peak_w: 713.0
+    pue: 1.1
+    tokens_per_gpu_second: 1000.0
+
+# Risk aversion sweep. lam=0 is forecast-greedy.
+lam_grid: [0.5, 1.0, 2.0, 4.0]
+relative_lam_grid: [1.0, 2.0]
