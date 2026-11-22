@@ -57,7 +57,7 @@ import numpy as np
 from carbon_scheduling.cluster import site_energy_kwh
 from carbon_scheduling.experiments.exp013_marl_dispatch import _paired
 from carbon_scheduling.rl import data
-from carbon_scheduling.rl.marl_ppo import evaluate_multi, train_multi
+from carbon_scheduling.rl.marl_ppo import train_multi
 from carbon_scheduling.rl.oracle import plan_multi
 from carbon_scheduling.rl.queue_env import QueueEnv
 from carbon_scheduling.rl.queue_rules import run_rule
@@ -109,6 +109,25 @@ def objective(row: dict[str, float], price: float) -> float:
     """
     missed_hours = row["missed_fraction"] * row["offered_gpu_s"] / 3600.0
     return float(row["carbon_kg"] + price * missed_hours)
+
+
+def _play(env: QueueEnv, actors) -> tuple[dict, np.ndarray]:
+    """Greedy joint episode: the summary, plus the actions taken (T, agents).
+
+    The action trace is the mechanism evidence. A carbon cut that comes from
+    every agent holding to the wire is the deadline rule rediscovered; a cut
+    that comes from agents choosing *different* coasts in the same slot is
+    timing that a per-agent rule could not have expressed, and only the trace
+    distinguishes the two.
+    """
+    obs, _ = env.reset()
+    picked = []
+    while True:
+        actions = [int(np.argmax(net.forward(obs[i])[0][0])) for i, net in enumerate(actors)]
+        picked.append(actions)
+        obs, _, done, _, _ = env.step(actions)
+        if done:
+            return env.summary(), np.asarray(picked, dtype=float)
 
 
 def _mean(rows: list[dict], key: str) -> float:
@@ -281,6 +300,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                         cvar_mode=cvar_mode or "terminal",
                     )
                     rows = []
+                    traces = []
                     for start in held_out:
                         env = _env_for(
                             series,
@@ -293,7 +313,9 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                             include_band=True,
                             price=price,
                         )
-                        rows.append(evaluate_multi(env, actors))
+                        summary, trace = _play(env, actors)
+                        rows.append(summary)
+                        traces.append(trace)
                     # One planner call per arm, at the volume the arm actually
                     # served: a matched-service bound, so serving less cannot be
                     # read as better timing. (The exact schedule costs ~2 s per
@@ -311,6 +333,18 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                             "missed_fraction": float(np.mean([r["missed_fraction"] for r in rows])),
                             "objective": float(np.mean([objective(r, price) for r in rows])),
                             "oracle_at_own_volume_kg": float(own_bound),
+                            # Mean action index per agent (0 = serve now, the
+                            # last index = hold to the last legal slot) and the
+                            # share of slots each agent chose not to serve now.
+                            "mean_coast_by_agent": [
+                                round(float(v), 3) for v in np.mean(traces, axis=(0, 1))
+                            ],
+                            "hold_fraction_by_agent": [
+                                round(float(v), 3)
+                                for v in np.mean(
+                                    [t > 0 for t in np.concatenate(traces, axis=0)], axis=0
+                                )
+                            ],
                         }
                     )
                 learned[f"{name}@{price}"] = {
@@ -348,6 +382,14 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                     # Service is reported beside every saving, so a carbon cut
                     # cannot be read as a scheduling gain when it was bought by
                     # serving less work.
+                    "mean_coast_by_agent": [
+                        round(float(v), 3)
+                        for v in np.mean([s["mean_coast_by_agent"] for s in per_seed], axis=0)
+                    ],
+                    "hold_fraction_by_agent": [
+                        round(float(v), 3)
+                        for v in np.mean([s["hold_fraction_by_agent"] for s in per_seed], axis=0)
+                    ],
                     "missed_pp_vs_run_now": round(
                         (
                             float(np.mean([s["missed_fraction"] for s in per_seed]))
