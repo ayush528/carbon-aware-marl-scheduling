@@ -1,0 +1,43 @@
+id: exp011-band-dispatch
+title: Band-aware dispatch on real UK regions -- does calibrated uncertainty change the schedule?
+phase: "3-agents"
+seed: 42
+data:
+  # Forecast and (national-scaling estimated) realized intensity for the four
+  # sites' NESO DNO regions, plus the demand week. All hashed into the record.
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+# The Azure LLM trace week (exp006): demand and carbon must cover it exactly.
+window:
+  start: 2024-05-10T00:00Z
+  end: 2024-05-17T00:00Z
+
+# Calibrate on the 28 days *before* the evaluation week: no leakage, and the
+# same rolling-origin rule exp010 uses on 2024.
+calibration_days: 28
+alpha: 0.1
+
+# Four UK sites already used in exp009, so Phase 3 numbers are comparable to
+# the simulator baselines.
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+# exp007's disclosed site spec: NLR idle->peak per GPU, PUE 1.1, and a
+# throughput knob that cancels in relative comparisons. 100 GPUs per site means
+# the fleet absorbs a mean slot but binds at the trace peak, so capacity (and
+# therefore deadline risk) is real rather than decorative.
+sites:
+  n_gpus: 100
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+# Risk aversion sweep. lam=0 is forecast-greedy.
+lam_grid: [0.5, 1.0, 2.0, 4.0]
+relative_lam_grid: [1.0, 2.0]

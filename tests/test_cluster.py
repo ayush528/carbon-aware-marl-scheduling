@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import pytest
 
-from carbon_scheduling.cluster import Site, slot_energy
+from carbon_scheduling.cluster import Site, site_energy_kwh, slot_energy
 
 SITE = Site(
     name="test",
@@ -87,6 +87,27 @@ def test_gpu_seconds_counts_context_and_generated_tokens() -> None:
     rows = slot_energy(slot, SITE)
     # 4000 slot tokens / 1000 tok/s = 4 GPU-s of 180,000
     assert rows[0]["utilization"] == pytest.approx(4 / 180_000)
+
+
+def test_site_energy_from_allocated_gpu_seconds_matches_slot_energy() -> None:
+    """The dispatch path and the whole-site path use the same power curve."""
+    rows = slot_energy(demand(1, 1_000_000), SITE)
+    direct = site_energy_kwh(SITE, gpu_seconds=rows[0]["gpu_seconds"])
+    assert direct == pytest.approx(rows[0]["energy_kwh"], rel=1e-12)
+
+
+def test_site_energy_of_an_idle_site_is_the_idle_draw() -> None:
+    assert site_energy_kwh(SITE, gpu_seconds=0.0) == pytest.approx(6.0, rel=1e-12)
+
+
+def test_site_energy_caps_at_peak_power_when_over_capacity() -> None:
+    # 2x the slot's GPU-seconds still draws no more than peak power.
+    assert site_energy_kwh(SITE, gpu_seconds=360_000) == pytest.approx(42.0, rel=1e-12)
+
+
+def test_site_energy_rejects_negative_load() -> None:
+    with pytest.raises(ValueError):
+        site_energy_kwh(SITE, gpu_seconds=-1.0)
 
 
 def test_site_rejects_unphysical_spec() -> None:
