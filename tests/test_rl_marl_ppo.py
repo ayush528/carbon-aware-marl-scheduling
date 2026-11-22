@@ -15,6 +15,7 @@ import pytest
 from carbon_scheduling.cluster import Site
 from carbon_scheduling.rl.marl_env import MultiAgentEnv
 from carbon_scheduling.rl.marl_ppo import (
+    CVaRTracker,
     _gae_multi,
     cvar_adjustment,
     cvar_tail,
@@ -52,15 +53,27 @@ def test_cvar_adjustment_penalises_only_the_spiky_agent() -> None:
     violations = np.array([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 8.0]])
     adjustment = cvar_adjustment(violations, 0.75, 1.0)
     assert adjustment[0] == pytest.approx(0.0)
-    # Worst quarter of agent 1 is 8, its mean is 2 -> 6 GPU-seconds, in kg.
-    assert adjustment[1] == pytest.approx(-6.0 / 3600.0)
+    # Worst quarter of agent 1 is 8, its mean is 2 -> 6 GPU-seconds, times the
+    # four slots of the episode (the mean charge it replaces is 4 x 2).
+    assert adjustment[1] == pytest.approx(-4 * 6.0 / 3600.0)
+
+
+def test_cvar_adjustment_is_scaled_by_the_episode_length() -> None:
+    """The mean charge it replaces is ``T * mean``, so the tail gap must be too."""
+    spike = np.array([[0.0], [0.0], [3600.0]])
+    # Mean 1200; CVaR of the worst half is the mean of {3600, 0} = 1800.
+    assert cvar_adjustment(spike, 0.5, 1.0)[0] == pytest.approx(-3 * 600.0 / 3600.0)
+    # The same series over six slots pays more, not the same: T is in the units.
+    longer = cvar_adjustment(np.vstack([spike, spike]), 0.5, 1.0)[0]
+    assert abs(longer) > abs(cvar_adjustment(spike, 0.5, 1.0)[0])
 
 
 def test_cvar_weight_scales_and_zero_disables() -> None:
     violations = np.array([[0.0], [10.0]])
     assert np.allclose(cvar_adjustment(violations, 0.5, 0.0), 0.0)
-    assert cvar_adjustment(violations, 0.5, 1.0)[0] == pytest.approx(-5.0 / 3600.0)
-    assert cvar_adjustment(violations, 0.5, 2.0)[0] == pytest.approx(-10.0 / 3600.0)
+    # Mean is 5, CVaR of the worst half is 10 -> a 5 GPU-s gap over two slots.
+    assert cvar_adjustment(violations, 0.5, 1.0)[0] == pytest.approx(-2 * 5.0 / 3600.0)
+    assert cvar_adjustment(violations, 0.5, 2.0)[0] == pytest.approx(-2 * 10.0 / 3600.0)
 
 
 def test_cvar_adjustment_rejects_bad_shapes() -> None:
@@ -163,9 +176,10 @@ def test_cvar_changes_the_terminal_reward_only() -> None:
     )
     steps = len(plain["rewards"])
     assert np.allclose(plain["rewards"][: steps - 1], risky["rewards"][: steps - 1])
-    # Blamed series for agent 1 is [0, 0, 10]: mean 3.33, worst half (2, 10) -> 5.
+    # Blamed series for agent 1 is [0, 0, 10]: mean 3.33, worst half (2, 10) -> 5,
+    # and the gap is scaled by the three slots of the episode.
     assert risky["rewards"][-1, 0] == pytest.approx(0.0)
-    assert risky["rewards"][-1, 1] == pytest.approx(-(5.0 - 10.0 / 3.0) / 3600.0)
+    assert risky["rewards"][-1, 1] == pytest.approx(-3 * (5.0 - 10.0 / 3.0) / 3600.0)
 
 
 class JointBandit:
@@ -241,3 +255,50 @@ def test_evaluate_multi_runs_a_greedy_episode() -> None:
     actors = [ActorCritic(env.obs_dim, env.n_actions, hidden=4, seed=i) for i in range(2)]
     summary = evaluate_multi(env, actors)
     assert set(summary) >= {"carbon_kg", "sla_violation_fraction", "served_gpu_s"}
+
+
+def test_per_step_cvar_is_neutral_at_zero_weight() -> None:
+    tracker = CVaRTracker(2, alpha=0.9, weight=0.0)
+    assert tracker.charge(np.array([0.0, 1e5])) == pytest.approx([0.0, 0.0])
+
+
+def test_per_step_cvar_charges_nothing_while_the_series_is_flat() -> None:
+    tracker = CVaRTracker(1, alpha=0.9, weight=1.0)
+    charges = [tracker.charge(np.array([500.0]))[0] for _ in range(40)]
+    assert sum(charges) == pytest.approx(0.0, abs=1e-12)
+
+
+def test_per_step_cvar_charges_the_spike_and_nothing_else() -> None:
+    tracker = CVaRTracker(1, alpha=0.9, weight=1.0)
+    for _ in range(100):  # a quiet background first
+        tracker.charge(np.array([100.0]))
+    charges = [tracker.charge(np.array([v]))[0] for v in (100.0, 100.0, 50000.0)]
+    assert charges[0] == pytest.approx(0.0, abs=1e-9)
+    assert charges[1] == pytest.approx(0.0, abs=1e-9)
+    # The spike is charged far above its mean share: costlier than the mean
+    # price of the same violation would be.
+    mean_charge = 50000.0 / 3600.0
+    assert charges[2] < -mean_charge
+
+
+def test_per_step_and_terminal_charge_the_same_quantity_on_a_long_series() -> None:
+    """Summed over an episode the two attributions agree to a few percent."""
+    rng = np.random.default_rng(3)
+    series = np.concatenate([rng.gamma(1.0, 200.0, size=80), [4e4, 6e4, 1e3, 2e4]])
+    alpha, weight = 0.8, 1.0
+
+    tracker = CVaRTracker(1, alpha=alpha, weight=weight)
+    per_step = sum(tracker.charge(np.array([v]))[0] for v in series)
+    terminal = cvar_adjustment(series[:, None], alpha, weight)[0]
+    assert per_step == pytest.approx(terminal, rel=0.25)
+
+
+def test_per_step_cvar_needs_a_valid_alpha_and_history() -> None:
+    with pytest.raises(ValueError):
+        CVaRTracker(1, alpha=1.0, weight=1.0)
+    with pytest.raises(ValueError):
+        CVaRTracker(1, alpha=0.9, weight=-1.0)
+    with pytest.raises(ValueError):
+        CVaRTracker(1, alpha=0.9, weight=1.0, min_history=0)
+    with pytest.raises(ValueError):
+        CVaRTracker(2, alpha=0.9, weight=1.0).charge(np.array([1.0]))

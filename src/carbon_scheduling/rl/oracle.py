@@ -5,22 +5,30 @@ given the realized carbon intensity at every (slot, site), the fleet's capacity
 per slot, and each arrival's deadline, what is the lowest-carbon schedule that
 serves the work?
 
-It is not a policy -- it sees the future -- so it is an upper bound on what any
-causal policy could achieve, and the gap between a learner and this plan is the
+It is not a policy -- it sees the future -- so it is a lower bound on the carbon
+any causal policy could emit, and the gap between a learner and this plan is the
 headroom the learner left on the table. It is solved as a min-cost flow, so the
 number is a proven optimum rather than a heuristic's best effort.
 
-Network, for ``T`` slots and ``N`` sites::
+Work may arrive in several **classes** with different deadlines (an interactive
+request and a batch job are both work, but only one of them may wait). The
+network, for ``T`` slots, ``N`` sites and ``K`` classes::
 
-    source --(arrivals at t)--> slot t --(carry)--> slot t+1
-                                  |
-                                  +--(capacity, cost per GPU-s)--> sink   x N
+    source --(arrivals at t, class k)--> class(k, t) --(carry)--> class(k, t+1)
+                                            |
+                                            +--(cost per GPU-s)--> site(t, i) --> sink
+                                                                      (capacity)
 
 Carrying work forward is free (the power model bills every site's idle floor in
-every slot, so waiting costs no extra energy). The carry arc's capacity is the
-work that could still be in flight legally -- everything that arrived in the
-last ``deadline`` slots -- which is what enforces the deadline: work cannot wait
-longer than its owner's window.
+every slot, so waiting costs no extra energy). A carry arc's capacity is the
+work of that class that could still be in flight legally, which is what enforces
+the deadline: work cannot wait longer than its class's window. Site capacity is
+shared, so classes compete for the same clean slots.
+
+A lower bound assumes the schedule can move work between regions at will, so it
+is optimistic about placement *and* timing. Both are exactly known to the
+planner and only partly observable to a policy; that gap is the point of the
+measurement.
 """
 
 from __future__ import annotations
@@ -37,7 +45,7 @@ def plan(
     deadline: int,
     volume: float | None = None,
 ) -> tuple[np.ndarray, float]:
-    """Serve ``demand`` at minimum cost, subject to ``deadline`` and capacity.
+    """Serve one deadline class at minimum cost (see :func:`plan_multi`).
 
     ``cost[t, i]`` is the carbon per GPU-second of running at site ``i`` in slot
     ``t``; ``demand[t]`` is the GPU-seconds arriving in slot ``t``; ``capacity``
@@ -52,64 +60,99 @@ def plan(
     left unserved: work the fleet could not hold, or work the requested volume
     did not cover.
     """
+    demand = np.asarray(demand, dtype=np.float64)
+    if demand.ndim != 1:
+        raise ValueError(f"demand must be 1-D, got shape {demand.shape}")
+    alloc, unserved = plan_multi(cost, demand[None, :], capacity, [deadline], volume=volume)
+    return alloc[0], unserved
+
+
+def plan_multi(
+    cost: np.ndarray,
+    demand: np.ndarray,
+    capacity: float,
+    deadlines: list[int] | tuple[int, ...],
+    volume: float | None = None,
+) -> tuple[np.ndarray, float]:
+    """Serve every class at minimum cost, sharing the fleet's capacity.
+
+    ``demand[k, t]`` is the GPU-seconds of class ``k`` arriving in slot ``t`` and
+    ``deadlines[k]`` is how many slots (including its own) that class may wait --
+    a deadline of 1 means "this slot or never".
+
+    ``volume`` applies to the *total*: it asks for the cheapest ``volume``
+    GPU-seconds across all classes, leaving the rest unserved. ``None`` serves
+    everything the fleet can hold.
+
+    Returns ``alloc`` (shape ``(K, T, N)``) and the GPU-seconds left unserved.
+    """
     cost = np.asarray(cost, dtype=np.float64)
     demand = np.asarray(demand, dtype=np.float64)
+    deadlines = [int(d) for d in deadlines]
     if cost.ndim != 2:
         raise ValueError(f"cost must be 2-D, got shape {cost.shape}")
-    if demand.shape != (cost.shape[0],):
-        raise ValueError(f"demand shape {demand.shape} does not match {cost.shape[0]} slots")
-    if deadline < 1:
-        raise ValueError(f"deadline must be >= 1, got {deadline}")
+    if demand.ndim != 2:
+        raise ValueError(f"demand must be 2-D (classes, slots), got shape {demand.shape}")
+    slots, sites = cost.shape
+    if demand.shape[1] != slots:
+        raise ValueError(f"demand has {demand.shape[1]} slots, cost has {slots}")
+    if len(deadlines) != demand.shape[0]:
+        raise ValueError(f"{len(deadlines)} deadlines for {demand.shape[0]} demand classes")
+    if any(d < 1 for d in deadlines):
+        raise ValueError(f"every deadline must be >= 1, got {deadlines}")
     if capacity <= 0:
         raise ValueError(f"capacity must be positive, got {capacity}")
     if (demand < 0).any():
         raise ValueError("demand must be non-negative")
     if (cost < 0).any():
         raise ValueError("cost must be non-negative")
+    if volume is not None and volume < 0:
+        raise ValueError(f"volume must be non-negative, got {volume}")
 
-    slots, sites = cost.shape
+    classes = demand.shape[0]
     total = float(demand.sum())
     if total <= 0:
-        return np.zeros_like(cost), 0.0
-
-    # Carry capacity after slot t: work that can still be served in slot t+1.
-    # An arrival at `a` may run in slots a .. a+deadline-1, so after serving slot
-    # t the only work that may still be in flight arrived at t-deadline+2 or
-    # later. Anything older has expired and must not be carried.
-    carry = np.zeros(slots)
-    for t in range(slots):
-        carry[t] = float(demand[max(0, t - deadline + 2) : t + 1].sum())
+        return np.zeros((classes, slots, sites)), 0.0
+    want = total if volume is None else min(float(volume), total)
 
     source = 0
-    node = lambda t: 1 + t  # noqa: E731 - local, obvious
-    sink = 1 + slots
+    class_node = lambda k, t: 1 + k * slots + t  # noqa: E731 - local, obvious
+    site_node = lambda t, i: 1 + classes * slots + t * sites + i  # noqa: E731
+    sink = 1 + classes * slots + slots * sites
     graph: list[list[list[float]]] = [[] for _ in range(sink + 1)]
 
-    def add_edge(u: int, v: int, cap: float, price: float) -> None:
+    def add_edge(u: int, v: int, cap: float, price: float) -> int:
         graph[u].append([v, cap, price, len(graph[v])])
         graph[v].append([u, 0.0, -price, len(graph[u]) - 1])
+        return len(graph[u]) - 1
 
+    served_arcs: list[tuple[int, int, int, int, int]] = []
+    for k in range(classes):
+        horizon = deadlines[k]
+        for t in range(slots):
+            if demand[k, t] > 0:
+                add_edge(source, class_node(k, t), float(demand[k, t]), 0.0)
+            if t + 1 < slots:
+                # After serving slot t, class-k work may still be in flight only
+                # if it arrived at t - horizon + 2 or later: an arrival at a may
+                # run in slots a .. a+horizon-1.
+                carry = float(demand[k, max(0, t - horizon + 2) : t + 1].sum())
+                if carry > 0:
+                    add_edge(class_node(k, t), class_node(k, t + 1), carry, 0.0)
+            for i in range(sites):
+                arc = add_edge(class_node(k, t), site_node(t, i), total, float(cost[t, i]))
+                served_arcs.append((k, t, i, class_node(k, t), arc))
     for t in range(slots):
-        if demand[t] > 0:
-            add_edge(source, node(t), float(demand[t]), 0.0)
-        if t + 1 < slots and carry[t] > 0:
-            add_edge(node(t), node(t + 1), carry[t], 0.0)
         for i in range(sites):
-            add_edge(node(t), sink, float(capacity), float(cost[t, i]))
+            add_edge(site_node(t, i), sink, float(capacity), 0.0)
 
-    want = total if volume is None else min(float(volume), total)
-    if want < 0:
-        raise ValueError(f"volume must be non-negative, got {volume}")
     flow = _min_cost_flow(graph, source, sink, want)
-    alloc = np.zeros((slots, sites))
-    # Read the served flow back off the site arcs: for slot t they are the last
-    # `sites` arcs added, in site order.
-    for t in range(slots):
-        arcs = [arc for arc in graph[node(t)] if arc[0] == sink]
-        for i, arc in enumerate(arcs[:sites]):
-            served = capacity - arc[1]
-            if served > 1e-9:
-                alloc[t, i] = served
+
+    alloc = np.zeros((classes, slots, sites))
+    # Flow along a class -> site arc is the capacity its reverse arc now holds.
+    for k, t, i, u, arc in served_arcs:
+        reverse = graph[u][arc][3]
+        alloc[k, t, i] = graph[site_node(t, i)][reverse][1]
     return alloc, max(total - flow, 0.0)
 
 

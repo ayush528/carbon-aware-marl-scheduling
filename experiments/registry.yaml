@@ -240,3 +240,31 @@ experiments:
       learners never coordinate on. The bound is not a policy -- it sees every
       realized intensity -- but it bounds what any causal policy could save and
       motivates the queue-owning redesign (rung 7).
+
+  - id: exp016-queue-ownership
+    title: Rung 7 -- agents own queues, so timing becomes a unilateral decision
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      Rung 6 let an agent own a site, which meant deferral was only expressible
+      as `wait` -- and a single agent withdrawing its capacity just let the
+      coordinator spill its work, so deferral needed every agent to wait at
+      once. Ownership is inverted here: each of four agents owns a work stream
+      and a deadline-constrained backlog, and its only decision is what fraction
+      of its own slack to coast (serve now, a third, two thirds, or hold to the
+      last legal slot) before offering its queue. Deferral is then unilateral
+      and a policy can express it. A coordinator still places whatever is
+      offered, cheapest forecast site first, so rung 6's placement result -- the
+      regional ordering is exactly known -- is preserved, and the only lever
+      under test is timing. The four classes (0.5, 1, 2 and 4 hours) split the
+      Azure arrivals equally, a disclosed modelling choice because the trace
+      carries no latency labels; every arm sees the identical split. Each arm is
+      scored against (a) four hand-written timing rules, (b) the exact
+      perfect-foresight bound at the volume the immediate rule serves, and (c)
+      the same bound at the arm's *own* served volume, which is what stops a
+      policy from looking good by serving less. Units: 600 episodes, three
+      seeds, three prices (0.1 = parity, 0.3 = the rule frontier's crossover,
+      1.0 = a service obligation), two fleets; gamma 1.0 because the objective
+      is the episode total, lam 0.98 and the episode count chosen on a hold-out
+      slice of the training months, never on the evaluation weeks.

@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from carbon_scheduling.rl.oracle import plan
+from carbon_scheduling.rl.oracle import plan, plan_multi
 
 
 def test_serves_in_the_cheapest_slot_the_deadline_allows() -> None:
@@ -170,3 +170,97 @@ def test_padded_slots_are_charged_for_the_work_but_not_for_the_idle_floor() -> N
     idle_kwh = 100.0 * 1 * 0.5 / 1000.0  # 0.05 kWh in the real slot
     load_kwh = (300.0 - 100.0) * 0.5 / 1000.0  # 0.1 kWh for the padded work
     assert kg == pytest.approx((idle_kwh + load_kwh) * 100.0 / 1000.0)
+
+
+def test_two_classes_share_the_clean_slot_by_deadline() -> None:
+    """The tight class owns the cheap slot; the loose one takes the next."""
+    cost = np.array([[1.0], [10.0]])
+    demand = np.array([[5.0, 0.0], [5.0, 0.0]])  # tight, loose
+    alloc, unserved = plan_multi(cost, demand, capacity=5.0, deadlines=[1, 2])
+    assert unserved == pytest.approx(0.0)
+    assert alloc[0, 0, 0] == pytest.approx(5.0)  # tight runs now
+    assert alloc[1, 1, 0] == pytest.approx(5.0)  # loose defers
+
+
+def test_a_class_that_may_wait_outranks_a_greedy_one_for_a_later_bargain() -> None:
+    cost = np.array([[5.0], [1.0]])
+    demand = np.array([[0.0, 5.0]])
+    alloc, unserved = plan_multi(cost, demand, capacity=5.0, deadlines=[3])
+    assert unserved == pytest.approx(0.0)
+    assert alloc[0, 1, 0] == pytest.approx(5.0)
+
+
+def test_volume_is_a_total_across_classes_not_per_class() -> None:
+    cost = np.array([[1.0], [2.0]])
+    demand = np.array([[5.0, 0.0], [5.0, 0.0]])
+    alloc, shed = plan_multi(cost, demand, capacity=10.0, deadlines=[1, 1], volume=5.0)
+    assert shed == pytest.approx(5.0)
+    # The cheapest five units, regardless of which class they belong to.
+    assert alloc.sum() == pytest.approx(5.0)
+    assert float((alloc.sum(axis=0) * cost).sum()) == pytest.approx(5.0)
+
+
+def test_rejects_a_deadline_of_zero() -> None:
+    with pytest.raises(ValueError, match="deadline"):
+        plan_multi(np.ones((2, 1)), np.ones((1, 2)), 1.0, [0])
+
+
+def _brute_multi(cost, demand, capacity, deadlines):
+    """Exhaustive optimum for tiny instances with per-class deadlines."""
+    slots, sites = cost.shape
+    units = [
+        (k, t)
+        for k in range(demand.shape[0])
+        for t in range(slots)
+        for _ in range(int(demand[k, t]))
+    ]
+    cap_free = [[int(capacity)] * sites for _ in range(slots)]
+    best = [(-1.0, float("inf"))]
+
+    def walk(idx, served, price):
+        if idx == len(units):
+            better = served > best[0][0] + 1e-9 or (
+                abs(served - best[0][0]) <= 1e-9 and price < best[0][1] - 1e-9
+            )
+            if better:
+                best[0] = (served, price)
+            return
+        k, arrival = units[idx]
+        walk(idx + 1, served, price)  # leave it unserved
+        for slot in range(arrival, min(arrival + deadlines[k], slots)):
+            for site in range(sites):
+                if cap_free[slot][site] > 0:
+                    cap_free[slot][site] -= 1
+                    walk(idx + 1, served + 1.0, price + float(cost[slot, site]))
+                    cap_free[slot][site] += 1
+
+    walk(0, 0.0, 0.0)
+    return best[0]
+
+
+def test_multi_class_planner_matches_exhaustive_search() -> None:
+    rng = np.random.default_rng(11)
+    for _ in range(30):
+        slots = int(rng.integers(2, 5))
+        sites = int(rng.integers(1, 3))
+        cost = np.round(rng.uniform(0.1, 5.0, size=(slots, sites)), 3)
+        demand = rng.integers(0, 3, size=(2, slots)).astype(float)
+        capacity = float(rng.integers(1, 4))
+        deadlines = [int(rng.integers(1, slots + 1)), int(rng.integers(1, slots + 1))]
+
+        alloc, unserved = plan_multi(cost, demand, capacity, deadlines)
+        served_flow = float(demand.sum()) - unserved
+        price_flow = float((alloc.sum(axis=0) * cost).sum())
+        served_brute, price_brute = _brute_multi(cost, demand, capacity, deadlines)
+        assert served_flow == pytest.approx(served_brute, abs=1e-6), (
+            cost,
+            demand,
+            capacity,
+            deadlines,
+        )
+        assert price_flow == pytest.approx(price_brute, abs=1e-6), (
+            cost,
+            demand,
+            capacity,
+            deadlines,
+        )

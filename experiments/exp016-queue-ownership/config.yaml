@@ -1,0 +1,55 @@
+id: exp016-queue-ownership
+title: Rung 7 -- agents own queues, so timing becomes a unilateral decision
+phase: "3-agents"
+seed: 42
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+fleets:
+  - name: capacity_bound
+    n_gpus: 25
+  - name: slack
+    n_gpus: 40
+
+sites:
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+n_slots: 336
+# One class per agent: 0.5 h, 1 h, 2 h and 4 h deadlines. The Azure trace has no
+# latency labels, so arrivals are split equally between the classes -- disclosed,
+# and identical for every arm.
+deadlines: [2, 4, 8, 16]
+calibration_days: 28
+train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+eval_months: [10, 11, 12]
+year: 2024
+
+# Chosen on a hold-out slice of the *training* months (July-September), never on
+# the evaluation weeks: 600 episodes beat 200; lam 0.98 beat 0.95 and 1.0 on
+# that slice, and gamma 1.0 is the objective's own discount (see the module
+# docstring -- a discounted return under-prices a miss that lands fifteen slots
+# after the decision that caused it).
+episodes: 600
+seeds: [0, 1, 2]
+hidden: 32
+lr: 0.0003
+gamma: 1.0
+lam: 0.98
+cvar_alpha: 0.9
+# The sweep covers the three regimes the rule frontier actually has: 0.1 is
+# exp013's parity price (0.093 kg emitted per GPU-hour served), where deadline
+# holding is cheap; 0.3 is the crossover, where the best rule changes hands; 1.0
+# makes a miss ten times dearer than serving, i.e. effectively an obligation.
+prices: [0.1, 0.3, 1.0]
+rules: [run_now, last_slot, forecast_timing, band_timing]

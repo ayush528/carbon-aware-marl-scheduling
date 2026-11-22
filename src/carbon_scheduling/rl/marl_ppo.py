@@ -19,16 +19,27 @@ The CVaR term is the paper's risk-aware deadlines axis. The environment already
 charges each agent the *mean* of the violations it is blamed for. CVaR replaces
 that with the worst ``1 - alpha`` fraction of its own per-slot violation series::
 
-    adjustment_i = -cvar_weight * (CVaR_alpha(violations_i) - mean(violations_i))
+    adjustment_i = -cvar_weight * T * (CVaR_alpha(violations_i) - mean(violations_i))
 
 so ``cvar_weight = 0`` is risk-neutral (exactly exp012's reward) and
 ``cvar_weight = sla_penalty`` makes the agent pay the tail instead of the mean.
-The adjustment is applied at the terminal step, because a tail is an episode
-property; nothing else about the environment changes.
+
+Two things decide whether the term can move anything, and exp013/exp014 got the
+first one wrong:
+
+* **Scale.** The mean charge over an episode is ``T * mean``, so the tail
+  difference has to be multiplied by ``T`` too. Without it the "risk" term is
+  one part in ``T`` of what it replaces -- invisible.
+* **Attribution.** A tail is an episode property, but charging it once at the
+  end puts it in a single advantage out of ``T``, so no per-slot signal exists
+  for avoiding the tail. :class:`CVaRTracker` charges the same total as it
+  happens (``cvar_mode="per_step"``), which is causal and gives every tail slot
+  a gradient.
 """
 
 from __future__ import annotations
 
+import bisect
 from collections.abc import Callable
 from typing import Any
 
@@ -49,24 +60,92 @@ def cvar_tail(values: np.ndarray, alpha: float) -> float:
 
 
 def cvar_adjustment(violations: np.ndarray, alpha: float, weight: float) -> np.ndarray:
-    """Per-agent terminal reward adjustment, ``-weight * (CVaR - mean)``.
+    """Per-agent terminal reward adjustment that swaps the mean for the tail.
 
-    A penalty, so it is <= 0 and shape ``(n_agents,)``, in kilograms: the
-    violation series is in GPU-seconds, so it is divided by 3600 exactly as the
-    environment's own per-step penalty is. Zero when the agent's violations are
-    uniform, which is the property that makes "CVaR on" a tail effect and not a
-    rescaling.
+    The environment charges ``-price * v_t / 3600`` every slot, so over an
+    episode of ``T`` slots an agent pays ``-price * T * mean(v)``. Pricing the
+    *tail* instead means paying ``-price * T * CVaR_alpha(v)``, and the
+    difference this function adds is therefore::
+
+        -weight * T * (CVaR_alpha(v) - mean(v)) / 3600
+
+    ``weight = 0`` is risk-neutral, ``weight = price`` prices a missed GPU-hour
+    at its worst-decile level instead of its average level, and the term is
+    zero when the violations are uniform -- which is what makes it a tail
+    effect and not a rescaling.
+
+    The ``T`` matters: exp013 and exp014 charged this quantity *without* it, so
+    the risk term was 336x smaller than the mean charge it was meant to replace
+    and could not move anything. With the scale in place, :class:`CVaRTracker`
+    charges the same total step by step.
     """
     if weight < 0:
         raise ValueError("cvar weight must be >= 0")
     violations = np.asarray(violations, dtype=np.float64)
     if violations.ndim != 2:
         raise ValueError(f"violations must be (T, agents), got {violations.shape}")
+    slots = violations.shape[0]
     out = np.zeros(violations.shape[1])
     for i in range(violations.shape[1]):
         series = violations[:, i]
-        out[i] = -weight * (cvar_tail(series, alpha) - float(series.mean())) / 3600.0
+        gap = cvar_tail(series, alpha) - float(series.mean())
+        out[i] = -weight * slots * gap / 3600.0
     return out
+
+
+class CVaRTracker:
+    """Causal per-step CVaR surcharge: a tail is paid where it happens.
+
+    The terminal charge in :func:`cvar_adjustment` is the right *quantity* but
+    the wrong *attribution*: one of 336 advantages carries it, so the learner
+    has no per-slot signal to avoid the tail (exp013/exp014 measured exactly
+    that: no movement in the tail metrics at any alpha).
+
+    This tracker charges the same episode total step by step, using the
+    Rockafellar-Uryasev identity
+
+        CVaR_alpha(v) = min_q [ q + E[(v - q)+] / (1 - alpha) ],
+
+    with ``q`` the running empirical ``alpha``-quantile of the agent's own
+    violation series. Per step the surcharge relative to the mean charge is::
+
+        -weight * [ (v - q)+ / (1 - alpha) - v ] / 3600
+
+    so the episode sums to ``-weight * (CVaR_est - mean)`` -- the same quantity
+    the terminal charge uses, spread over the slots that produced it. Until the
+    history is long enough to estimate a quantile the surcharge is zero, i.e.
+    the agent starts risk-neutral and becomes risk-aware as evidence arrives.
+    """
+
+    def __init__(self, n_agents: int, alpha: float, weight: float, *, min_history: int = 5):
+        if not 0.0 <= alpha < 1.0:
+            raise ValueError(f"alpha must be in [0, 1), got {alpha!r}")
+        if weight < 0:
+            raise ValueError("cvar weight must be >= 0")
+        if min_history < 1:
+            raise ValueError("min_history must be >= 1")
+        self.n_agents = int(n_agents)
+        self.alpha = float(alpha)
+        self.weight = float(weight)
+        self.min_history = int(min_history)
+        self.history: list[list[float]] = [[] for _ in range(self.n_agents)]
+
+    def charge(self, violations: np.ndarray) -> np.ndarray:
+        """Surcharge for this step's per-agent violations (kg, shape (agents,))."""
+        violations = np.asarray(violations, dtype=np.float64).ravel()
+        if violations.size != self.n_agents:
+            raise ValueError(f"expected {self.n_agents} violations, got {violations.size}")
+        out = np.zeros(self.n_agents)
+        for i, value in enumerate(violations):
+            series = self.history[i]
+            bisect.insort(series, float(value))
+            if len(series) < self.min_history or self.weight == 0.0:
+                continue
+            k = min(len(series) - 1, int(np.ceil(self.alpha * len(series))) - 1)
+            q = series[max(0, k)]
+            tail = max(0.0, float(value) - q)
+            out[i] = -self.weight * (q + tail / (1.0 - self.alpha) - float(value)) / 3600.0
+        return out
 
 
 def _gae_multi(
@@ -100,12 +179,26 @@ def rollout_multi(
     lam: float = 0.95,
     cvar_alpha: float | None = None,
     cvar_weight: float = 0.0,
+    cvar_mode: str = "terminal",
 ) -> dict[str, Any]:
-    """One joint episode: experience for every agent plus the episode totals."""
+    """One joint episode: experience for every agent plus the episode totals.
+
+    ``cvar_mode`` decides *where* the tail surcharge lands: ``"terminal"``
+    charges it once at the end (exp013/exp014 behaviour), ``"per_step"``
+    charges it in every slot through :class:`CVaRTracker`. The episode total is
+    the same quantity either way; only its attribution differs.
+    """
     obs, _ = env.reset()
     n_agents = env.n_agents
+    if cvar_mode not in {"terminal", "per_step"}:
+        raise ValueError(f"cvar_mode must be 'terminal' or 'per_step', got {cvar_mode!r}")
     obs_buf, act_buf, logp_buf, rew_buf, done_buf = [], [], [], [], []
     value_buf, state_buf, viol_buf = [], [], []
+    tracker = (
+        CVaRTracker(n_agents, cvar_alpha, cvar_weight)
+        if cvar_mode == "per_step" and cvar_alpha is not None and cvar_weight > 0
+        else None
+    )
 
     while True:
         actions = []
@@ -124,8 +217,12 @@ def rollout_multi(
         before = getattr(env, "violated_by_agent", np.zeros(n_agents)).copy()
         next_obs, rewards, done, truncated, _info = env.step(actions)
         after = getattr(env, "violated_by_agent", np.zeros(n_agents))
-        viol_buf.append(after - before)
-        rew_buf.append(np.asarray(rewards, dtype=np.float64))
+        step_violations = after - before
+        viol_buf.append(step_violations)
+        step_rewards = np.asarray(rewards, dtype=np.float64)
+        if tracker is not None:
+            step_rewards = step_rewards + tracker.charge(step_violations)
+        rew_buf.append(step_rewards)
         done_buf.append(bool(done or truncated))
         obs = next_obs
         if done or truncated:
@@ -133,7 +230,7 @@ def rollout_multi(
 
     rewards = np.asarray(rew_buf)
     violations = np.asarray(viol_buf)
-    if cvar_alpha is not None and cvar_weight > 0:
+    if cvar_alpha is not None and cvar_weight > 0 and cvar_mode == "terminal":
         # A tail is an episode property, so it is charged once, at the end.
         rewards[-1] = rewards[-1] + cvar_adjustment(violations, cvar_alpha, cvar_weight)
 
@@ -221,6 +318,7 @@ def train_multi(
     ent_coef: float = 0.01,
     cvar_alpha: float | None = None,
     cvar_weight: float = 0.0,
+    cvar_mode: str = "terminal",
     log: Callable[[dict[str, Any]], None] | None = None,
 ) -> tuple[list[ActorCritic], ValueNet | None, list[dict[str, Any]]]:
     """Train independent actors (IPPO) or actors with a centralised critic."""
@@ -246,6 +344,7 @@ def train_multi(
             lam=lam,
             cvar_alpha=cvar_alpha,
             cvar_weight=cvar_weight,
+            cvar_mode=cvar_mode,
         )
         diags = []
         for i in range(n_agents):
