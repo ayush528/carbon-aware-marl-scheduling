@@ -280,13 +280,17 @@ docs/
       reorder sites, and under the national-scaling estimator the per-slot regional ordering is
       exact, so carbon-greedy is already optimal on ranking. Uncertainty has to earn its place on
       **level and timing** (deadlines, CVaR), not on site ranking.
-- [x] Rung 6 (exp013): IPPO/MAPPO with limited communication and a CVaR-on-deadline term. The
-      risk term is the only thing that improves carbon at matched service (1.57%, 12/12 weeks);
-      coordination and communication add nothing measurable here, and the slack fleet has no
-      headroom. The Phase 3 headline is therefore a risk-objective result, not a coordination one.
-- [ ] Reward shaping for the deferral axis: today's deadline penalty makes "never wait" optimal, so
-      the agent cannot express the deferral trade; sweep the penalty and report carbon-vs-SLA
-      frontiers instead of one weight
-- [ ] exp014: multi-seed replication of the exp013 headline (CVaR agent vs carbon-greedy, both
-      fleets, five seeds), because one seed is a point estimate
+- [x] Rung 6 (exp013): IPPO/MAPPO over per-region agents, a service obligation, and a deadline
+      price swept around the **parity price** — the 0.093 kg of CO₂ that serving one GPU-hour
+      emits. The learner matches the carbon-greedy rule where service is free, and beats every
+      hand-written rule on its own objective where a trade exists (9.2% at parity, 58% below it);
+      carbon and service are reported together at every point, because unserved work emits
+      nothing. The first version of this rung was wrong twice — a learning rate that diverged and
+      prices eleven times the cost of serving — so the run now reports a learning gate and the
+      parity price beside its results.
+- [ ] exp014: multi-seed replication at the parity price (five seeds, both fleets), so every
+      exp013 number is either seed-robust or reported as a point estimate
+- [ ] exp015: a per-step tail surcharge in place of the terminal CVaR charge. The objective and
+      the units are right; charging the tail once, at the last step, is why it cannot move the
+      tail.
 - [ ] Phase 4: multi-window evaluation and the remaining ablations, then the thesis tables
