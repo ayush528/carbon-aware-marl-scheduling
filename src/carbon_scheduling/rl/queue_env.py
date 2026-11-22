@@ -20,8 +20,10 @@ Work classes
     deadline (interactive to batch). The Azure trace carries no latency labels,
     so the split is a disclosed modelling choice; every policy in an experiment
     sees the identical split, so comparisons stay matched. The classes are what
-    make the agents genuinely different: a 30-minute class cannot defer, an
-    8-hour class can.
+    make the agents genuinely different: with a 1-hour deadline (2 slots) the
+    longest possible hold is a single slot, with an 8-hour deadline (16 slots)
+    it is fifteen. The 4-hour class is the deadline every rung since exp012
+    used, so its numbers line up with theirs.
 
 Action
     A **coast fraction** ``c``: hold the class's work for

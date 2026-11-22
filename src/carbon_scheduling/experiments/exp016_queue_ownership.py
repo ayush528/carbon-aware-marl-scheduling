@@ -22,11 +22,12 @@ What changed
     coordinator still places whatever is offered, cheapest forecast first, so
     rung 6's placement result is preserved.
 
-    Work arrives in four classes with deadlines of 0.5, 1, 2 and 4 hours, one
-    per agent. That is what makes the agents different, and it is the part of
-    the problem the band can act on: a class that may not wait cannot use the
-    forecast at all, and a class that may wait should only use it when the
-    improvement is bigger than the measurement error.
+    Work arrives in four classes with deadlines of 1, 2, 4 and 8 hours, one per
+    agent (the 4-hour class is the deadline every rung since exp012 used). That
+    is what makes the agents different, and it is the part of the problem the
+    band can act on: a class that may not wait cannot use the forecast at all,
+    and a class that may wait should only use it when the improvement is bigger
+    than the measurement error.
 
 What is measured
     * the four hand-written timing rules (immediate, last-legal-slot,

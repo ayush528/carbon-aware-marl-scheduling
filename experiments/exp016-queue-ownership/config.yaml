@@ -26,9 +26,11 @@ sites:
   tokens_per_gpu_second: 1000.0
 
 n_slots: 336
-# One class per agent: 0.5 h, 1 h, 2 h and 4 h deadlines. The Azure trace has no
-# latency labels, so arrivals are split equally between the classes -- disclosed,
-# and identical for every arm.
+# One class per agent, in 30-minute slots: 1 h, 2 h, 4 h and 8 h deadlines. The
+# 4-hour class (8 slots) is the deadline every policy since exp012 has used, so
+# it is directly comparable to earlier rungs. The Azure trace has no latency
+# labels, so arrivals are split equally between the classes -- disclosed, and
+# identical for every arm.
 deadlines: [2, 4, 8, 16]
 calibration_days: 28
 train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
