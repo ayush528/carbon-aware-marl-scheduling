@@ -152,13 +152,16 @@ def _evaluate(
     unserved = 0.0
     demand_total = 0.0
     picks: list[tuple[str, ...]] = []
+    per_slot_carbon: list[float] = []
     for slot, scores, real, fc in zip(slots, score_table, realized, forecast, strict=True):
         tokens = slot["context_tokens"] + slot["generated_tokens"]
         demand_gpu_seconds = tokens / next(iter(sites.values())).tokens_per_gpu_second
         alloc, left = dispatch.allocate(scores, demand_gpu_seconds, capacity)
         energy = {slug: site_energy_kwh(sites[slug], alloc[slug]) for slug in sites}
-        carbon_realized += dispatch.carbon_kg(energy, real)
+        slot_carbon = dispatch.carbon_kg(energy, real)
+        carbon_realized += slot_carbon
         carbon_forecast += dispatch.carbon_kg(energy, fc)
+        per_slot_carbon.append(slot_carbon)
         energy_total += sum(energy.values())
         unserved += left
         demand_total += demand_gpu_seconds
@@ -169,7 +172,85 @@ def _evaluate(
         "energy_kwh_total": energy_total,
         "unserved_gpu_seconds": unserved,
         "unserved_fraction": (unserved / demand_total) if demand_total else 0.0,
+        "per_slot_carbon_kg": per_slot_carbon,
         "picks": picks,
+    }
+
+
+def _quantile(values: list[float], q: float) -> float:
+    """Nearest-rank quantile; deterministic and dependency-free."""
+    ordered = sorted(values)
+    index = min(len(ordered) - 1, max(0, int(round(q * (len(ordered) - 1)))))
+    return ordered[index]
+
+
+def summarise_fleet(
+    results: dict[str, dict[str, Any]],
+    *,
+    n_gpus: int,
+    n_slots: int,
+) -> dict[str, Any]:
+    """Turn one fleet's raw runs into the experiment's reported rows.
+
+    Carbon is reported three ways because a risk-averse rule trades the middle
+    of the distribution for the tail: the total (mean behaviour), the 95th
+    percentile slot, and the CVaR-95 of per-slot emissions (the mean of the
+    worst 5% of slots). A band that leaves the mean identical but lowers the
+    tail is a real effect; one that leaves everything identical is a real
+    non-effect, and both are reported.
+    """
+    base = results["forecast_greedy"]
+    oracle_carbon = results["oracle_realized"]["carbon_kg_realized"]
+
+    def flips(picks: list[tuple[str, ...]]) -> int:
+        """Slots whose top-ranked site differs from forecast-greedy."""
+        return sum(1 for a, b in zip(picks, base["picks"], strict=True) if a[0] != b[0])
+
+    rows: dict[str, dict[str, Any]] = {}
+    for name, res in results.items():
+        per_slot = res["per_slot_carbon_kg"]
+        worst = sorted(per_slot)[-max(1, len(per_slot) // 20) :]
+        rows[name] = {
+            "carbon_kg_realized": round(res["carbon_kg_realized"], 1),
+            "carbon_kg_forecast": round(res["carbon_kg_forecast"], 1),
+            "carbon_vs_forecast_greedy_pct": round(
+                (res["carbon_kg_realized"] / base["carbon_kg_realized"] - 1) * 100, 3
+            ),
+            "regret_vs_oracle_pct": round(
+                (res["carbon_kg_realized"] / oracle_carbon - 1) * 100, 3
+            ),
+            "carbon_kg_slot_mean": round(res["carbon_kg_realized"] / n_slots, 3),
+            "carbon_kg_slot_p95": round(_quantile(per_slot, 0.95), 3),
+            "carbon_kg_slot_max": round(max(per_slot), 3),
+            "carbon_cvar95_kg": round(sum(worst) / len(worst), 3),
+            "energy_kwh_total": round(res["energy_kwh_total"], 1),
+            "unserved_fraction_pct": round(res["unserved_fraction"] * 100, 3),
+            "flipped_slots": flips(res["picks"]),
+            "flipped_slots_pct": round(flips(res["picks"]) / n_slots * 100, 2),
+        }
+
+    # The theorem exp010 predicted: a proportional band cannot reorder sites,
+    # so its dispatch is identical to forecast-greedy. Checked, not assumed.
+    relative_names = [n for n in rows if n.startswith("band_relative")]
+    relative_invariant = all(
+        rows[n]["flipped_slots"] == 0
+        and rows[n]["carbon_kg_realized"] == rows["forecast_greedy"]["carbon_kg_realized"]
+        and rows[n]["carbon_cvar95_kg"] == rows["forecast_greedy"]["carbon_cvar95_kg"]
+        for n in relative_names
+    )
+    band_names = [n for n in rows if n.startswith("band_")]
+    best_band = min(band_names, key=lambda n: rows[n]["carbon_kg_realized"])
+    best_band_tail = min(band_names, key=lambda n: rows[n]["carbon_cvar95_kg"])
+
+    return {
+        "n_gpus_per_site": n_gpus,
+        "policies": rows,
+        "relative_band_decision_invariant": relative_invariant,
+        "oracle_reduction_vs_forecast_greedy_pct": round(
+            (oracle_carbon / base["carbon_kg_realized"] - 1) * 100, 3
+        ),
+        "best_band_policy_by_total_carbon": best_band,
+        "best_band_policy_by_tail_carbon": best_band_tail,
     }
 
 
@@ -228,19 +309,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("no slot inside the window has both forecast and realized carbon")
     slots = aligned_slots
 
-    sites = {
-        slug: Site(
-            name=slug,
-            n_gpus=int(config["sites"]["n_gpus"]),
-            gpu_idle_w=float(config["sites"]["gpu_idle_w"]),
-            gpu_peak_w=float(config["sites"]["gpu_peak_w"]),
-            pue=float(config["sites"]["pue"]),
-            tokens_per_gpu_second=float(config["sites"]["tokens_per_gpu_second"]),
-        )
-        for slug in regions
-    }
-
-    # --- policies ---
+    # --- policies (built once: they do not depend on the fleet size) ---
     policies: dict[str, list[dict[str, float]]] = {
         "forecast_greedy": [dict(fc) for fc in forecast],
         "oracle_realized": [dict(real) for real in realized],
@@ -255,47 +324,25 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             for fc in forecast
         ]
 
-    results = {
-        name: _evaluate(slots, sites, table, realized, forecast)
-        for name, table in policies.items()
-    }
-
-    base = results["forecast_greedy"]
-    oracle_carbon = results["oracle_realized"]["carbon_kg_realized"]
-
-    def flips(picks: list[tuple[str, ...]]) -> int:
-        """Decisions whose top-ranked site differs from forecast-greedy."""
-        return sum(1 for a, b in zip(picks, base["picks"], strict=True) if a[0] != b[0])
-
-    rows: dict[str, dict[str, Any]] = {}
-    for name, res in results.items():
-        rows[name] = {
-            "carbon_kg_realized": round(res["carbon_kg_realized"], 1),
-            "carbon_kg_forecast": round(res["carbon_kg_forecast"], 1),
-            "carbon_vs_forecast_greedy_pct": round(
-                (res["carbon_kg_realized"] / base["carbon_kg_realized"] - 1) * 100, 3
-            ),
-            "regret_vs_oracle_pct": round(
-                (res["carbon_kg_realized"] / oracle_carbon - 1) * 100, 3
-            ),
-            "energy_kwh_total": round(res["energy_kwh_total"], 1),
-            "unserved_fraction_pct": round(res["unserved_fraction"] * 100, 3),
-            "flipped_slots": flips(res["picks"]),
-            "flipped_slots_pct": round(flips(res["picks"]) / len(slots) * 100, 2),
+    fleets: dict[str, dict[str, Any]] = {}
+    for fleet in config["fleets"]:
+        label = str(fleet["label"])
+        sites = {
+            slug: Site(
+                name=slug,
+                n_gpus=int(fleet["n_gpus"]),
+                gpu_idle_w=float(fleet["gpu_idle_w"]),
+                gpu_peak_w=float(fleet["gpu_peak_w"]),
+                pue=float(fleet["pue"]),
+                tokens_per_gpu_second=float(fleet["tokens_per_gpu_second"]),
+            )
+            for slug in regions
         }
-
-    # The theorem exp010 predicted: a proportional band cannot reorder sites.
-    relative_names = [n for n in rows if n.startswith("band_relative")]
-    relative_invariant = all(
-        rows[n]["flipped_slots"] == 0
-        and rows[n]["carbon_kg_realized"] == rows["forecast_greedy"]["carbon_kg_realized"]
-        for n in relative_names
-    )
-
-    best_band = min(
-        (n for n in rows if n.startswith("band_absolute")),
-        key=lambda n: rows[n]["carbon_kg_realized"],
-    )
+        results = {
+            name: _evaluate(slots, sites, table, realized, forecast)
+            for name, table in policies.items()
+        }
+        fleets[label] = summarise_fleet(results, n_gpus=int(fleet["n_gpus"]), n_slots=len(slots))
 
     return {
         "window": {
@@ -334,10 +381,5 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             ),
         },
         "sites": {slug: {"neso_region_id": rid} for slug, rid in regions.items()},
-        "policies": rows,
-        "best_band_policy": best_band,
-        "oracle_reduction_vs_forecast_greedy_pct": round(
-            (oracle_carbon / base["carbon_kg_realized"] - 1) * 100, 3
-        ),
-        "relative_band_decision_invariant": relative_invariant,
+        "fleets": fleets,
     }

@@ -27,16 +27,30 @@ regions:
   GB-NorthWestEngland: 3
   GB-SouthScotland: 2
 
-# exp007's disclosed site spec: NLR idle->peak per GPU, PUE 1.1, and a
-# throughput knob that cancels in relative comparisons. 100 GPUs per site means
-# the fleet absorbs a mean slot but binds at the trace peak, so capacity (and
-# therefore deadline risk) is real rather than decorative.
-sites:
-  n_gpus: 100
-  gpu_idle_w: 72.0
-  gpu_peak_w: 713.0
-  pue: 1.1
-  tokens_per_gpu_second: 1000.0
+# Two fleets over the same demand, both using exp007's disclosed site spec
+# (NLR idle->peak per GPU, PUE 1.1, throughput knob that cancels in relative
+# comparisons). The distinction matters: with a fleet big enough to absorb any
+# slot the cheapest site always wins and no band can change anything, so the
+# bound fleet is where dispatch actually has a choice to make.
+fleets:
+  # 100 GPUs/site: the fleet absorbs the trace's peak, so carbon-greedy just
+  # sends everything to the cleanest region. This is the "plenty of capacity"
+  # case and it is reported so the reader can see the band change nothing.
+  - label: unconstrained
+    n_gpus: 100
+    gpu_idle_w: 72.0
+    gpu_peak_w: 713.0
+    pue: 1.1
+    tokens_per_gpu_second: 1000.0
+  # 25 GPUs/site: capacity binds inside the week, load spills down the ranking,
+  # and unserved demand appears -- the regime where the order of the *second*
+  # and *third* sites (and therefore their bands) decides the outcome.
+  - label: capacity_bound
+    n_gpus: 25
+    gpu_idle_w: 72.0
+    gpu_peak_w: 713.0
+    pue: 1.1
+    tokens_per_gpu_second: 1000.0
 
 # Risk aversion sweep. lam=0 is forecast-greedy.
 lam_grid: [0.5, 1.0, 2.0, 4.0]
