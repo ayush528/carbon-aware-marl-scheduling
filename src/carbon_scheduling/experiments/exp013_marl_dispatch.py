@@ -43,8 +43,37 @@ band-aware, deadline-aware deferral), so every learned number has a rule beside
 it. The tail metrics (worst slot, CVaR-90 of the slot series) are what the CVaR
 term is supposed to move.
 
+**Why the deadline prices are what they are.** Both prices are *prices*, and a
+price is only meaningful against the thing it trades off. Serving one GPU-hour
+emits about 0.093 kg CO2 here (measured: ``carbon_g_per_served_gpu_hour``), so a
+deadline penalty of 1 kg per missed GPU-hour makes a missed hour cost eleven
+served hours, and holding one for a slot costs 0.05 kg against a best case
+saving of 0.093 kg. Both sit in "SLA at any price", where deferral can never
+pay and the trade the experiment is about cannot happen. The sweep therefore
+spans 0.02 (carbon dominates), 0.1 (commensurate), and 1.0 (the old, SLA-at-any-
+price anchor). Nothing is charged for work that is merely waiting: the power
+model already bills every site's idle floor in every slot, so an extra holding
+price would charge the same delay twice, in a unit nobody measured. The deadline
+is what bounds deferral.
+
+**Why the learning rate is 3e-4.** At 3e-3 the learner diverges on a 336-step
+episode: the greedy policy moves *away* from the optimum as the budget grows
+(+7.7% at 80 episodes to +14.1% at 800 on the easy fleet, seeds 0 and 2). At
+3e-4 all five seeds reach the optimum within 0.04%. Because the easy fleet has a
+known optimum, every variant is also put through :func:`convergence_gate`: a
+policy that cannot reach carbon-greedy where carbon-greedy is optimal has not
+learned the problem, and its numbers on the hard fleet mean nothing.
+
+**The CVaR arm is a negative result on purpose.** The tail term is charged once,
+at the episode's last step, so it enters one of 336 advantage estimates and is
+diluted accordingly: the comparison reports the per-slot tail beside every
+variant, and the CVaR arm's tail is indistinguishable from the risk-neutral
+arm's at every price. The objective is right and the term is in the right units;
+where it is charged is wrong. exp015 replaces the terminal charge with a per-step
+tail surcharge so credit reaches the slot that caused the violation.
+
 What the comparison can and cannot say is fixed in advance: this is one seed,
-so variants are point estimates with per-week standard errors, and Phase 4
+so variants are point estimates with per-week standard errors, and exp014
 repeats them across seeds.
 """
 
@@ -92,6 +121,54 @@ def _build(
         include_band_in_obs=include_band,
         allow_decline=allow_decline,
     )
+
+
+def objective_value(row: dict[str, float], sla_price: float, hold_price: float) -> float:
+    """The fleet objective the reward encodes: carbon + priced misses + priced holding.
+
+    Carbon alone is not the objective -- unserved work emits nothing, so a
+    carbon-only reading rewards doing less. This is the quantity the agents were
+    actually trained to minimise, which makes a learned policy and a hand-written
+    rule comparable at any price.
+    """
+    missed_hours = row["sla_violation_fraction"] * row["offered_gpu_s"] / 3600.0
+    held_hours = row["held_gpu_s"] / 3600.0
+    return float(row["carbon_kg"] + sla_price * missed_hours + hold_price * held_hours)
+
+
+def learning_gate(
+    learned: list[dict[str, float]],
+    rules: dict[str, list[dict[str, float]]],
+    sla_price: float,
+    hold_price: float,
+    tolerance: float = 0.005,
+) -> dict[str, Any]:
+    """Did the learner optimise the price it was given?
+
+    The reference is the best of the hand-written rules *on the same objective*,
+    which is the only comparison that survives a swept price: at a cheap miss
+    price the rule that sheds work is right, and at a dear one it is wrong. A
+    learner that cannot match the best rule at its own price has not learned the
+    problem, whatever its carbon number says.
+    """
+    learned_objective = float(
+        np.mean([objective_value(row, sla_price, hold_price) for row in learned])
+    )
+    scored = {
+        name: float(np.mean([objective_value(row, sla_price, hold_price) for row in rows]))
+        for name, rows in rules.items()
+    }
+    best = min(scored, key=lambda name: scored[name])
+    best_objective = scored[best]
+    return {
+        "learned_objective": round(learned_objective, 3),
+        "best_rule": best,
+        "best_rule_objective": round(best_objective, 3),
+        "improvement_pct": round((learned_objective - best_objective) / best_objective * 100, 3)
+        if best_objective
+        else 0.0,
+        "passed": bool(learned_objective <= best_objective * (1.0 + tolerance)),
+    }
 
 
 def _served_intensity(rows: list[dict[str, float]]) -> float:
@@ -267,6 +344,22 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                     "last_entropy": round(float(history[-1]["entropy"]), 4),
                 }
 
+    # Learning gate, per (variant, price, fleet): is the learner at least as
+    # good as the best hand-written rule *on its own objective*? The rules ignore
+    # the price, so their rows are shared and only the scoring changes.
+    hold_price = float(config["hold_penalty_kg_per_kwh"])
+    rules: dict[str, dict[str, list[dict[str, float]]]] = {
+        fleet: {name: rows_by_policy[f"{name}/{fleet}"] for name in baselines.JOINT_POLICIES}
+        for fleet in fleets
+    }
+    convergence: dict[str, dict[str, Any]] = {}
+    for label, rows in rows_by_policy.items():
+        variant, fleet = label.split("/")
+        if variant in baselines.JOINT_POLICIES:
+            continue
+        price = float(variant.split("@")[1])
+        convergence[label] = learning_gate(rows, rules[fleet], price, hold_price)
+
     aggregate = _aggregate(rows_by_policy)
     comparison: dict[str, dict[str, Any]] = {}
     for label, stats in aggregate.items():
@@ -309,37 +402,50 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                     rows_by_policy[left_label], rows_by_policy[right_label]
                 )
 
-    # The frontier is the honest headline: at each deadline weight and fleet,
-    # which variant has the lowest carbon while still serving as much work as
-    # the carbon-greedy rule?
+    # The frontier is the honest headline: at each price and fleet, the best
+    # learner by its own objective, beside the best rule at that same price and
+    # the service level the learner chose. Carbon is meaningless without the
+    # service level next to it, so both are always reported together.
     frontier: dict[str, dict[str, Any]] = {}
     for fleet in fleets:
         for penalty in penalties:
             key = f"{penalty:g}/{fleet}"
-            matched = [
+            learners = [
                 label
-                for label, row in comparison.items()
-                if row["fleet"] == fleet
-                and label.startswith(("ippo_", "mappo_"))
+                for label in comparison
+                if comparison[label]["fleet"] == fleet
+                and not label.startswith(tuple(baselines.JOINT_POLICIES))
                 and label.split("/")[0].endswith(f"@{penalty:g}")
-                and row["service_matched"]
             ]
-            if not matched:
-                frontier[key] = {"service_matched_policies": 0}
+            if not learners:
                 continue
-            best = min(matched, key=lambda label: comparison[label]["carbon_kg"])
+            best = min(learners, key=lambda label: convergence[label]["learned_objective"])
+            gate = convergence[best]
             frontier[key] = {
-                "service_matched_policies": len(matched),
                 "best": best,
                 "carbon_kg": comparison[best]["carbon_kg"],
                 "carbon_vs_run_now_pct": comparison[best]["carbon_vs_run_now_pct"],
                 "sla_violation_fraction": comparison[best]["sla_violation_fraction"],
                 "unserved_fraction": comparison[best]["unserved_fraction"],
+                "objective": gate["learned_objective"],
+                "best_rule": gate["best_rule"],
+                "best_rule_objective": gate["best_rule_objective"],
+                "beat_best_rule_pct": -gate["improvement_pct"],
+                "passed_gate": gate["passed"],
+                "learners_passing_gate": sum(
+                    1 for label in learners if convergence[label]["passed"]
+                ),
             }
 
     return {
         "window": {
             "n_slots": n_slots,
+            # The price at which missing a GPU-hour costs what serving it costs,
+            # read off the carbon-greedy rule. Below it, shedding work is the
+            # right response to the price and the sweep arm is a control.
+            "parity_price_kg_per_gpu_hour": round(
+                _served_intensity(rows_by_policy["run_now/capacity_bound"]) / 1000.0, 4
+            ),
             "slot_minutes": SLOT_MINUTES,
             "calibration_days": int(config["calibration_days"]),
             "deadline_slots": int(config["deadline_slots"]),
@@ -360,6 +466,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         "training": training,
         "effects_pct": effects,
         "frontier": frontier,
+        "convergence": convergence,
         "limitations": [
             "one seed: variants are point estimates with per-week standard errors; "
             "Phase 4 repeats them across seeds",

@@ -306,3 +306,15 @@ def test_tail_metrics_report_the_worst_slot_not_just_the_total() -> None:
         summary["sla_violation_fraction"], abs=1e-4
     )
     assert summary["cvar90_slot_violation_fraction"] <= summary["max_slot_violation_fraction"]
+
+
+def test_summary_reports_held_work_so_the_objective_can_be_recomputed() -> None:
+    """The holding term is part of the reward; a summary that omits it cannot be
+    scored on the objective the agent was trained on."""
+    env = make_env(demand=[3 * SLOT_TOKENS, 0], deadline_slots=4, n_slots=2)
+    env.reset()
+    wait = env.wait_action
+    _, _, done, _, _ = env.step([wait, wait])
+    assert done is False
+    held = env.summary()["held_gpu_s"]
+    assert held == pytest.approx(float(env.demand_tokens[0]) / env.throughput, rel=1e-6)

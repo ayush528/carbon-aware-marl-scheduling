@@ -37,8 +37,20 @@ calibration_days: 28       # band from the 28 days before each episode's week
 # than fixed: a single weight would let the comparison "win" by serving less
 # work, because unserved work emits nothing. Each weight gives one point on the
 # carbon-vs-SLA frontier.
-sla_penalties: [1.0, 10.0]
-hold_penalty_kg_per_kwh: 0.05
+#
+# The weights are prices, and they are scaled against the thing they trade off:
+# serving one GPU-hour emits ~0.093 kg CO2 here, so 1.0 kg per missed GPU-hour
+# already prices an hour of missed work at eleven hours of CO2. 0.02 lets carbon
+# dominate, 0.1 is commensurate, 1.0 is the "SLA at any price" anchor. Holding
+# is priced below the marginal carbon of the work, so a real timing gain is
+# expressible.
+sla_penalties: [0.02, 0.1, 1.0]
+# No extra charge for work that is merely waiting. The power model already
+# bills every site's idle floor in every slot (cluster.site_energy_kwh), so a
+# deferred GPU-hour costs nothing extra and can even waste less idle power --
+# an explicit holding price would charge the same delay twice, in a unit nobody
+# measured. The deadline is what bounds deferral: work that expires is priced.
+hold_penalty_kg_per_kwh: 0.0
 
 train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 eval_months: [10, 11, 12]
@@ -49,8 +61,8 @@ eval_months: [10, 11, 12]
 cvar_alpha: 0.9
 
 hidden: 32
-episodes: 80
-lr: 0.003
+episodes: 200
+lr: 0.0003
 epochs: 3
 
 # One row per learned variant. `algorithm` chooses IPPO (independent actors) or

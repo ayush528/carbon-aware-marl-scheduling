@@ -195,3 +195,49 @@ def test_spread_reports_mean_and_seed_spread() -> None:
     assert stats["max"] == -1.0
     assert stats["sd"] > 0
     assert _spread([1.5])["sd"] == 0.0
+
+
+def test_objective_value_is_the_reward_the_agent_actually_optimises() -> None:
+    """Carbon plus priced misses plus priced holding, the same terms the
+    environment charges, so a learner can be scored against a rule on its own
+    objective instead of on carbon alone."""
+    from carbon_scheduling.experiments.exp013_marl_dispatch import objective_value
+
+    row = {
+        "carbon_kg": 100.0,
+        "offered_gpu_s": 3600.0,
+        "sla_violation_fraction": 0.5,  # 1800 GPU-s = 0.5 GPU-hour missed
+        "held_gpu_s": 7200.0,  # 2 GPU-hours held
+    }
+    assert objective_value(row, 1.0, 0.0) == pytest.approx(100.5)
+    assert objective_value(row, 2.0, 0.0) == pytest.approx(101.0)
+    assert objective_value(row, 1.0, 0.5) == pytest.approx(101.5)
+
+
+def test_learning_gate_scores_a_policy_against_the_best_rule_at_the_same_price() -> None:
+    """The gate answers one question: did the learner optimise the price it was
+    given? A policy that sheds work is not failing when work is priced cheap."""
+    from carbon_scheduling.experiments.exp013_marl_dispatch import learning_gate
+
+    def rows(carbon: float, missed: float) -> list[dict[str, float]]:
+        return [
+            {
+                "carbon_kg": carbon,
+                "offered_gpu_s": 3600.0,
+                "sla_violation_fraction": missed,
+                "held_gpu_s": 0.0,
+            }
+            for _ in range(3)
+        ]
+
+    # Deferring saves 0.3 kg of carbon and misses 0.2 GPU-hours of work, so the
+    # two options cross over between a cheap and a dear miss price.
+    deferred = rows(99.7, 0.2)
+    rules = {"run_now": rows(100.0, 0.0), "defer": deferred}
+    # At a cheap miss price the rule that defers wins the objective...
+    assert learning_gate(deferred, rules, 0.01, 0.0)["best_rule"] == "defer"
+    # ...and a learner that matches it passes.
+    assert learning_gate(deferred, rules, 0.01, 0.0)["passed"] is True
+    # At a dear miss price serving everything wins, and the same learner fails.
+    assert learning_gate(deferred, rules, 10.0, 0.0)["best_rule"] == "run_now"
+    assert learning_gate(deferred, rules, 10.0, 0.0)["passed"] is False

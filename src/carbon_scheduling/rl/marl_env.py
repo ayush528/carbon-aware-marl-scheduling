@@ -355,6 +355,9 @@ class MultiAgentEnv:
             if offered
             else 0.0,
             "violated_tasks": int(self.violated_tasks),
+            # Held work, in GPU-seconds: the third term of the reward, so a
+            # summary can be scored on the objective the agent was trained on.
+            "held_gpu_s": round(float(self.held_gpu_s), 1),
             # Tail risk: the worst single slot, and the mean of the worst 10% of
             # slots. CVaR is supposed to move these, not the total.
             "max_slot_violation_fraction": round(

@@ -30,7 +30,11 @@ from typing import Any
 
 import numpy as np
 
-from carbon_scheduling.experiments.exp013_marl_dispatch import _build, _paired
+from carbon_scheduling.experiments.exp013_marl_dispatch import (
+    _build,
+    _paired,
+    learning_gate,
+)
 from carbon_scheduling.rl import baselines, data
 from carbon_scheduling.rl.marl_ppo import evaluate_multi, train_multi
 
@@ -122,6 +126,12 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             },
         }
 
+        rules_rows = {
+            "run_now": reference,
+            "defer": defer_rows,
+        }
+        hold_price = float(config["hold_penalty_kg_per_kwh"])
+
         per_seed[fleet] = {}
         summary[fleet] = {
             "run_now_carbon_kg": round(base_carbon, 3),
@@ -159,16 +169,18 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                     cvar_weight=cvar_weight,
                 )
                 rows = [evaluate_multi(make(start), actors) for start in eval_weeks]
-                seed_records.append(
-                    {
-                        "seed": seed,
-                        "carbon_kg": round(float(np.mean([r["carbon_kg"] for r in rows])), 3),
-                        "sla_violation_fraction": round(
-                            float(np.mean([r["sla_violation_fraction"] for r in rows])), 4
-                        ),
-                        "paired_vs_run_now": _paired(rows, reference),
-                    }
-                )
+                record: dict[str, Any] = {
+                    "seed": seed,
+                    "carbon_kg": round(float(np.mean([r["carbon_kg"] for r in rows])), 3),
+                    "sla_violation_fraction": round(
+                        float(np.mean([r["sla_violation_fraction"] for r in rows])), 4
+                    ),
+                    "paired_vs_run_now": _paired(rows, reference),
+                }
+                # Scored against the best rule on the learner's own objective,
+                # which is the only comparison that survives a swept price.
+                record["gate"] = learning_gate(rows, rules_rows, penalty, hold_price)
+                seed_records.append(record)
             per_seed[fleet][name] = seed_records
             summary[fleet]["variants"][name] = {
                 "cvar_alpha": alpha,
@@ -183,6 +195,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                     sum(1 for r in seed_records if r["paired_vs_run_now"]["weeks_worse"] == 0)
                 ),
                 "n_seeds": len(seed_records),
+                "seeds_passing_gate": int(sum(1 for r in seed_records if r["gate"]["passed"])),
             }
 
     return {
