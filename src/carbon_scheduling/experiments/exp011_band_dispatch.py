@@ -143,9 +143,7 @@ def _evaluate(
     the model has no queue and a slot the fleet cannot absorb is a deadline
     risk.
     """
-    capacity = {
-        slug: site.n_gpus * SLOT_MINUTES * 60 for slug, site in sites.items()
-    }
+    capacity = {slug: site.n_gpus * SLOT_MINUTES * 60 for slug, site in sites.items()}
     carbon_realized = 0.0
     carbon_forecast = 0.0
     energy_total = 0.0
@@ -216,9 +214,7 @@ def summarise_fleet(
             "carbon_vs_forecast_greedy_pct": round(
                 (res["carbon_kg_realized"] / base["carbon_kg_realized"] - 1) * 100, 3
             ),
-            "regret_vs_oracle_pct": round(
-                (res["carbon_kg_realized"] / oracle_carbon - 1) * 100, 3
-            ),
+            "regret_vs_oracle_pct": round((res["carbon_kg_realized"] / oracle_carbon - 1) * 100, 3),
             "carbon_kg_slot_mean": round(res["carbon_kg_realized"] / n_slots, 3),
             "carbon_kg_slot_p95": round(_quantile(per_slot, 0.95), 3),
             "carbon_kg_slot_max": round(max(per_slot), 3),
@@ -320,8 +316,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         ]
     for lam in config["relative_lam_grid"]:
         policies[f"band_relative_lam{lam}"] = [
-            dispatch.risk_scores(fc, {s: pooled * fc[s] for s in fc}, float(lam))
-            for fc in forecast
+            dispatch.risk_scores(fc, {s: pooled * fc[s] for s in fc}, float(lam)) for fc in forecast
         ]
 
     fleets: dict[str, dict[str, Any]] = {}

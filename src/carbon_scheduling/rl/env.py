@@ -112,9 +112,7 @@ class SchedulingEnv:
         ``site_energy_kwh``, which already includes the idle draw, so this is
         never added on top of a dispatch.
         """
-        idle_energy = np.array(
-            [site_energy_kwh(site, 0.0, SLOT_MINUTES) for site in self.sites]
-        )
+        idle_energy = np.array([site_energy_kwh(site, 0.0, SLOT_MINUTES) for site in self.sites])
         return idle_energy[None, :] * self.realized / 1000.0  # kg
 
     def action_for_lam(self, lam: float) -> int:
@@ -194,8 +192,7 @@ class SchedulingEnv:
                 for i in range(self.n_sites)
             }
             capacity = {
-                self.sites[i].name: float(self.capacity_gpu_s[i])
-                for i in range(self.n_sites)
+                self.sites[i].name: float(self.capacity_gpu_s[i]) for i in range(self.n_sites)
             }
             queued = sum(item[0] for item in self.backlog)
             alloc, _left = dispatch.allocate(scores, queued, capacity)
@@ -229,9 +226,7 @@ class SchedulingEnv:
         self.held_gpu_s += held
 
         reward = -(
-            carbon
-            + self.sla_penalty * expired_gpu_s / 3600.0
-            + self.hold_penalty * held / 3600.0
+            carbon + self.sla_penalty * expired_gpu_s / 3600.0 + self.hold_penalty * held / 3600.0
         )
 
         self.t += 1
@@ -252,11 +247,7 @@ class SchedulingEnv:
             "held_gpu_s": held,
             "violated_gpu_s": expired_gpu_s,
         }
-        obs = (
-            self._obs()
-            if not done
-            else np.zeros(self.obs_dim, dtype=np.float32)
-        )
+        obs = self._obs() if not done else np.zeros(self.obs_dim, dtype=np.float32)
         return obs, reward, done, False, info
 
     def summary(self) -> dict[str, float]:
@@ -268,11 +259,7 @@ class SchedulingEnv:
             "offered_gpu_s": round(offered, 1),
             "served_gpu_s": round(served, 1),
             "unserved_fraction": round((offered - served) / offered, 4) if offered else 0.0,
-            "sla_violation_fraction": round(
-                self.violated_gpu_s / offered, 4
-            )
-            if offered
-            else 0.0,
+            "sla_violation_fraction": round(self.violated_gpu_s / offered, 4) if offered else 0.0,
             "violated_tasks": self.violated_tasks,
             "deferred_kwh_slots": round(self.held_gpu_s / 3600.0, 3),
         }

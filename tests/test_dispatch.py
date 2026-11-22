@@ -114,9 +114,7 @@ def test_allocation_rejects_bad_inputs() -> None:
 
 
 def test_allocation_of_zero_demand_touches_nothing() -> None:
-    alloc, unserved = allocate(
-        {"a": 1.0}, demand_gpu_seconds=0.0, capacity_gpu_seconds={"a": 10.0}
-    )
+    alloc, unserved = allocate({"a": 1.0}, demand_gpu_seconds=0.0, capacity_gpu_seconds={"a": 10.0})
     assert alloc == {"a": 0.0}
     assert unserved == 0.0
 

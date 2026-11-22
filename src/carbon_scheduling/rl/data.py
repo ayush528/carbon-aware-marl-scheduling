@@ -156,9 +156,7 @@ def weekly_windows(
     cursor = datetime(year, 1, 1, tzinfo=None)
     while cursor.year == year:
         if cursor.month in months:
-            span = [
-                cursor + timedelta(minutes=SLOT_MINUTES * i) for i in range(n_slots)
-            ]
+            span = [cursor + timedelta(minutes=SLOT_MINUTES * i) for i in range(n_slots)]
             previous = cursor - timedelta(days=calibration_days)
             cal_ok = previous in available and all(
                 previous + timedelta(minutes=SLOT_MINUTES * i) in available

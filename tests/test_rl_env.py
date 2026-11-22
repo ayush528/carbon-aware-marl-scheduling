@@ -113,9 +113,7 @@ def test_dispatch_emits_carbon_from_the_chosen_site() -> None:
     from carbon_scheduling.cluster import site_energy_kwh
 
     env.step(0)
-    expected = (
-        site_energy_kwh(SITE, 1800.0) * 100.0 + site_energy_kwh(SITE, 0.0) * 200.0
-    ) / 1000.0
+    expected = (site_energy_kwh(SITE, 1800.0) * 100.0 + site_energy_kwh(SITE, 0.0) * 200.0) / 1000.0
     assert env.carbon_kg == pytest.approx(expected, rel=1e-9)
 
 

@@ -27,10 +27,7 @@ def national(rows: list[tuple[str, float | None, float | None]]) -> list[dict]:
 
 
 def regional(rows: list[tuple[str, int, float | None]]) -> list[dict]:
-    return [
-        {"from": t, "regionid": str(rid), "forecast": f}
-        for t, rid, f in rows
-    ]
+    return [{"from": t, "regionid": str(rid), "forecast": f} for t, rid, f in rows]
 
 
 def test_realized_is_the_national_scaling_estimate() -> None:
@@ -100,9 +97,7 @@ def test_residuals_ignore_the_evaluation_week() -> None:
         ),
         {"GB-London": 13},
     )
-    absolute, levels, relative = residuals(
-        series, datetime(2024, 4, 12), datetime(2024, 5, 10)
-    )
+    absolute, levels, relative = residuals(series, datetime(2024, 4, 12), datetime(2024, 5, 10))
     # One slot only: |240*100/200 - 100| = |120 - 100| = 20
     assert absolute["GB-London"] == pytest.approx([20.0])
     assert levels["GB-London"] == pytest.approx([100.0])
@@ -115,9 +110,7 @@ def test_residuals_skip_slots_where_the_forecast_is_zero() -> None:
         national([("2024-05-10T00:00Z", 200.0, 300.0)]),
         {"GB-London": 13},
     )
-    absolute, levels, relative = residuals(
-        series, datetime(2024, 5, 9), datetime(2024, 5, 11)
-    )
+    absolute, levels, relative = residuals(series, datetime(2024, 5, 9), datetime(2024, 5, 11))
     assert absolute["GB-London"] == []
     assert levels["GB-London"] == []
     assert relative["GB-London"] == []

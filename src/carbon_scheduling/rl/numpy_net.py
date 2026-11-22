@@ -128,8 +128,9 @@ class ActorCritic:
         return float(total), grads, diagnostics
 
     def save(self, path) -> None:
-        np.savez(path, **self.params, obs_dim=self.obs_dim,
-                 n_actions=self.n_actions, hidden=self.hidden)
+        np.savez(
+            path, **self.params, obs_dim=self.obs_dim, n_actions=self.n_actions, hidden=self.hidden
+        )
 
     @classmethod
     def load(cls, path) -> ActorCritic:

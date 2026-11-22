@@ -45,9 +45,7 @@ def risk_scores(
     which is not the policy under test.
     """
     if set(forecast) != set(half_width):
-        raise ValueError(
-            f"site sets differ: forecast={sorted(forecast)} band={sorted(half_width)}"
-        )
+        raise ValueError(f"site sets differ: forecast={sorted(forecast)} band={sorted(half_width)}")
     if not math.isfinite(lam) or lam < 0:
         raise ValueError(f"lam must be finite and >= 0, got {lam!r}")
     return {site: forecast[site] + lam * half_width[site] for site in forecast}
