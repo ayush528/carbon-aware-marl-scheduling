@@ -200,6 +200,21 @@ def test_terminal_leftover_counts_as_a_violation() -> None:
     ] == pytest.approx(summary["offered_gpu_s"], rel=1e-3)
 
 
+def test_violation_blame_sums_to_the_system_total() -> None:
+    env = make_env(
+        forecast=[[100.0, 100.0]] * 4,
+        demand=[3 * SLOT_TOKENS, 0, 0, 0],
+        deadline_slots=1,
+    )
+    decline = env.encode(0.0, 0.0)
+    serve = env.encode(0.0, 1.0)
+    env.reset()
+    env.step([decline, serve])
+    env.step([decline, serve])
+    assert env.violated_by_agent.sum() == pytest.approx(env.violated_gpu_s)
+    assert env.violated_by_agent[0] == pytest.approx(env.violated_gpu_s)
+
+
 def test_global_state_has_no_private_detail_per_agent() -> None:
     env = make_env()
     env.reset()
@@ -217,3 +232,42 @@ def test_one_throughput_for_all_agents_is_required() -> None:
             demand_tokens=np.zeros(2),
             sites=[site("a"), Site("b", 1, 100.0, 700.0, 1.0, 7200.0)],
         )
+
+
+def test_exp013_builder_propagates_the_ablation_flags() -> None:
+    """The communication and band ablations are flags of the same builder, so a
+    variant really differs only in what the agents are allowed to see."""
+    from datetime import datetime, timedelta
+
+    from carbon_scheduling.experiments import exp013_marl_dispatch as exp013
+
+    start = datetime(2024, 5, 10)
+    stamps = [start - timedelta(days=28) + timedelta(minutes=30 * i) for i in range(28 * 48 + 336)]
+    series = {
+        "GB-London": {
+            "forecast": {t: 100.0 for t in stamps},
+            "realized": {t: 110.0 for t in stamps},
+        }
+    }
+    config = {
+        "calibration_days": 28,
+        "deadline_slots": 8,
+        "sla_penalty_kg_per_kwh": 1.0,
+        "hold_penalty_kg_per_kwh": 0.05,
+    }
+    tokens = np.full(336, 1_000.0)
+    sites = [site("s0")]
+    common = {
+        "series": series,
+        "tokens": tokens,
+        "sites": sites,
+        "names": ["GB-London"],
+        "start": start,
+        "config": config,
+    }
+    full = exp013._build(communicate=True, include_band=True, **common)
+    quiet = exp013._build(communicate=False, include_band=True, **common)
+    blind = exp013._build(communicate=True, include_band=False, **common)
+    assert full.obs_dim == quiet.obs_dim + 2
+    assert full.obs_dim == blind.obs_dim + 1
+    assert full.global_state_dim == blind.global_state_dim + 1

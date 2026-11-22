@@ -16,7 +16,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from carbon_scheduling.rl.numpy_net import ActorCritic, Adam
+from carbon_scheduling.rl.numpy_net import ActorCritic, Adam, ValueNet
 from carbon_scheduling.rl.ppo import _gae, rollout, train
 
 
@@ -82,6 +82,31 @@ def test_policy_gradient_is_zero_when_the_action_is_already_certain() -> None:
     )
     assert diag["entropy"] < 1e-6
     assert np.allclose(grads["Wp"][0], 0.0, atol=1e-6)
+
+
+def test_value_net_gradients_match_finite_differences() -> None:
+    net = ValueNet(state_dim=5, hidden=4, seed=2)
+    net.params["W1"] = np.abs(net.params["W1"]) + 0.1
+    net.params["b1"] = np.full_like(net.params["b1"], 0.5)
+    rng = np.random.default_rng(3)
+    state = rng.normal(size=(5, 5))
+    returns = rng.normal(size=5)
+    _, grads, diag = net.loss_and_grads(state, returns)
+    assert diag["value_loss"] > 0
+
+    eps = 1e-6
+    for name, param in net.params.items():
+        flat = param.reshape(-1)
+        numeric = np.zeros_like(flat)
+        for i in range(flat.size):
+            original = flat[i]
+            flat[i] = original + eps
+            plus = net.loss_and_grads(state, returns)[0]
+            flat[i] = original - eps
+            minus = net.loss_and_grads(state, returns)[0]
+            flat[i] = original
+            numeric[i] = (plus - minus) / (2 * eps)
+        assert np.allclose(grads[name].reshape(-1), numeric, atol=1e-9, rtol=1e-6), name
 
 
 def test_adam_moves_parameters_against_the_gradient() -> None:

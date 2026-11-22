@@ -1,0 +1,71 @@
+id: exp013-marl-dispatch
+title: Decentralized dispatch -- IPPO/MAPPO with limited communication and CVaR on deadlines
+phase: "3-agents"
+seed: 42
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+# exp007's disclosed site spec. One agent per region, so capacity binds at the
+# trace peak and the offer decision is a real trade (as in exp012).
+sites:
+  n_gpus: 25
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+n_slots: 336
+deadline_slots: 8          # 4 hours
+calibration_days: 28       # band from the 28 days before each episode's week
+sla_penalty_kg_per_kwh: 1.0
+hold_penalty_kg_per_kwh: 0.05
+
+train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+eval_months: [10, 11, 12]
+
+# CVaR over each agent's own per-slot violation series. With weight = the SLA
+# penalty the agent pays the worst 10% of its own violation tail instead of the
+# mean; weight 0 is the risk-neutral reward exp012 used.
+cvar_alpha: 0.9
+
+hidden: 32
+episodes: 80
+lr: 0.003
+epochs: 3
+
+# One row per learned variant. `algorithm` chooses IPPO (independent actors) or
+# MAPPO (per-agent actors + a centralised critic at training time only).
+variants:
+  - name: ippo_full
+    algorithm: ippo
+    communicate: true
+    band: true
+    cvar: false
+  - name: ippo_no_comm
+    algorithm: ippo
+    communicate: false
+    band: true
+    cvar: false
+  - name: ippo_cvar
+    algorithm: ippo
+    communicate: true
+    band: true
+    cvar: true
+  - name: mappo_full
+    algorithm: mappo
+    communicate: true
+    band: true
+    cvar: false
+  - name: mappo_cvar
+    algorithm: mappo
+    communicate: true
+    band: true
+    cvar: true

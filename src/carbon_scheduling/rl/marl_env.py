@@ -131,6 +131,7 @@ class MultiAgentEnv:
         self.last_bid = np.full(self.n_agents, np.nan)
         self.last_served_share = np.zeros(self.n_agents)
         self.refused_gpu_s = np.zeros(self.n_agents)
+        self.violated_by_agent = np.zeros(self.n_agents)
         self._arrive()
         return self.observations(), {}
 
@@ -176,10 +177,11 @@ class MultiAgentEnv:
                 peers = others[i]
                 bids = self.last_bid[peers]
                 bids = bids[np.isfinite(bids)]
+                shares = self.last_served_share[peers]
                 features.extend(
                     [
                         float(bids.mean()) / 300.0 if bids.size else 0.0,
-                        float(self.last_served_share[peers].mean()),
+                        float(shares.mean()) if shares.size else 0.0,
                     ]
                 )
             out[i] = np.asarray(features, dtype=np.float32)
@@ -276,6 +278,7 @@ class MultiAgentEnv:
         refused = (1.0 - offers) * self.capacity_gpu_s
         self.refused_gpu_s += refused
         blame = self._blame(refused)
+        self.violated_by_agent += blame * expired_gpu_s
 
         rewards = (
             -carbon
@@ -305,7 +308,9 @@ class MultiAgentEnv:
             self.violated_gpu_s += leftover
             self.violated_tasks += len(self.backlog)
             self.backlog = []
-            rewards = rewards - self.sla_penalty * self._blame(refused) * leftover / 3600.0
+            terminal_blame = self._blame(refused)
+            self.violated_by_agent += terminal_blame * leftover
+            rewards = rewards - self.sla_penalty * terminal_blame * leftover / 3600.0
 
         obs = (
             self.observations()
@@ -317,6 +322,7 @@ class MultiAgentEnv:
             "expired_gpu_s": expired_gpu_s,
             "held_gpu_s": held,
             "carbon_kg": carbon,
+            "violated_gpu_s_by_agent": blame * expired_gpu_s,
         }
         return obs, rewards, done, False, info
 
@@ -324,11 +330,13 @@ class MultiAgentEnv:
         offered = float(self.demand_tokens.sum() / self.throughput)
         return {
             "carbon_kg": round(float(self.carbon_kg.sum()), 3),
-            "offered_gpu_s": round(offered, 1),
-            "served_gpu_s": round(self.served_gpu_s, 1),
-            "unserved_fraction": round((offered - self.served_gpu_s) / offered, 4)
+            "offered_gpu_s": round(float(offered), 1),
+            "served_gpu_s": round(float(self.served_gpu_s), 1),
+            "unserved_fraction": round(float((offered - self.served_gpu_s) / offered), 4)
             if offered
             else 0.0,
-            "sla_violation_fraction": round(self.violated_gpu_s / offered, 4) if offered else 0.0,
-            "violated_tasks": self.violated_tasks,
+            "sla_violation_fraction": round(float(self.violated_gpu_s / offered), 4)
+            if offered
+            else 0.0,
+            "violated_tasks": int(self.violated_tasks),
         }

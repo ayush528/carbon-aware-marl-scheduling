@@ -122,6 +122,53 @@ def test_deferral_waits_when_a_cleaner_hour_is_ahead() -> None:
     assert baselines.defer(env, lookahead=3) == env.wait_action
 
 
+class FakeJointEnv:
+    """Two agents on a one-slot clock, for the joint rules."""
+
+    def __init__(self, forecast, band, backlog, t=0, n_slots=1):
+        self.forecast = np.atleast_2d(np.array(forecast, dtype=float))
+        self.band = np.atleast_2d(np.array(band, dtype=float))
+        self.backlog = backlog
+        self.t = t
+        self.n_slots = n_slots
+        self.n_agents = self.forecast.shape[1]
+
+    def encode(self, lam: float, offer: float) -> int:
+        from carbon_scheduling.rl.marl_env import OFFERS
+
+        lam_grid = (0.0, 0.5, 1.0, 2.0)
+        return int(np.argmin([abs(v - lam) for v in lam_grid])) * len(OFFERS) + int(
+            np.argmin([abs(v - offer) for v in OFFERS])
+        )
+
+
+def test_joint_run_now_offers_everything() -> None:
+    env = FakeJointEnv([[100.0, 200.0]], [[1.0, 1.0]], backlog=[])
+    actions = baselines.marl_run_now(env)
+    assert len(actions) == 2
+    assert all(env.encode(0.0, 1.0) == a for a in actions)
+
+
+def test_joint_defer_declines_when_tomorrow_is_cleaner() -> None:
+    env = FakeJointEnv(
+        [[300.0, 300.0], [10.0, 10.0], [10.0, 10.0]],
+        [[0.0, 0.0]] * 3,
+        backlog=[(100.0, 6)],
+        n_slots=3,
+    )
+    assert baselines.marl_defer(env, lookahead=3) == [env.encode(0.0, 0.0)] * 2
+
+
+def test_joint_defer_never_waits_on_an_urgent_deadline() -> None:
+    env = FakeJointEnv(
+        [[300.0, 300.0], [10.0, 10.0]],
+        [[0.0, 0.0]] * 2,
+        backlog=[(100.0, 1)],
+        n_slots=2,
+    )
+    assert baselines.marl_defer(env, lookahead=2) != [env.encode(0.0, 0.0)] * 2
+
+
 def test_aggregate_reports_mean_and_stderr() -> None:
     rows = {
         "a": [
