@@ -162,6 +162,11 @@ service the visualization consumes later.
 | Simulator adapter | `src/carbon_scheduling/sim/sustaincluster.py` | resolves the external checkout + its python, runs the headless drivers with `cwd=checkout` (upstream reads `configs/`/`data/` relatively), parses their JSON; passes UK overrides (site list, window, reward, explicit day index, transmission-region map) only when asked |
 | UK input puller | `make sc-uk-data` (`scripts/sustaincluster/pull_uk_inputs.py`) | NESO regional carbon (national-scaling estimate, hourly) + Elexon GB prices (GBP→USD at the ECB 2024 mean) → `data/sustaincluster_uk/` + `provenance.json` |
 | UK input installer | `make sc-uk-install` (`scripts/sustaincluster/install_uk_inputs.py`) | writes those series into the simulator's hardcoded paths, forward-fills the 15 missing NESO hours, symlinks GB weather per site, emits an install manifest (rows/fills/sha256) |
+| Dispatch core | `src/carbon_scheduling/dispatch.py` | `risk_scores` (forecast + λ·band), `rank`, capacity-aware `allocate` with spill, `carbon_kg`, and both band builders (per-region absolute, pooled relative). Pure, stdlib-only, and unit-tested on the properties the claims rest on (a relative band cannot reorder sites; allocation is lossless) |
+| Scheduling env | `src/carbon_scheduling/rl/env.py` | weekly single-agent environment on our own data: an action is a risk level (fill every site by `forecast + λ·band`, with spill) or a wait; deadline violations, holding cost, idle draw, optional band in the observation; fully deterministic |
+| Agent | `src/carbon_scheduling/rl/numpy_net.py`, `rl/ppo.py` | small actor-critic with hand-written backprop (checked against finite differences) + Adam, and clipped-surrogate PPO with GAE. numpy only, so CI and the Docker image keep one dependency set |
+| Episode assembly | `src/carbon_scheduling/rl/data.py` | 2024 weeks → (forecast, realized, band, demand); the band is always calibrated on the 28 days *before* the episode's week; the single real Azure week is reused as a demand profile (disclosed) |
+| Baselines (rung 4 rules) | `src/carbon_scheduling/rl/baselines.py` | `run_now`, `band_aware` and a deadline-aware `defer` rule, acting through the same action space as the agent |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -256,7 +261,7 @@ docs/
 | 3. Agents | 11–18 | RR/EDF/carbon-greedy → centralized PPO → IPPO → MAPPO → +CVaR | each level beats/matches previous |
 | 4. Evaluate & write | 19–24 | ablations, robustness, thesis | claims inside EuroSys-2024 envelope |
 
-## Next up (Phase 2 — simulator)
+## Next up (Phase 3 — agents)
 
 - [x] ~~Guide sign-off on `docs/research/report/executive-summary.md` (Step 0 gate)~~
 - [x] ~~NESO 14-region puller, conformal bands (exp002–005), Azure trace loader (exp006) — Phase 1 complete~~
@@ -267,5 +272,16 @@ docs/
       passed. Upstream limits found: GB has one AWS region (transmission cost = 0), the price is
       national (`lowest_price` degenerate), and the cluster reset jitters the data window
       (the drivers now align the workload clock onto it).
-- [ ] Bands into observations (recalibrate exp004/exp005 on the 2024 window first)
-- [ ] Phase 3 start: IPPO/MAPPO + CVaR against these UK baselines
+- [x] ~~Bands into observations~~ — recalibrated on 2024 (exp010), put into the decision (exp011) and
+      into the observation (exp012)
+- [x] Rungs 4 and 5 (exp011, exp012). Both honest and both constraining: a relative band cannot
+      reorder sites, and under the national-scaling estimator the per-slot regional ordering is
+      exact, so carbon-greedy is already optimal on ranking. Uncertainty has to earn its place on
+      **level and timing** (deadlines, CVaR), not on site ranking.
+- [ ] Rung 6: decentralized agents (IPPO, then MAPPO) over per-region sub-agents with limited
+      communication, plus an explicit CVaR-on-SLA term — the headline combination
+- [ ] Reward shaping for the deferral axis: today's deadline penalty makes "never wait" optimal, so
+      the agent cannot express the deferral trade; sweep the penalty and report carbon-vs-SLA
+      frontiers instead of one weight
+- [ ] Phase 4: multi-seed, multi-window evaluation and ablations (no band, no CVaR, no
+      communication) on the same held-out weeks
