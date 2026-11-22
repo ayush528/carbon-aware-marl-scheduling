@@ -1,0 +1,191 @@
+{
+  "weeks": [
+    "2024-10-07",
+    "2024-10-14",
+    "2024-10-21",
+    "2024-10-28",
+    "2024-11-04",
+    "2024-11-11",
+    "2024-11-18",
+    "2024-11-25",
+    "2024-12-02",
+    "2024-12-09",
+    "2024-12-16",
+    "2024-12-23"
+  ],
+  "fleets": {
+    "capacity_bound": {
+      "n_gpus": 25,
+      "carbon_greedy_kg_mean": 958.84,
+      "defer_rule_kg_mean": 929.932,
+      "defer_rule_relative_pct": -3.015,
+      "horizons": {
+        "1 slots": {
+          "deadline_hours": 0.5,
+          "carbon_kg_mean": 779.146,
+          "relative_pct_mean": -18.68,
+          "relative_pct_worst": -14.607,
+          "relative_pct_best": -22.279,
+          "weeks_better": 12,
+          "unserved_fraction": 0.2482,
+          "baseline_unserved_fraction": 0.1282,
+          "service_matched": false
+        },
+        "2 slots": {
+          "deadline_hours": 1.0,
+          "carbon_kg_mean": 794.579,
+          "relative_pct_mean": -17.11,
+          "relative_pct_worst": -13.263,
+          "relative_pct_best": -20.208,
+          "weeks_better": 12,
+          "unserved_fraction": 0.2271,
+          "baseline_unserved_fraction": 0.1282,
+          "service_matched": false
+        },
+        "4 slots": {
+          "deadline_hours": 2.0,
+          "carbon_kg_mean": 830.495,
+          "relative_pct_mean": -13.415,
+          "relative_pct_worst": -10.077,
+          "relative_pct_best": -16.468,
+          "weeks_better": 12,
+          "unserved_fraction": 0.1856,
+          "baseline_unserved_fraction": 0.1282,
+          "service_matched": false
+        },
+        "8 slots": {
+          "deadline_hours": 4.0,
+          "carbon_kg_mean": 825.418,
+          "relative_pct_mean": -14.514,
+          "relative_pct_worst": -8.58,
+          "relative_pct_best": -22.032,
+          "weeks_better": 12,
+          "unserved_fraction": 0.1282,
+          "baseline_unserved_fraction": 0.1282,
+          "service_matched": true
+        },
+        "16 slots": {
+          "deadline_hours": 8.0,
+          "carbon_kg_mean": 663.606,
+          "relative_pct_mean": -31.739,
+          "relative_pct_worst": -22.204,
+          "relative_pct_best": -42.056,
+          "weeks_better": 12,
+          "unserved_fraction": 0.1282,
+          "baseline_unserved_fraction": 0.1282,
+          "service_matched": true
+        },
+        "48 slots": {
+          "deadline_hours": 24.0,
+          "carbon_kg_mean": 560.408,
+          "relative_pct_mean": -42.413,
+          "relative_pct_worst": -25.311,
+          "relative_pct_best": -53.099,
+          "weeks_better": 12,
+          "unserved_fraction": 0.1282,
+          "baseline_unserved_fraction": 0.1282,
+          "service_matched": true
+        }
+      }
+    },
+    "slack": {
+      "n_gpus": 40,
+      "carbon_greedy_kg_mean": 1109.038,
+      "defer_rule_kg_mean": 1151.628,
+      "defer_rule_relative_pct": 3.84,
+      "horizons": {
+        "1 slots": {
+          "deadline_hours": 0.5,
+          "carbon_kg_mean": 1009.307,
+          "relative_pct_mean": -8.917,
+          "relative_pct_worst": -7.106,
+          "relative_pct_best": -10.716,
+          "weeks_better": 12,
+          "unserved_fraction": 0.0644,
+          "baseline_unserved_fraction": -0.0,
+          "service_matched": false
+        },
+        "2 slots": {
+          "deadline_hours": 1.0,
+          "carbon_kg_mean": 1023.557,
+          "relative_pct_mean": -7.733,
+          "relative_pct_worst": -6.378,
+          "relative_pct_best": -8.939,
+          "weeks_better": 12,
+          "unserved_fraction": 0.0351,
+          "baseline_unserved_fraction": -0.0,
+          "service_matched": false
+        },
+        "4 slots": {
+          "deadline_hours": 2.0,
+          "carbon_kg_mean": 988.609,
+          "relative_pct_mean": -11.322,
+          "relative_pct_worst": -7.732,
+          "relative_pct_best": -17.389,
+          "weeks_better": 12,
+          "unserved_fraction": 0.0005,
+          "baseline_unserved_fraction": -0.0,
+          "service_matched": false
+        },
+        "8 slots": {
+          "deadline_hours": 4.0,
+          "carbon_kg_mean": 793.338,
+          "relative_pct_mean": -29.443,
+          "relative_pct_worst": -19.766,
+          "relative_pct_best": -40.625,
+          "weeks_better": 12,
+          "unserved_fraction": 0.0,
+          "baseline_unserved_fraction": -0.0,
+          "service_matched": true
+        },
+        "16 slots": {
+          "deadline_hours": 8.0,
+          "carbon_kg_mean": 646.277,
+          "relative_pct_mean": -42.698,
+          "relative_pct_worst": -30.579,
+          "relative_pct_best": -52.594,
+          "weeks_better": 12,
+          "unserved_fraction": 0.0,
+          "baseline_unserved_fraction": -0.0,
+          "service_matched": true
+        },
+        "48 slots": {
+          "deadline_hours": 24.0,
+          "carbon_kg_mean": 568.338,
+          "relative_pct_mean": -49.426,
+          "relative_pct_worst": -38.391,
+          "relative_pct_best": -59.961,
+          "weeks_better": 12,
+          "unserved_fraction": 0.0,
+          "baseline_unserved_fraction": -0.0,
+          "service_matched": true
+        }
+      }
+    }
+  },
+  "headline": {
+    "capacity_bound": {
+      "deadline_hours": 4.0,
+      "carbon_kg_mean": 825.418,
+      "relative_pct_mean": -14.514,
+      "relative_pct_worst": -8.58,
+      "relative_pct_best": -22.032,
+      "weeks_better": 12,
+      "unserved_fraction": 0.1282,
+      "baseline_unserved_fraction": 0.1282,
+      "service_matched": true
+    },
+    "slack": {
+      "deadline_hours": 4.0,
+      "carbon_kg_mean": 793.338,
+      "relative_pct_mean": -29.443,
+      "relative_pct_worst": -19.766,
+      "relative_pct_best": -40.625,
+      "weeks_better": 12,
+      "unserved_fraction": 0.0,
+      "baseline_unserved_fraction": -0.0,
+      "service_matched": true
+    }
+  },
+  "note": "The optimum is a perfect-foresight bound: it knows every realized intensity. It is not a policy, but it bounds what any causal policy could save at the same served volume."
+}
