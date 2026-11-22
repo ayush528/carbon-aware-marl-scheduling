@@ -194,3 +194,26 @@ experiments:
       consistently help. Two earlier runs of this experiment were invalid (a
       diverging learning rate, then a holding price that double-charged delay);
       see experiments/exp013-marl-dispatch/README.md.
+
+  - id: exp014-marl-seeds
+    title: Multi-seed replication of the decentralized dispatch result
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      Five training seeds x four variants (CVaR at alpha 0.8/0.9/0.95 and
+      risk-neutral) x two fleets, at the parity deadline price (0.1 kg per
+      missed GPU-hour against 0.093 kg emitted per GPU-hour served), always
+      paired against the same carbon-greedy rule on the same 12 held-out
+      Oct-Dec weeks. The direction is seed-robust: all four variants cut carbon
+      in all five seeds and are better in 12/12 weeks in every seed, so this is
+      not the single-seed artefact exp013's first run was. The magnitude is not:
+      capacity-bound the mean cut is 40.9-42.9% (per-seed spread -24.8% to
+      -60.5%, bimodal around -30% and -59%), slack 58.3-62.1%. At this price
+      every arm sheds 39-41% (capacity-bound) or 49-53% (slack) of work against
+      the rule's 12.8% and 0.0%, so the carbon number is inseparable from the
+      service number and both are reported. The CVaR tail term has no
+      measurable effect at any alpha -- means differing by at most 2 points
+      against a 15-point seed spread -- which is what exp013 predicted from the
+      terminal charge entering one of 336 advantages. The learning gate passes
+      for 4-5 of 5 seeds per variant.

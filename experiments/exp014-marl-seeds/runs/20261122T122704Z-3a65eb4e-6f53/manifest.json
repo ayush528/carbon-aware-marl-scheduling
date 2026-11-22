@@ -1,0 +1,16 @@
+{
+  "exp_id": "exp014-marl-seeds",
+  "git_sha": "06a476df50cdee09057504d25639e0f6ae0b02e4",
+  "git_dirty": false,
+  "config_hash": "3a65eb4edafe13d9de5f182325dfc1230ae8a19aaa02ea698b94e299b3f9fca2",
+  "seed": 0,
+  "data_hashes": {
+    "data/uk_regional_2024_tidy.csv": "a973c6c89071a64824c03c274531ad2a81e81652432e6a3c2b21121fcd3a782b",
+    "data/uk_national_2023-12_2024-12.json": "684811e39afc3e7632866fb2f97bdbe17220b97b490c50c03650b9947173009d",
+    "docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.15-76070215-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261122T122704Z",
+  "run_dir": "20261122T122704Z-3a65eb4e-6f53"
+}

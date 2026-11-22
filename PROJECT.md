@@ -288,8 +288,12 @@ docs/
       nothing. The first version of this rung was wrong twice — a learning rate that diverged and
       prices eleven times the cost of serving — so the run now reports a learning gate and the
       parity price beside its results.
-- [ ] exp014: multi-seed replication at the parity price (five seeds, both fleets), so every
-      exp013 number is either seed-robust or reported as a point estimate
+- [x] exp014: multi-seed replication at the parity price. **The direction is seed-robust; the
+      magnitude is not.** All four variants cut carbon in all five seeds and are better in 12/12
+      held-out weeks within every seed, but the capacity-bound cut ranges from −24.8% to −60.5%
+      across seeds (bimodal, about −30% or about −59%), and every arm sheds 39–41% of work
+      against the rule's 12.8%. The CVaR tail term changes nothing at alpha 0.8, 0.9 or 0.95
+      (means within two points of risk-neutral against a fifteen-point seed spread).
 - [ ] exp015: a per-step tail surcharge in place of the terminal CVaR charge. The objective and
       the units are right; charging the tail once, at the last step, is why it cannot move the
       tail.
