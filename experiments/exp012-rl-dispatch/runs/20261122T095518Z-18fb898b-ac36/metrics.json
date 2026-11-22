@@ -1,0 +1,669 @@
+{
+  "window": {
+    "n_slots": 336,
+    "slot_minutes": 30,
+    "calibration_days": 28,
+    "deadline_slots": 8
+  },
+  "episodes": {
+    "train_weeks": [
+      "2024-02-05",
+      "2024-02-12",
+      "2024-02-19",
+      "2024-02-26",
+      "2024-03-04",
+      "2024-03-11",
+      "2024-03-18",
+      "2024-03-25",
+      "2024-04-01",
+      "2024-04-08",
+      "2024-04-15",
+      "2024-04-22",
+      "2024-04-29",
+      "2024-05-06",
+      "2024-05-13",
+      "2024-05-20",
+      "2024-05-27",
+      "2024-06-03",
+      "2024-06-17",
+      "2024-07-01",
+      "2024-07-15",
+      "2024-07-22",
+      "2024-07-29",
+      "2024-08-05",
+      "2024-08-12",
+      "2024-08-19",
+      "2024-08-26",
+      "2024-09-02",
+      "2024-09-09",
+      "2024-09-16",
+      "2024-09-23",
+      "2024-09-30"
+    ],
+    "eval_weeks": [
+      "2024-10-07",
+      "2024-10-14",
+      "2024-10-21",
+      "2024-10-28",
+      "2024-11-04",
+      "2024-11-11",
+      "2024-11-18",
+      "2024-11-25",
+      "2024-12-02",
+      "2024-12-09",
+      "2024-12-16",
+      "2024-12-23"
+    ],
+    "n_train": 32,
+    "n_eval": 12,
+    "demand_source": "one real Azure LLM week, reused (identical for all policies)"
+  },
+  "comparison": {
+    "run_now": {
+      "carbon_kg": 958.8401,
+      "carbon_kg_stderr": 66.9101,
+      "carbon_vs_run_now_pct": 0.0,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282
+    },
+    "band_aware": {
+      "carbon_kg": 958.9137,
+      "carbon_kg_stderr": 66.9028,
+      "carbon_vs_run_now_pct": 0.008,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282
+    },
+    "defer": {
+      "carbon_kg": 929.9316,
+      "carbon_kg_stderr": 66.6602,
+      "carbon_vs_run_now_pct": -3.015,
+      "sla_violation_fraction": 0.2311,
+      "unserved_fraction": 0.2311
+    },
+    "ppo_with_band": {
+      "carbon_kg": 959.0098,
+      "carbon_kg_stderr": 66.9088,
+      "carbon_vs_run_now_pct": 0.018,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282
+    },
+    "ppo_without_band": {
+      "carbon_kg": 958.9137,
+      "carbon_kg_stderr": 66.9028,
+      "carbon_vs_run_now_pct": 0.008,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282
+    }
+  },
+  "per_week": {
+    "run_now": [
+      {
+        "carbon_kg": 906.641,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 896.722,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 917.054,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1207.995,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1305.562,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1035.67,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 845.787,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 947.332,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 747.86,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1262.293,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 464.051,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 969.114,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      }
+    ],
+    "band_aware": [
+      {
+        "carbon_kg": 906.641,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 896.801,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 917.12,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1208.264,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1305.562,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1035.736,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 845.825,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 947.332,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 747.87,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1262.328,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 464.321,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 969.164,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      }
+    ],
+    "defer": [
+      {
+        "carbon_kg": 807.142,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32938898.3,
+        "unserved_fraction": 0.2264,
+        "sla_violation_fraction": 0.2264,
+        "violated_tasks": 71,
+        "deferred_kwh_slots": 57302.804
+      },
+      {
+        "carbon_kg": 884.447,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34050696.0,
+        "unserved_fraction": 0.2003,
+        "sla_violation_fraction": 0.2003,
+        "violated_tasks": 64,
+        "deferred_kwh_slots": 58336.383
+      },
+      {
+        "carbon_kg": 930.315,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34076068.2,
+        "unserved_fraction": 0.1997,
+        "sla_violation_fraction": 0.1997,
+        "violated_tasks": 63,
+        "deferred_kwh_slots": 58478.724
+      },
+      {
+        "carbon_kg": 1165.138,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32287199.1,
+        "unserved_fraction": 0.2417,
+        "sla_violation_fraction": 0.2417,
+        "violated_tasks": 77,
+        "deferred_kwh_slots": 65988.405
+      },
+      {
+        "carbon_kg": 1325.088,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32046534.0,
+        "unserved_fraction": 0.2474,
+        "sla_violation_fraction": 0.2474,
+        "violated_tasks": 79,
+        "deferred_kwh_slots": 69085.076
+      },
+      {
+        "carbon_kg": 1057.278,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 33709350.4,
+        "unserved_fraction": 0.2083,
+        "sla_violation_fraction": 0.2083,
+        "violated_tasks": 66,
+        "deferred_kwh_slots": 60103.782
+      },
+      {
+        "carbon_kg": 760.252,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32002505.7,
+        "unserved_fraction": 0.2484,
+        "sla_violation_fraction": 0.2484,
+        "violated_tasks": 79,
+        "deferred_kwh_slots": 64043.85
+      },
+      {
+        "carbon_kg": 947.896,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32936789.2,
+        "unserved_fraction": 0.2265,
+        "sla_violation_fraction": 0.2265,
+        "violated_tasks": 68,
+        "deferred_kwh_slots": 63773.372
+      },
+      {
+        "carbon_kg": 750.956,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32472433.9,
+        "unserved_fraction": 0.2374,
+        "sla_violation_fraction": 0.2374,
+        "violated_tasks": 72,
+        "deferred_kwh_slots": 61517.047
+      },
+      {
+        "carbon_kg": 1181.432,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 31396746.1,
+        "unserved_fraction": 0.2626,
+        "sla_violation_fraction": 0.2626,
+        "violated_tasks": 86,
+        "deferred_kwh_slots": 69746.198
+      },
+      {
+        "carbon_kg": 466.112,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 33084475.1,
+        "unserved_fraction": 0.223,
+        "sla_violation_fraction": 0.223,
+        "violated_tasks": 67,
+        "deferred_kwh_slots": 61787.508
+      },
+      {
+        "carbon_kg": 883.123,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 31864036.9,
+        "unserved_fraction": 0.2517,
+        "sla_violation_fraction": 0.2517,
+        "violated_tasks": 81,
+        "deferred_kwh_slots": 63996.45
+      }
+    ],
+    "ppo_with_band": [
+      {
+        "carbon_kg": 906.641,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 897.229,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 917.12,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1208.746,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1305.629,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1035.736,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 845.825,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 947.332,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 747.87,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1262.328,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 464.45,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 969.212,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      }
+    ],
+    "ppo_without_band": [
+      {
+        "carbon_kg": 906.641,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 896.801,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 917.12,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1208.264,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1305.562,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1035.736,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 845.825,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 947.332,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 747.87,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 1262.328,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 464.321,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      },
+      {
+        "carbon_kg": 969.164,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "deferred_kwh_slots": 42119.585
+      }
+    ]
+  },
+  "training": {
+    "ppo_with_band": {
+      "episodes": 60,
+      "first_return": -6580.0053,
+      "last_return": -4472.7178,
+      "last_entropy": 0.5761,
+      "last_clip_fraction": 0.0119
+    },
+    "ppo_without_band": {
+      "episodes": 60,
+      "first_return": -6196.4683,
+      "last_return": -4472.3846,
+      "last_entropy": 0.6697,
+      "last_clip_fraction": 0.131
+    }
+  },
+  "band_obs_effect_on_carbon_pct": 0.01,
+  "best_policy": "defer",
+  "best_carbon_kg": 929.9316
+}

@@ -149,3 +149,22 @@ experiments:
       regional ordering is known exactly and oracle equals forecast-greedy.
       The band's decision value therefore has to come from level/timing risk
       (deadlines, CVaR), not from site ranking -- which sets the Phase 3 design.
+
+  - id: exp012-rl-dispatch
+    title: PPO dispatch with and without the band -- held-out 2024 weeks
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      Rung 5: the first learned agent. PPO (numpy, in-repo, gradients verified
+      against finite differences) over a weekly environment where each action is
+      a risk level (fill every site cheapest-first by forecast + lam*band, with
+      spill) or a wait; every task carries a deadline. Trained on 2024 weeks from
+      January to September, evaluated greedily on October-December, with the
+      calibrated band taken from the 28 days before each episode. Result: with a
+      one-kilo-per-GPU-hour deadline penalty the agent converges to immediate
+      carbon-greedy dispatch (+0.02% vs run_now), the deadline-aware rule buys
+      3.0% carbon for +10pp SLA violations, and putting the band in the
+      observation changes held-out carbon by 0.01% -- i.e. no effect. Reported as
+      the honest outcome: at this fleet size and penalty, uncertainty changes
+      risk reporting, not carbon.
