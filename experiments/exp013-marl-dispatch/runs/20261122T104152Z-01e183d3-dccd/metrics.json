@@ -1,0 +1,4747 @@
+{
+  "window": {
+    "n_slots": 336,
+    "slot_minutes": 30,
+    "calibration_days": 28,
+    "deadline_slots": 8,
+    "n_agents": 4,
+    "sla_penalties": [
+      1.0,
+      10.0
+    ],
+    "fleets": {
+      "capacity_bound": 25,
+      "slack": 40
+    },
+    "service_tolerance": 0.01
+  },
+  "episodes": {
+    "train_weeks": [
+      "2024-02-05",
+      "2024-02-12",
+      "2024-02-19",
+      "2024-02-26",
+      "2024-03-04",
+      "2024-03-11",
+      "2024-03-18",
+      "2024-03-25",
+      "2024-04-01",
+      "2024-04-08",
+      "2024-04-15",
+      "2024-04-22",
+      "2024-04-29",
+      "2024-05-06",
+      "2024-05-13",
+      "2024-05-20",
+      "2024-05-27",
+      "2024-06-03",
+      "2024-06-17",
+      "2024-07-01",
+      "2024-07-15",
+      "2024-07-22",
+      "2024-07-29",
+      "2024-08-05",
+      "2024-08-12",
+      "2024-08-19",
+      "2024-08-26",
+      "2024-09-02",
+      "2024-09-09",
+      "2024-09-16",
+      "2024-09-23",
+      "2024-09-30"
+    ],
+    "eval_weeks": [
+      "2024-10-07",
+      "2024-10-14",
+      "2024-10-21",
+      "2024-10-28",
+      "2024-11-04",
+      "2024-11-11",
+      "2024-11-18",
+      "2024-11-25",
+      "2024-12-02",
+      "2024-12-09",
+      "2024-12-16",
+      "2024-12-23"
+    ],
+    "n_train": 32,
+    "n_eval": 12,
+    "demand_source": "one real Azure LLM week, reused (identical for all policies)"
+  },
+  "comparison": {
+    "run_now/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 958.8401,
+      "carbon_kg_stderr": 66.9101,
+      "carbon_vs_run_now_pct": 0.0,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0038,
+      "carbon_g_per_served_gpu_hour": 92.99,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.0,
+        "stderr": 0.0,
+        "relative_pct": 0.0,
+        "weeks_better": 0,
+        "weeks_worse": 0,
+        "n_weeks": 12
+      }
+    },
+    "band_aware/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 958.9137,
+      "carbon_kg_stderr": 66.9028,
+      "carbon_vs_run_now_pct": 0.008,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0038,
+      "carbon_g_per_served_gpu_hour": 93.0,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.0736,
+        "stderr": 0.0276,
+        "relative_pct": 0.008,
+        "weeks_better": 0,
+        "weeks_worse": 9,
+        "n_weeks": 12
+      }
+    },
+    "defer/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 929.9316,
+      "carbon_kg_stderr": 66.6602,
+      "carbon_vs_run_now_pct": -3.015,
+      "sla_violation_fraction": 0.2311,
+      "unserved_fraction": 0.2311,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0053,
+      "carbon_g_per_served_gpu_hour": 102.26,
+      "service_matched": false,
+      "paired_vs_run_now": {
+        "mean_diff": -28.9085,
+        "stderr": 13.5251,
+        "relative_pct": -3.015,
+        "weeks_better": 6,
+        "weeks_worse": 6,
+        "n_weeks": 12
+      }
+    },
+    "ippo_full@1/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 911.9922,
+      "carbon_kg_stderr": 63.8836,
+      "carbon_vs_run_now_pct": -4.886,
+      "sla_violation_fraction": 0.1668,
+      "unserved_fraction": 0.1668,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0048,
+      "carbon_g_per_served_gpu_hour": 92.55,
+      "service_matched": false,
+      "paired_vs_run_now": {
+        "mean_diff": -46.8479,
+        "stderr": 3.7532,
+        "relative_pct": -4.886,
+        "weeks_better": 12,
+        "weeks_worse": 0,
+        "n_weeks": 12
+      }
+    },
+    "ippo_no_comm@1/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 870.8443,
+      "carbon_kg_stderr": 62.3404,
+      "carbon_vs_run_now_pct": -9.177,
+      "sla_violation_fraction": 0.1822,
+      "unserved_fraction": 0.1822,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0051,
+      "carbon_g_per_served_gpu_hour": 90.04,
+      "service_matched": false,
+      "paired_vs_run_now": {
+        "mean_diff": -87.9957,
+        "stderr": 6.0012,
+        "relative_pct": -9.177,
+        "weeks_better": 12,
+        "weeks_worse": 0,
+        "n_weeks": 12
+      }
+    },
+    "ippo_cvar@1/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 943.7662,
+      "carbon_kg_stderr": 65.3209,
+      "carbon_vs_run_now_pct": -1.572,
+      "sla_violation_fraction": 0.1283,
+      "unserved_fraction": 0.1283,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0038,
+      "carbon_g_per_served_gpu_hour": 91.53,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": -15.0739,
+        "stderr": 2.1288,
+        "relative_pct": -1.572,
+        "weeks_better": 12,
+        "weeks_worse": 0,
+        "n_weeks": 12
+      }
+    },
+    "mappo_full@1/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 919.1633,
+      "carbon_kg_stderr": 63.6456,
+      "carbon_vs_run_now_pct": -4.138,
+      "sla_violation_fraction": 0.1667,
+      "unserved_fraction": 0.1667,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0048,
+      "carbon_g_per_served_gpu_hour": 93.26,
+      "service_matched": false,
+      "paired_vs_run_now": {
+        "mean_diff": -39.6768,
+        "stderr": 4.3987,
+        "relative_pct": -4.138,
+        "weeks_better": 12,
+        "weeks_worse": 0,
+        "n_weeks": 12
+      }
+    },
+    "mappo_cvar@1/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 927.5387,
+      "carbon_kg_stderr": 64.5096,
+      "carbon_vs_run_now_pct": -3.265,
+      "sla_violation_fraction": 0.1598,
+      "unserved_fraction": 0.1598,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0047,
+      "carbon_g_per_served_gpu_hour": 93.33,
+      "service_matched": false,
+      "paired_vs_run_now": {
+        "mean_diff": -31.3014,
+        "stderr": 3.3226,
+        "relative_pct": -3.265,
+        "weeks_better": 12,
+        "weeks_worse": 0,
+        "n_weeks": 12
+      }
+    },
+    "ippo_market@1/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 1008.4383,
+      "carbon_kg_stderr": 68.4283,
+      "carbon_vs_run_now_pct": 5.173,
+      "sla_violation_fraction": 0.1637,
+      "unserved_fraction": 0.1637,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0047,
+      "carbon_g_per_served_gpu_hour": 101.95,
+      "service_matched": false,
+      "paired_vs_run_now": {
+        "mean_diff": 49.5982,
+        "stderr": 4.337,
+        "relative_pct": 5.173,
+        "weeks_better": 0,
+        "weeks_worse": 12,
+        "n_weeks": 12
+      }
+    },
+    "ippo_full@10/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 958.9997,
+      "carbon_kg_stderr": 66.8923,
+      "carbon_vs_run_now_pct": 0.017,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0038,
+      "carbon_g_per_served_gpu_hour": 93.01,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.1597,
+        "stderr": 0.0645,
+        "relative_pct": 0.017,
+        "weeks_better": 0,
+        "weeks_worse": 9,
+        "n_weeks": 12
+      }
+    },
+    "ippo_no_comm@10/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 958.9333,
+      "carbon_kg_stderr": 66.8944,
+      "carbon_vs_run_now_pct": 0.01,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0038,
+      "carbon_g_per_served_gpu_hour": 93.0,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.0932,
+        "stderr": 0.0345,
+        "relative_pct": 0.01,
+        "weeks_better": 0,
+        "weeks_worse": 11,
+        "n_weeks": 12
+      }
+    },
+    "ippo_cvar@10/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 932.0216,
+      "carbon_kg_stderr": 65.2054,
+      "carbon_vs_run_now_pct": -2.797,
+      "sla_violation_fraction": 0.137,
+      "unserved_fraction": 0.137,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.004,
+      "carbon_g_per_served_gpu_hour": 91.31,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": -26.8185,
+        "stderr": 2.0739,
+        "relative_pct": -2.797,
+        "weeks_better": 12,
+        "weeks_worse": 0,
+        "n_weeks": 12
+      }
+    },
+    "mappo_full@10/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 959.1594,
+      "carbon_kg_stderr": 66.8973,
+      "carbon_vs_run_now_pct": 0.033,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0038,
+      "carbon_g_per_served_gpu_hour": 93.02,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.3193,
+        "stderr": 0.0921,
+        "relative_pct": 0.033,
+        "weeks_better": 0,
+        "weeks_worse": 11,
+        "n_weeks": 12
+      }
+    },
+    "mappo_cvar@10/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 958.8442,
+      "carbon_kg_stderr": 66.9099,
+      "carbon_vs_run_now_pct": 0.0,
+      "sla_violation_fraction": 0.1282,
+      "unserved_fraction": 0.1282,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0038,
+      "carbon_g_per_served_gpu_hour": 92.99,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.0042,
+        "stderr": 0.0022,
+        "relative_pct": 0.0,
+        "weeks_better": 0,
+        "weeks_worse": 4,
+        "n_weeks": 12
+      }
+    },
+    "ippo_market@10/capacity_bound": {
+      "fleet": "capacity_bound",
+      "carbon_kg": 926.0808,
+      "carbon_kg_stderr": 64.7083,
+      "carbon_vs_run_now_pct": -3.417,
+      "sla_violation_fraction": 0.1567,
+      "unserved_fraction": 0.1567,
+      "max_slot_violation_fraction": 0.0424,
+      "cvar90_slot_violation_fraction": 0.0046,
+      "carbon_g_per_served_gpu_hour": 92.84,
+      "service_matched": false,
+      "paired_vs_run_now": {
+        "mean_diff": -32.7592,
+        "stderr": 3.9471,
+        "relative_pct": -3.417,
+        "weeks_better": 12,
+        "weeks_worse": 0,
+        "n_weeks": 12
+      }
+    },
+    "run_now/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1109.0378,
+      "carbon_kg_stderr": 75.9989,
+      "carbon_vs_run_now_pct": 0.0,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 93.77,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.0,
+        "stderr": 0.0,
+        "relative_pct": 0.0,
+        "weeks_better": 0,
+        "weeks_worse": 0,
+        "n_weeks": 12
+      }
+    },
+    "band_aware/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1109.1954,
+      "carbon_kg_stderr": 75.9866,
+      "carbon_vs_run_now_pct": 0.014,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 93.78,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.1577,
+        "stderr": 0.0559,
+        "relative_pct": 0.014,
+        "weeks_better": 0,
+        "weeks_worse": 11,
+        "n_weeks": 12
+      }
+    },
+    "defer/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1151.6282,
+      "carbon_kg_stderr": 85.7101,
+      "carbon_vs_run_now_pct": 3.84,
+      "sla_violation_fraction": 0.0658,
+      "unserved_fraction": 0.0658,
+      "max_slot_violation_fraction": 0.0372,
+      "cvar90_slot_violation_fraction": 0.0019,
+      "carbon_g_per_served_gpu_hour": 104.23,
+      "service_matched": false,
+      "paired_vs_run_now": {
+        "mean_diff": 42.5904,
+        "stderr": 16.6972,
+        "relative_pct": 3.84,
+        "weeks_better": 2,
+        "weeks_worse": 10,
+        "n_weeks": 12
+      }
+    },
+    "ippo_full@1/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1144.0111,
+      "carbon_kg_stderr": 79.8932,
+      "carbon_vs_run_now_pct": 3.153,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 96.72,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 34.9733,
+        "stderr": 4.7693,
+        "relative_pct": 3.153,
+        "weeks_better": 0,
+        "weeks_worse": 12,
+        "n_weeks": 12
+      }
+    },
+    "ippo_no_comm@1/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1134.2644,
+      "carbon_kg_stderr": 78.346,
+      "carbon_vs_run_now_pct": 2.275,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 95.9,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 25.2267,
+        "stderr": 3.1067,
+        "relative_pct": 2.275,
+        "weeks_better": 0,
+        "weeks_worse": 12,
+        "n_weeks": 12
+      }
+    },
+    "ippo_cvar@1/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1141.8916,
+      "carbon_kg_stderr": 79.6558,
+      "carbon_vs_run_now_pct": 2.962,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 96.54,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 32.8538,
+        "stderr": 4.5371,
+        "relative_pct": 2.962,
+        "weeks_better": 0,
+        "weeks_worse": 12,
+        "n_weeks": 12
+      }
+    },
+    "mappo_full@1/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1109.1753,
+      "carbon_kg_stderr": 75.9833,
+      "carbon_vs_run_now_pct": 0.012,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 93.78,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.1375,
+        "stderr": 0.0617,
+        "relative_pct": 0.012,
+        "weeks_better": 0,
+        "weeks_worse": 11,
+        "n_weeks": 12
+      }
+    },
+    "mappo_cvar@1/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1110.8271,
+      "carbon_kg_stderr": 76.1572,
+      "carbon_vs_run_now_pct": 0.161,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 93.92,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 1.7893,
+        "stderr": 0.2985,
+        "relative_pct": 0.161,
+        "weeks_better": 0,
+        "weeks_worse": 12,
+        "n_weeks": 12
+      }
+    },
+    "ippo_market@1/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1113.0756,
+      "carbon_kg_stderr": 75.9112,
+      "carbon_vs_run_now_pct": 0.364,
+      "sla_violation_fraction": 0.0089,
+      "unserved_fraction": 0.0089,
+      "max_slot_violation_fraction": 0.0089,
+      "cvar90_slot_violation_fraction": 0.0003,
+      "carbon_g_per_served_gpu_hour": 94.96,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 4.0378,
+        "stderr": 2.812,
+        "relative_pct": 0.364,
+        "weeks_better": 3,
+        "weeks_worse": 9,
+        "n_weeks": 12
+      }
+    },
+    "ippo_full@10/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1109.8438,
+      "carbon_kg_stderr": 75.9844,
+      "carbon_vs_run_now_pct": 0.073,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 93.83,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.806,
+        "stderr": 0.2832,
+        "relative_pct": 0.073,
+        "weeks_better": 0,
+        "weeks_worse": 12,
+        "n_weeks": 12
+      }
+    },
+    "ippo_no_comm@10/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1109.213,
+      "carbon_kg_stderr": 75.9712,
+      "carbon_vs_run_now_pct": 0.016,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 93.78,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.1753,
+        "stderr": 0.065,
+        "relative_pct": 0.016,
+        "weeks_better": 0,
+        "weeks_worse": 9,
+        "n_weeks": 12
+      }
+    },
+    "ippo_cvar@10/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1111.8211,
+      "carbon_kg_stderr": 76.5779,
+      "carbon_vs_run_now_pct": 0.251,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 94.0,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 2.7833,
+        "stderr": 1.0338,
+        "relative_pct": 0.251,
+        "weeks_better": 0,
+        "weeks_worse": 12,
+        "n_weeks": 12
+      }
+    },
+    "mappo_full@10/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1109.7932,
+      "carbon_kg_stderr": 75.9846,
+      "carbon_vs_run_now_pct": 0.068,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 93.83,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.7554,
+        "stderr": 0.1943,
+        "relative_pct": 0.068,
+        "weeks_better": 0,
+        "weeks_worse": 12,
+        "n_weeks": 12
+      }
+    },
+    "mappo_cvar@10/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1109.3473,
+      "carbon_kg_stderr": 75.9425,
+      "carbon_vs_run_now_pct": 0.028,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0,
+      "max_slot_violation_fraction": 0.0,
+      "cvar90_slot_violation_fraction": 0.0,
+      "carbon_g_per_served_gpu_hour": 93.79,
+      "service_matched": true,
+      "paired_vs_run_now": {
+        "mean_diff": 0.3095,
+        "stderr": 0.1103,
+        "relative_pct": 0.028,
+        "weeks_better": 0,
+        "weeks_worse": 11,
+        "n_weeks": 12
+      }
+    },
+    "ippo_market@10/slack": {
+      "fleet": "slack",
+      "carbon_kg": 1305.4913,
+      "carbon_kg_stderr": 85.5813,
+      "carbon_vs_run_now_pct": 17.714,
+      "sla_violation_fraction": 0.0186,
+      "unserved_fraction": 0.0186,
+      "max_slot_violation_fraction": 0.0186,
+      "cvar90_slot_violation_fraction": 0.0005,
+      "carbon_g_per_served_gpu_hour": 112.48,
+      "service_matched": false,
+      "paired_vs_run_now": {
+        "mean_diff": 196.4535,
+        "stderr": 11.631,
+        "relative_pct": 17.714,
+        "weeks_better": 0,
+        "weeks_worse": 12,
+        "n_weeks": 12
+      }
+    }
+  },
+  "per_week": {
+    "run_now/capacity_bound": [
+      {
+        "carbon_kg": 906.641,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 896.722,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 917.054,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1207.995,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1305.562,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1035.67,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 845.787,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 947.332,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 747.86,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1262.293,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 464.051,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 969.114,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      }
+    ],
+    "band_aware/capacity_bound": [
+      {
+        "carbon_kg": 906.641,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 896.801,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 917.12,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1208.264,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1305.562,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1035.736,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 845.825,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 947.332,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 747.87,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1262.328,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 464.321,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 969.164,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      }
+    ],
+    "defer/capacity_bound": [
+      {
+        "carbon_kg": 807.142,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32938898.3,
+        "unserved_fraction": 0.2264,
+        "sla_violation_fraction": 0.2264,
+        "violated_tasks": 71,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0053
+      },
+      {
+        "carbon_kg": 884.447,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34050696.0,
+        "unserved_fraction": 0.2003,
+        "sla_violation_fraction": 0.2003,
+        "violated_tasks": 64,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 930.315,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34076068.2,
+        "unserved_fraction": 0.1997,
+        "sla_violation_fraction": 0.1997,
+        "violated_tasks": 63,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 1165.138,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32287199.1,
+        "unserved_fraction": 0.2417,
+        "sla_violation_fraction": 0.2417,
+        "violated_tasks": 77,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0053
+      },
+      {
+        "carbon_kg": 1325.088,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32046534.0,
+        "unserved_fraction": 0.2474,
+        "sla_violation_fraction": 0.2474,
+        "violated_tasks": 79,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0053
+      },
+      {
+        "carbon_kg": 1057.278,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 33709350.4,
+        "unserved_fraction": 0.2083,
+        "sla_violation_fraction": 0.2083,
+        "violated_tasks": 66,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0052
+      },
+      {
+        "carbon_kg": 760.252,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32002505.7,
+        "unserved_fraction": 0.2484,
+        "sla_violation_fraction": 0.2484,
+        "violated_tasks": 79,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0054
+      },
+      {
+        "carbon_kg": 947.896,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32936789.2,
+        "unserved_fraction": 0.2265,
+        "sla_violation_fraction": 0.2265,
+        "violated_tasks": 68,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0053
+      },
+      {
+        "carbon_kg": 750.956,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 32472433.9,
+        "unserved_fraction": 0.2374,
+        "sla_violation_fraction": 0.2374,
+        "violated_tasks": 72,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0054
+      },
+      {
+        "carbon_kg": 1181.432,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 31396746.1,
+        "unserved_fraction": 0.2626,
+        "sla_violation_fraction": 0.2626,
+        "violated_tasks": 86,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0054
+      },
+      {
+        "carbon_kg": 466.112,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 33084475.1,
+        "unserved_fraction": 0.223,
+        "sla_violation_fraction": 0.223,
+        "violated_tasks": 67,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0053
+      },
+      {
+        "carbon_kg": 883.123,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 31864036.9,
+        "unserved_fraction": 0.2517,
+        "sla_violation_fraction": 0.2517,
+        "violated_tasks": 81,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0054
+      }
+    ],
+    "ippo_full@1/capacity_bound": [
+      {
+        "carbon_kg": 869.856,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35472498.8,
+        "unserved_fraction": 0.1669,
+        "sla_violation_fraction": 0.1669,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 856.18,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35517498.8,
+        "unserved_fraction": 0.1659,
+        "sla_violation_fraction": 0.1659,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 869.034,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35472498.8,
+        "unserved_fraction": 0.1669,
+        "sla_violation_fraction": 0.1669,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 1164.127,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35472498.8,
+        "unserved_fraction": 0.1669,
+        "sla_violation_fraction": 0.1669,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 1234.56,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35382498.8,
+        "unserved_fraction": 0.169,
+        "sla_violation_fraction": 0.169,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0049
+      },
+      {
+        "carbon_kg": 982.173,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35472498.8,
+        "unserved_fraction": 0.1669,
+        "sla_violation_fraction": 0.1669,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 792.723,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35517498.8,
+        "unserved_fraction": 0.1659,
+        "sla_violation_fraction": 0.1659,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 893.581,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35472498.8,
+        "unserved_fraction": 0.1669,
+        "sla_violation_fraction": 0.1669,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 716.233,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35517498.8,
+        "unserved_fraction": 0.1659,
+        "sla_violation_fraction": 0.1659,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 1205.366,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35427498.8,
+        "unserved_fraction": 0.168,
+        "sla_violation_fraction": 0.168,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0049
+      },
+      {
+        "carbon_kg": 442.484,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35562498.8,
+        "unserved_fraction": 0.1648,
+        "sla_violation_fraction": 0.1648,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 917.589,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35427498.8,
+        "unserved_fraction": 0.168,
+        "sla_violation_fraction": 0.168,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0049
+      }
+    ],
+    "ippo_no_comm@1/capacity_bound": [
+      {
+        "carbon_kg": 827.175,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34842498.8,
+        "unserved_fraction": 0.1817,
+        "sla_violation_fraction": 0.1817,
+        "violated_tasks": 54,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 806.017,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34752498.8,
+        "unserved_fraction": 0.1838,
+        "sla_violation_fraction": 0.1838,
+        "violated_tasks": 53,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 821.885,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34752498.8,
+        "unserved_fraction": 0.1838,
+        "sla_violation_fraction": 0.1838,
+        "violated_tasks": 53,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0052
+      },
+      {
+        "carbon_kg": 1117.219,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34797498.8,
+        "unserved_fraction": 0.1828,
+        "sla_violation_fraction": 0.1828,
+        "violated_tasks": 53,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 1187.688,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34707498.8,
+        "unserved_fraction": 0.1849,
+        "sla_violation_fraction": 0.1849,
+        "violated_tasks": 54,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 933.341,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34797498.8,
+        "unserved_fraction": 0.1828,
+        "sla_violation_fraction": 0.1828,
+        "violated_tasks": 53,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 742.647,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34707498.8,
+        "unserved_fraction": 0.1849,
+        "sla_violation_fraction": 0.1849,
+        "violated_tasks": 54,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 853.222,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34842498.8,
+        "unserved_fraction": 0.1817,
+        "sla_violation_fraction": 0.1817,
+        "violated_tasks": 52,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 695.093,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34977498.8,
+        "unserved_fraction": 0.1785,
+        "sla_violation_fraction": 0.1785,
+        "violated_tasks": 51,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 1168.926,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34887498.8,
+        "unserved_fraction": 0.1807,
+        "sla_violation_fraction": 0.1807,
+        "violated_tasks": 52,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      },
+      {
+        "carbon_kg": 420.32,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34977498.8,
+        "unserved_fraction": 0.1785,
+        "sla_violation_fraction": 0.1785,
+        "violated_tasks": 52,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.005
+      },
+      {
+        "carbon_kg": 876.599,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 34797498.8,
+        "unserved_fraction": 0.1828,
+        "sla_violation_fraction": 0.1828,
+        "violated_tasks": 53,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0051
+      }
+    ],
+    "ippo_cvar@1/capacity_bound": [
+      {
+        "carbon_kg": 887.433,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 889.644,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 904.19,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1184.954,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37114121.5,
+        "unserved_fraction": 0.1284,
+        "sla_violation_fraction": 0.1284,
+        "violated_tasks": 38,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1280.569,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37114121.5,
+        "unserved_fraction": 0.1284,
+        "sla_violation_fraction": 0.1284,
+        "violated_tasks": 38,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1014.91,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 838.248,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 940.984,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 733.937,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1243.154,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 459.962,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 947.209,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37114121.5,
+        "unserved_fraction": 0.1284,
+        "sla_violation_fraction": 0.1284,
+        "violated_tasks": 38,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      }
+    ],
+    "mappo_full@1/capacity_bound": [
+      {
+        "carbon_kg": 882.306,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35517498.8,
+        "unserved_fraction": 0.1659,
+        "sla_violation_fraction": 0.1659,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 861.956,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35517498.8,
+        "unserved_fraction": 0.1659,
+        "sla_violation_fraction": 0.1659,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 880.299,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35472498.8,
+        "unserved_fraction": 0.1669,
+        "sla_violation_fraction": 0.1669,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 1173.43,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35427498.8,
+        "unserved_fraction": 0.168,
+        "sla_violation_fraction": 0.168,
+        "violated_tasks": 50,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0049
+      },
+      {
+        "carbon_kg": 1239.824,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35427498.8,
+        "unserved_fraction": 0.168,
+        "sla_violation_fraction": 0.168,
+        "violated_tasks": 50,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0049
+      },
+      {
+        "carbon_kg": 983.416,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35472498.8,
+        "unserved_fraction": 0.1669,
+        "sla_violation_fraction": 0.1669,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 798.655,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35472498.8,
+        "unserved_fraction": 0.1669,
+        "sla_violation_fraction": 0.1669,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 900.296,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35472498.8,
+        "unserved_fraction": 0.1669,
+        "sla_violation_fraction": 0.1669,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 730.485,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35562498.8,
+        "unserved_fraction": 0.1648,
+        "sla_violation_fraction": 0.1648,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 1210.73,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35427498.8,
+        "unserved_fraction": 0.168,
+        "sla_violation_fraction": 0.168,
+        "violated_tasks": 50,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0049
+      },
+      {
+        "carbon_kg": 448.561,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35562498.8,
+        "unserved_fraction": 0.1648,
+        "sla_violation_fraction": 0.1648,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 920.001,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35427498.8,
+        "unserved_fraction": 0.168,
+        "sla_violation_fraction": 0.168,
+        "violated_tasks": 50,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0049
+      }
+    ],
+    "mappo_cvar@1/capacity_bound": [
+      {
+        "carbon_kg": 886.09,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35742498.8,
+        "unserved_fraction": 0.1606,
+        "sla_violation_fraction": 0.1606,
+        "violated_tasks": 47,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 870.504,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35787498.8,
+        "unserved_fraction": 0.1595,
+        "sla_violation_fraction": 0.1595,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 886.393,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35787498.8,
+        "unserved_fraction": 0.1595,
+        "sla_violation_fraction": 0.1595,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 1181.293,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35742498.8,
+        "unserved_fraction": 0.1606,
+        "sla_violation_fraction": 0.1606,
+        "violated_tasks": 47,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 1253.599,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35742498.8,
+        "unserved_fraction": 0.1606,
+        "sla_violation_fraction": 0.1606,
+        "violated_tasks": 47,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 995.141,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35787498.8,
+        "unserved_fraction": 0.1595,
+        "sla_violation_fraction": 0.1595,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 808.141,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35787498.8,
+        "unserved_fraction": 0.1595,
+        "sla_violation_fraction": 0.1595,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 909.163,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35787498.8,
+        "unserved_fraction": 0.1595,
+        "sla_violation_fraction": 0.1595,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 734.147,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35787498.8,
+        "unserved_fraction": 0.1595,
+        "sla_violation_fraction": 0.1595,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 1223.065,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35787498.8,
+        "unserved_fraction": 0.1595,
+        "sla_violation_fraction": 0.1595,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 450.027,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35787498.8,
+        "unserved_fraction": 0.1595,
+        "sla_violation_fraction": 0.1595,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 932.901,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35787498.8,
+        "unserved_fraction": 0.1595,
+        "sla_violation_fraction": 0.1595,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      }
+    ],
+    "ippo_market@1/capacity_bound": [
+      {
+        "carbon_kg": 942.191,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35614433.1,
+        "unserved_fraction": 0.1636,
+        "sla_violation_fraction": 0.1636,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 936.897,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35614433.1,
+        "unserved_fraction": 0.1636,
+        "sla_violation_fraction": 0.1636,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 968.337,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35614433.1,
+        "unserved_fraction": 0.1636,
+        "sla_violation_fraction": 0.1636,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 1255.053,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35513183.1,
+        "unserved_fraction": 0.166,
+        "sla_violation_fraction": 0.166,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 1391.953,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35479433.1,
+        "unserved_fraction": 0.1668,
+        "sla_violation_fraction": 0.1668,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 1083.848,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35513183.1,
+        "unserved_fraction": 0.166,
+        "sla_violation_fraction": 0.166,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 885.058,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35580683.1,
+        "unserved_fraction": 0.1644,
+        "sla_violation_fraction": 0.1644,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 1007.697,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35648183.1,
+        "unserved_fraction": 0.1628,
+        "sla_violation_fraction": 0.1628,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 815.117,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35749433.1,
+        "unserved_fraction": 0.1604,
+        "sla_violation_fraction": 0.1604,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0047
+      },
+      {
+        "carbon_kg": 1300.234,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35541317.4,
+        "unserved_fraction": 0.1653,
+        "sla_violation_fraction": 0.1653,
+        "violated_tasks": 49,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      },
+      {
+        "carbon_kg": 502.846,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35884433.1,
+        "unserved_fraction": 0.1572,
+        "sla_violation_fraction": 0.1572,
+        "violated_tasks": 47,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 1012.028,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35541317.4,
+        "unserved_fraction": 0.1653,
+        "sla_violation_fraction": 0.1653,
+        "violated_tasks": 50,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0048
+      }
+    ],
+    "ippo_full@10/capacity_bound": [
+      {
+        "carbon_kg": 906.641,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 897.474,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 917.12,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1208.288,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1305.562,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1035.828,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 845.909,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 947.339,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 747.86,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1262.328,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 464.436,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 969.212,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      }
+    ],
+    "ippo_no_comm@10/capacity_bound": [
+      {
+        "carbon_kg": 906.654,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 896.965,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 917.066,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1208.221,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1305.562,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1035.715,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 845.93,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 947.339,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 747.865,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1262.328,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 464.406,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 969.148,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      }
+    ],
+    "ippo_cvar@10/capacity_bound": [
+      {
+        "carbon_kg": 876.543,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 870.156,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 887.055,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 1173.713,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 1273.272,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 1003.535,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 819.202,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 920.449,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 729.487,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36777498.8,
+        "unserved_fraction": 0.1363,
+        "sla_violation_fraction": 0.1363,
+        "violated_tasks": 39,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 1235.081,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      },
+      {
+        "carbon_kg": 456.064,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36867498.8,
+        "unserved_fraction": 0.1342,
+        "sla_violation_fraction": 0.1342,
+        "violated_tasks": 39,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0039
+      },
+      {
+        "carbon_kg": 939.702,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36732498.8,
+        "unserved_fraction": 0.1373,
+        "sla_violation_fraction": 0.1373,
+        "violated_tasks": 40,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.004
+      }
+    ],
+    "mappo_full@10/capacity_bound": [
+      {
+        "carbon_kg": 906.641,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 896.93,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 917.199,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1209.015,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1305.739,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1036.072,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 846.07,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 947.339,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 748.18,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1262.591,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 464.925,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 969.212,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      }
+    ],
+    "mappo_cvar@10/capacity_bound": [
+      {
+        "carbon_kg": 906.641,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 896.722,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 917.054,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1208.002,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1305.562,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1035.696,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 845.796,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 947.332,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 747.86,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 1262.293,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 464.059,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      },
+      {
+        "carbon_kg": 969.114,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 37120547.0,
+        "unserved_fraction": 0.1282,
+        "sla_violation_fraction": 0.1282,
+        "violated_tasks": 37,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0038
+      }
+    ],
+    "ippo_market@10/capacity_bound": [
+      {
+        "carbon_kg": 875.054,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35892278.0,
+        "unserved_fraction": 0.1571,
+        "sla_violation_fraction": 0.1571,
+        "violated_tasks": 47,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 874.022,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35892278.0,
+        "unserved_fraction": 0.1571,
+        "sla_violation_fraction": 0.1571,
+        "violated_tasks": 47,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 878.898,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35926028.0,
+        "unserved_fraction": 0.1563,
+        "sla_violation_fraction": 0.1563,
+        "violated_tasks": 45,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 1152.625,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35824778.0,
+        "unserved_fraction": 0.1586,
+        "sla_violation_fraction": 0.1586,
+        "violated_tasks": 48,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 1264.778,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35824778.0,
+        "unserved_fraction": 0.1586,
+        "sla_violation_fraction": 0.1586,
+        "violated_tasks": 47,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 990.867,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35892278.0,
+        "unserved_fraction": 0.1571,
+        "sla_violation_fraction": 0.1571,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 810.359,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35892278.0,
+        "unserved_fraction": 0.1571,
+        "sla_violation_fraction": 0.1571,
+        "violated_tasks": 47,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 933.618,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35959778.0,
+        "unserved_fraction": 0.1555,
+        "sla_violation_fraction": 0.1555,
+        "violated_tasks": 45,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 737.151,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35993528.0,
+        "unserved_fraction": 0.1547,
+        "sla_violation_fraction": 0.1547,
+        "violated_tasks": 45,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0045
+      },
+      {
+        "carbon_kg": 1230.379,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35892278.0,
+        "unserved_fraction": 0.1571,
+        "sla_violation_fraction": 0.1571,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      },
+      {
+        "carbon_kg": 443.2,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 36027278.0,
+        "unserved_fraction": 0.1539,
+        "sla_violation_fraction": 0.1539,
+        "violated_tasks": 45,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0045
+      },
+      {
+        "carbon_kg": 922.019,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 35892278.0,
+        "unserved_fraction": 0.1571,
+        "sla_violation_fraction": 0.1571,
+        "violated_tasks": 46,
+        "max_slot_violation_fraction": 0.0424,
+        "cvar90_slot_violation_fraction": 0.0046
+      }
+    ],
+    "run_now/slack": [
+      {
+        "carbon_kg": 1033.751,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1054.329,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1053.078,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1414.532,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1464.239,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1203.947,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1043.871,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.112,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 827.197,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1454.772,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 544.588,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1095.037,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "band_aware/slack": [
+      {
+        "carbon_kg": 1033.751,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1054.384,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1053.518,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1415.023,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1464.298,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1204.068,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1043.929,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.139,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 827.236,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1454.819,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 545.082,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1095.098,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "defer/slack": [
+      {
+        "carbon_kg": 1026.018,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 40459688.1,
+        "unserved_fraction": 0.0498,
+        "sla_violation_fraction": 0.0498,
+        "violated_tasks": 16,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0015
+      },
+      {
+        "carbon_kg": 1081.069,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 40294562.3,
+        "unserved_fraction": 0.0537,
+        "sla_violation_fraction": 0.0537,
+        "violated_tasks": 19,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0016
+      },
+      {
+        "carbon_kg": 1136.778,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 40501128.1,
+        "unserved_fraction": 0.0488,
+        "sla_violation_fraction": 0.0488,
+        "violated_tasks": 16,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0014
+      },
+      {
+        "carbon_kg": 1459.5,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 39694412.2,
+        "unserved_fraction": 0.0678,
+        "sla_violation_fraction": 0.0678,
+        "violated_tasks": 26,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.002
+      },
+      {
+        "carbon_kg": 1623.756,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 39203419.9,
+        "unserved_fraction": 0.0793,
+        "sla_violation_fraction": 0.0793,
+        "violated_tasks": 33,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0023
+      },
+      {
+        "carbon_kg": 1309.134,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 40471593.6,
+        "unserved_fraction": 0.0495,
+        "sla_violation_fraction": 0.0495,
+        "violated_tasks": 18,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0015
+      },
+      {
+        "carbon_kg": 973.735,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 39438582.1,
+        "unserved_fraction": 0.0738,
+        "sla_violation_fraction": 0.0738,
+        "violated_tasks": 30,
+        "max_slot_violation_fraction": 0.0358,
+        "cvar90_slot_violation_fraction": 0.0022
+      },
+      {
+        "carbon_kg": 1145.496,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 39953699.7,
+        "unserved_fraction": 0.0617,
+        "sla_violation_fraction": 0.0617,
+        "violated_tasks": 23,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0018
+      },
+      {
+        "carbon_kg": 867.205,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 39179293.9,
+        "unserved_fraction": 0.0799,
+        "sla_violation_fraction": 0.0799,
+        "violated_tasks": 34,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0023
+      },
+      {
+        "carbon_kg": 1518.196,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 39381129.0,
+        "unserved_fraction": 0.0751,
+        "sla_violation_fraction": 0.0751,
+        "violated_tasks": 30,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0022
+      },
+      {
+        "carbon_kg": 552.787,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 39348972.0,
+        "unserved_fraction": 0.0759,
+        "sla_violation_fraction": 0.0759,
+        "violated_tasks": 29,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0022
+      },
+      {
+        "carbon_kg": 1125.864,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 39403797.3,
+        "unserved_fraction": 0.0746,
+        "sla_violation_fraction": 0.0746,
+        "violated_tasks": 30,
+        "max_slot_violation_fraction": 0.0373,
+        "cvar90_slot_violation_fraction": 0.0022
+      }
+    ],
+    "ippo_full@1/slack": [
+      {
+        "carbon_kg": 1054.347,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1082.755,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1082.977,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1470.239,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1539.732,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1244.134,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1077.616,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1150.007,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 847.009,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1490.694,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 560.145,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1128.478,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "ippo_no_comm@1/slack": [
+      {
+        "carbon_kg": 1048.666,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1073.506,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1075.672,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1454.737,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1513.405,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1232.312,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1074.593,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1143.093,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 841.58,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1476.77,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 557.303,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.536,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "ippo_cvar@1/slack": [
+      {
+        "carbon_kg": 1052.915,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1080.361,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1081.432,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1467.175,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1535.802,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1241.011,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1076.785,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1148.019,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 845.422,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1487.945,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 559.462,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1126.37,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "mappo_full@1/slack": [
+      {
+        "carbon_kg": 1033.753,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1054.384,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1053.237,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1415.111,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1464.257,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1203.972,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1043.991,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.139,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 827.223,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1454.822,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 545.177,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1095.037,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "mappo_cvar@1/slack": [
+      {
+        "carbon_kg": 1034.797,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1056.038,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1054.892,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1418.831,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1467.192,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1204.965,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1045.386,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.916,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 828.904,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1456.048,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 545.358,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1097.598,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "ippo_market@1/slack": [
+      {
+        "carbon_kg": 1035.885,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42140846.0,
+        "unserved_fraction": 0.0103,
+        "sla_violation_fraction": 0.0103,
+        "violated_tasks": 4,
+        "max_slot_violation_fraction": 0.0103,
+        "cvar90_slot_violation_fraction": 0.0003
+      },
+      {
+        "carbon_kg": 1053.324,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42248846.0,
+        "unserved_fraction": 0.0078,
+        "sla_violation_fraction": 0.0078,
+        "violated_tasks": 3,
+        "max_slot_violation_fraction": 0.0078,
+        "cvar90_slot_violation_fraction": 0.0002
+      },
+      {
+        "carbon_kg": 1058.807,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42194846.0,
+        "unserved_fraction": 0.009,
+        "sla_violation_fraction": 0.009,
+        "violated_tasks": 3,
+        "max_slot_violation_fraction": 0.009,
+        "cvar90_slot_violation_fraction": 0.0003
+      },
+      {
+        "carbon_kg": 1424.173,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42140846.0,
+        "unserved_fraction": 0.0103,
+        "sla_violation_fraction": 0.0103,
+        "violated_tasks": 4,
+        "max_slot_violation_fraction": 0.0103,
+        "cvar90_slot_violation_fraction": 0.0003
+      },
+      {
+        "carbon_kg": 1466.765,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42140846.0,
+        "unserved_fraction": 0.0103,
+        "sla_violation_fraction": 0.0103,
+        "violated_tasks": 4,
+        "max_slot_violation_fraction": 0.0103,
+        "cvar90_slot_violation_fraction": 0.0003
+      },
+      {
+        "carbon_kg": 1212.063,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42194846.0,
+        "unserved_fraction": 0.009,
+        "sla_violation_fraction": 0.009,
+        "violated_tasks": 3,
+        "max_slot_violation_fraction": 0.009,
+        "cvar90_slot_violation_fraction": 0.0003
+      },
+      {
+        "carbon_kg": 1030.778,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42194846.0,
+        "unserved_fraction": 0.009,
+        "sla_violation_fraction": 0.009,
+        "violated_tasks": 3,
+        "max_slot_violation_fraction": 0.009,
+        "cvar90_slot_violation_fraction": 0.0003
+      },
+      {
+        "carbon_kg": 1104.699,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42194846.0,
+        "unserved_fraction": 0.009,
+        "sla_violation_fraction": 0.009,
+        "violated_tasks": 3,
+        "max_slot_violation_fraction": 0.009,
+        "cvar90_slot_violation_fraction": 0.0003
+      },
+      {
+        "carbon_kg": 832.891,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42248846.0,
+        "unserved_fraction": 0.0078,
+        "sla_violation_fraction": 0.0078,
+        "violated_tasks": 3,
+        "max_slot_violation_fraction": 0.0078,
+        "cvar90_slot_violation_fraction": 0.0002
+      },
+      {
+        "carbon_kg": 1467.853,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42248846.0,
+        "unserved_fraction": 0.0078,
+        "sla_violation_fraction": 0.0078,
+        "violated_tasks": 3,
+        "max_slot_violation_fraction": 0.0078,
+        "cvar90_slot_violation_fraction": 0.0002
+      },
+      {
+        "carbon_kg": 560.562,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42248846.0,
+        "unserved_fraction": 0.0078,
+        "sla_violation_fraction": 0.0078,
+        "violated_tasks": 3,
+        "max_slot_violation_fraction": 0.0078,
+        "cvar90_slot_violation_fraction": 0.0002
+      },
+      {
+        "carbon_kg": 1109.107,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42194846.0,
+        "unserved_fraction": 0.009,
+        "sla_violation_fraction": 0.009,
+        "violated_tasks": 3,
+        "max_slot_violation_fraction": 0.009,
+        "cvar90_slot_violation_fraction": 0.0003
+      }
+    ],
+    "ippo_full@10/slack": [
+      {
+        "carbon_kg": 1033.832,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1054.891,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1053.494,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1416.702,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1464.57,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1204.88,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1047.025,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.146,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 827.294,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1455.062,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 546.049,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1095.18,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "ippo_no_comm@10/slack": [
+      {
+        "carbon_kg": 1033.751,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1054.517,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1053.358,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1415.022,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1464.257,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1204.145,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1044.016,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.112,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 827.248,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1454.772,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 545.301,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1095.057,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "ippo_cvar@10/slack": [
+      {
+        "carbon_kg": 1033.972,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1054.907,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1054.221,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1424.128,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1474.024,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1207.194,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1049.476,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.502,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 827.659,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1455.633,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 545.729,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1095.408,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "mappo_full@10/slack": [
+      {
+        "carbon_kg": 1033.984,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1055.156,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1053.509,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1416.614,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1464.57,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1205.328,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1044.778,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.12,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 827.494,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1455.399,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 546.386,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1095.18,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "mappo_cvar@10/slack": [
+      {
+        "carbon_kg": 1033.751,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1054.517,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1053.518,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1415.167,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1464.298,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1204.4,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1044.145,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1119.146,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 827.294,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1454.819,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 545.932,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      },
+      {
+        "carbon_kg": 1095.18,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 42579982.1,
+        "unserved_fraction": 0.0,
+        "sla_violation_fraction": 0.0,
+        "violated_tasks": 0,
+        "max_slot_violation_fraction": 0.0,
+        "cvar90_slot_violation_fraction": 0.0
+      }
+    ],
+    "ippo_market@10/slack": [
+      {
+        "carbon_kg": 1232.749,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 1233.67,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 1274.502,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 1635.573,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 1733.963,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41761213.8,
+        "unserved_fraction": 0.0192,
+        "sla_violation_fraction": 0.0192,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0192,
+        "cvar90_slot_violation_fraction": 0.0006
+      },
+      {
+        "carbon_kg": 1419.52,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 1197.065,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 1315.282,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 997.779,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 1652.479,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 655.308,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      },
+      {
+        "carbon_kg": 1318.005,
+        "offered_gpu_s": 42579982.1,
+        "served_gpu_s": 41786088.9,
+        "unserved_fraction": 0.0186,
+        "sla_violation_fraction": 0.0186,
+        "violated_tasks": 5,
+        "max_slot_violation_fraction": 0.0186,
+        "cvar90_slot_violation_fraction": 0.0005
+      }
+    ]
+  },
+  "training": {
+    "ippo_full@1/capacity_bound": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -1544.7423,
+      "last_return": -1290.0747,
+      "last_entropy": 0.8312
+    },
+    "ippo_no_comm@1/capacity_bound": {
+      "algorithm": "ippo",
+      "communicate": false,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -1567.7983,
+      "last_return": -1339.6299,
+      "last_entropy": 0.6374
+    },
+    "ippo_cvar@1/capacity_bound": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 1.0,
+      "episodes": 80,
+      "first_return": -1563.6524,
+      "last_return": -1201.6403,
+      "last_entropy": 0.8575
+    },
+    "mappo_full@1/capacity_bound": {
+      "algorithm": "mappo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -1544.7423,
+      "last_return": -1315.8055,
+      "last_entropy": 0.6121
+    },
+    "mappo_cvar@1/capacity_bound": {
+      "algorithm": "mappo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 1.0,
+      "episodes": 80,
+      "first_return": -1563.6524,
+      "last_return": -1317.787,
+      "last_entropy": 0.5598
+    },
+    "ippo_market@1/capacity_bound": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": true,
+      "sla_penalty": 1.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -2141.9565,
+      "last_return": -1373.5835,
+      "last_entropy": 1.0787
+    },
+    "ippo_full@10/capacity_bound": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -7986.4482,
+      "last_return": -4540.5842,
+      "last_entropy": 0.4681
+    },
+    "ippo_no_comm@10/capacity_bound": {
+      "algorithm": "ippo",
+      "communicate": false,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -8172.7484,
+      "last_return": -4813.4728,
+      "last_entropy": 0.7207
+    },
+    "ippo_cvar@10/capacity_bound": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 10.0,
+      "episodes": 80,
+      "first_return": -8175.5489,
+      "last_return": -5172.0216,
+      "last_entropy": 0.5184
+    },
+    "mappo_full@10/capacity_bound": {
+      "algorithm": "mappo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -7986.4482,
+      "last_return": -4540.3139,
+      "last_entropy": 0.3474
+    },
+    "mappo_cvar@10/capacity_bound": {
+      "algorithm": "mappo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 10.0,
+      "episodes": 80,
+      "first_return": -8175.5489,
+      "last_return": -4642.9059,
+      "last_entropy": 0.3811
+    },
+    "ippo_market@10/capacity_bound": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": true,
+      "sla_penalty": 10.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -12916.2406,
+      "last_return": -5529.6224,
+      "last_entropy": 0.6452
+    },
+    "ippo_full@1/slack": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -649.9084,
+      "last_return": -430.7181,
+      "last_entropy": 0.9785
+    },
+    "ippo_no_comm@1/slack": {
+      "algorithm": "ippo",
+      "communicate": false,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -664.7673,
+      "last_return": -344.407,
+      "last_entropy": 0.6394
+    },
+    "ippo_cvar@1/slack": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 1.0,
+      "episodes": 80,
+      "first_return": -652.8719,
+      "last_return": -350.9011,
+      "last_entropy": 0.7859
+    },
+    "mappo_full@1/slack": {
+      "algorithm": "mappo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -649.9084,
+      "last_return": -350.191,
+      "last_entropy": 0.8197
+    },
+    "mappo_cvar@1/slack": {
+      "algorithm": "mappo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 1.0,
+      "cvar_weight": 1.0,
+      "episodes": 80,
+      "first_return": -652.8719,
+      "last_return": -415.8201,
+      "last_entropy": 0.888
+    },
+    "ippo_market@1/slack": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": true,
+      "sla_penalty": 1.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -1480.3607,
+      "last_return": -477.2796,
+      "last_entropy": 1.2388
+    },
+    "ippo_full@10/slack": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -1658.8491,
+      "last_return": -352.7577,
+      "last_entropy": 0.8959
+    },
+    "ippo_no_comm@10/slack": {
+      "algorithm": "ippo",
+      "communicate": false,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -1718.708,
+      "last_return": -347.8231,
+      "last_entropy": 0.7875
+    },
+    "ippo_cvar@10/slack": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 10.0,
+      "episodes": 80,
+      "first_return": -1688.4846,
+      "last_return": -329.5409,
+      "last_entropy": 0.5029
+    },
+    "mappo_full@10/slack": {
+      "algorithm": "mappo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -1658.8491,
+      "last_return": -329.7247,
+      "last_entropy": 0.6665
+    },
+    "mappo_cvar@10/slack": {
+      "algorithm": "mappo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": false,
+      "sla_penalty": 10.0,
+      "cvar_weight": 10.0,
+      "episodes": 80,
+      "first_return": -1688.4846,
+      "last_return": -406.2311,
+      "last_entropy": 0.6674
+    },
+    "ippo_market@10/slack": {
+      "algorithm": "ippo",
+      "communicate": true,
+      "band_in_obs": true,
+      "allow_decline": true,
+      "sla_penalty": 10.0,
+      "cvar_weight": 0.0,
+      "episodes": 80,
+      "first_return": -7365.2482,
+      "last_return": -1298.5123,
+      "last_entropy": 1.4519
+    }
+  },
+  "effects_pct": {
+    "communication_ippo_capacity_bound": {
+      "mean_diff": 41.1478,
+      "stderr": 2.897,
+      "relative_pct": 4.725,
+      "weeks_better": 0,
+      "weeks_worse": 12,
+      "n_weeks": 12
+    },
+    "centralised_critic_mappo_capacity_bound": {
+      "mean_diff": 7.1711,
+      "stderr": 1.1311,
+      "relative_pct": 0.786,
+      "weeks_better": 0,
+      "weeks_worse": 12,
+      "n_weeks": 12
+    },
+    "cvar_ippo_capacity_bound": {
+      "mean_diff": 31.774,
+      "stderr": 3.275,
+      "relative_pct": 3.484,
+      "weeks_better": 0,
+      "weeks_worse": 12,
+      "n_weeks": 12
+    },
+    "cvar_mappo_capacity_bound": {
+      "mean_diff": 8.3754,
+      "stderr": 1.1499,
+      "relative_pct": 0.911,
+      "weeks_better": 0,
+      "weeks_worse": 12,
+      "n_weeks": 12
+    },
+    "market_vs_obligation_capacity_bound": {
+      "mean_diff": 96.4461,
+      "stderr": 6.8826,
+      "relative_pct": 10.575,
+      "weeks_better": 0,
+      "weeks_worse": 12,
+      "n_weeks": 12
+    },
+    "communication_ippo_slack": {
+      "mean_diff": 9.7467,
+      "stderr": 1.8924,
+      "relative_pct": 0.859,
+      "weeks_better": 0,
+      "weeks_worse": 12,
+      "n_weeks": 12
+    },
+    "centralised_critic_mappo_slack": {
+      "mean_diff": -34.8358,
+      "stderr": 4.7703,
+      "relative_pct": -3.045,
+      "weeks_better": 12,
+      "weeks_worse": 0,
+      "n_weeks": 12
+    },
+    "cvar_ippo_slack": {
+      "mean_diff": -2.1195,
+      "stderr": 0.2817,
+      "relative_pct": -0.185,
+      "weeks_better": 12,
+      "weeks_worse": 0,
+      "n_weeks": 12
+    },
+    "cvar_mappo_slack": {
+      "mean_diff": 1.6518,
+      "stderr": 0.2851,
+      "relative_pct": 0.149,
+      "weeks_better": 0,
+      "weeks_worse": 12,
+      "n_weeks": 12
+    },
+    "market_vs_obligation_slack": {
+      "mean_diff": -30.9355,
+      "stderr": 5.5902,
+      "relative_pct": -2.704,
+      "weeks_better": 11,
+      "weeks_worse": 1,
+      "n_weeks": 12
+    }
+  },
+  "frontier": {
+    "1/capacity_bound": {
+      "service_matched_policies": 1,
+      "best": "ippo_cvar@1/capacity_bound",
+      "carbon_kg": 943.7662,
+      "carbon_vs_run_now_pct": -1.572,
+      "sla_violation_fraction": 0.1283,
+      "unserved_fraction": 0.1283
+    },
+    "10/capacity_bound": {
+      "service_matched_policies": 5,
+      "best": "ippo_cvar@10/capacity_bound",
+      "carbon_kg": 932.0216,
+      "carbon_vs_run_now_pct": -2.797,
+      "sla_violation_fraction": 0.137,
+      "unserved_fraction": 0.137
+    },
+    "1/slack": {
+      "service_matched_policies": 6,
+      "best": "mappo_full@1/slack",
+      "carbon_kg": 1109.1753,
+      "carbon_vs_run_now_pct": 0.012,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0
+    },
+    "10/slack": {
+      "service_matched_policies": 5,
+      "best": "ippo_no_comm@10/slack",
+      "carbon_kg": 1109.213,
+      "carbon_vs_run_now_pct": 0.016,
+      "sla_violation_fraction": 0.0,
+      "unserved_fraction": 0.0
+    }
+  },
+  "limitations": [
+    "one seed: variants are point estimates with per-week standard errors; Phase 4 repeats them across seeds",
+    "carbon totals are only comparable between service-matched policies; unserved work emits nothing",
+    "the peering signal is the previous slot's mean bid and mean accepted share only -- richer communication is not tested here",
+    "the CVaR term is a terminal adjustment on each agent's own per-slot violation series; an actor-critic with a per-step risk state would be a different (stronger) object"
+  ]
+}

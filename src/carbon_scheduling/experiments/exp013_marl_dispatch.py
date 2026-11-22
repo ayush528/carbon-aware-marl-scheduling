@@ -2,13 +2,14 @@
 
 Phase 3, rung 6, and the paper's headline structure. The physical problem is the
 one exp012 solved centrally, but the decision is now made by one agent per
-region. Each agent quotes a risk level (its own ``forecast + lam * band``) and
-offers 0/25/50/100% of its slot capacity; an untrained clearing rule fills the
-cheapest bids with spill. Agents see only their own region plus two broadcast
-numbers from the previous slot: the mean peer bid and the mean accepted share.
+region. Each agent quotes a risk level (its own ``forecast + lam * band``) and,
+under a service obligation, must offer its slot capacity; the alternative is to
+wait a slot. An untrained clearing rule fills the cheapest bids with spill.
+Agents see only their own region plus two broadcast numbers from the previous
+slot: the mean peer bid and the mean accepted share.
 
-Five variants, all trained on 2024 weeks January-September and evaluated
-greedily on weeks in October-December:
+Five variants, trained on 2024 weeks January-September and evaluated greedily on
+weeks in October-December:
 
 ===================================  ==========================================
 ``ippo_full``                         independent actors, band in the
@@ -19,18 +20,32 @@ greedily on weeks in October-December:
 ``mappo_full``                        per-agent actors, centralised critic
                                       (training only), communication on
 ``mappo_cvar``                        same as full, plus the CVaR tail penalty
+``ippo_market``                       full, plus the offer choice (an agent may
+                                      volunteer only a quarter of its capacity)
 ===================================  ==========================================
 
-Three joint rules are scored on the same weeks (carbon-greedy, band-aware,
-deadline-aware deferral), so every learned number has a rule beside it.
+Everything is crossed with **two deadline weights** (1 and 10 kg of CO2 per
+GPU-hour of missed work) and **two fleets**: ``capacity_bound`` (25 GPUs per
+site, from exp007's spec) where the real trace saturates the fleet, and
+``slack`` (40 GPUs per site) where every policy can serve all demand and the
+only question is *where and when* the work runs.
+
+**Why the fleet and the deadline weight are both swept.** Unserved work emits
+nothing, so any policy can look green by doing less of it. In the slack fleet
+the service obligation is satisfiable, so carbon differences there are honest
+placement/timing differences; the capacity-bound fleet shows what happens when
+it is not, and the service-matched flag marks which entries are carbon claims.
+The two deadline weights give two points on the carbon-versus-SLA frontier
+instead of asserting one weight is right.
+
+Three joint rules are scored on the same weeks and fleets (carbon-greedy,
+band-aware, deadline-aware deferral), so every learned number has a rule beside
+it. The tail metrics (worst slot, CVaR-90 of the slot series) are what the CVaR
+term is supposed to move.
 
 What the comparison can and cannot say is fixed in advance: this is one seed,
-so variants are compared as point estimates with per-week standard errors, and
-Phase 4 repeats them across seeds. The band's role here is the same as in
-exp012 -- it is charged in the bid -- and exp011 already showed it cannot change
-the site ordering; what it can change is *how much* an agent demands for
-serving uncertain carbon, which interacts with the offer decision and with who
-gets blamed when a deadline is missed.
+so variants are point estimates with per-week standard errors, and Phase 4
+repeats them across seeds.
 """
 
 from __future__ import annotations
@@ -45,6 +60,7 @@ from carbon_scheduling.rl.marl_env import MultiAgentEnv
 from carbon_scheduling.rl.marl_ppo import evaluate_multi, train_multi
 
 SLOT_MINUTES = 30
+SERVICE_TOLERANCE = 0.01
 
 
 def _build(
@@ -56,6 +72,8 @@ def _build(
     *,
     communicate: bool,
     include_band: bool,
+    allow_decline: bool,
+    penalty: float,
     config: dict[str, Any],
 ) -> MultiAgentEnv:
     forecast, realized, _ = data.episode_arrays(series, tokens, start)
@@ -68,11 +86,50 @@ def _build(
         demand_tokens=tokens,
         sites=sites,
         deadline_slots=int(config["deadline_slots"]),
-        sla_penalty_kg_per_kwh=float(config["sla_penalty_kg_per_kwh"]),
+        sla_penalty_kg_per_kwh=penalty,
         hold_penalty_kg_per_kwh=float(config["hold_penalty_kg_per_kwh"]),
         communicate=communicate,
         include_band_in_obs=include_band,
+        allow_decline=allow_decline,
     )
+
+
+def _served_intensity(rows: list[dict[str, float]]) -> float:
+    """gCO2 per GPU-hour actually served: *where* the work ran, not how much."""
+    carbon_kg = sum(row["carbon_kg"] for row in rows)
+    served_hours = sum(row["served_gpu_s"] for row in rows) / 3600.0
+    return round(carbon_kg * 1000.0 / served_hours, 2) if served_hours else 0.0
+
+
+def _mean(rows: list[dict[str, float]], key: str) -> float:
+    return round(float(np.mean([row[key] for row in rows])), 4)
+
+
+def _paired(
+    rows: list[dict[str, float]], reference: list[dict[str, float]], key: str = "carbon_kg"
+) -> dict[str, float]:
+    """Paired per-week comparison against a reference policy.
+
+    The weeks share their weather and their carbon, so the between-week variance
+    (which is huge: a windy week is far cleaner than a still one) cancels in the
+    difference. An unpaired standard error would drown every real effect, so
+    this is the test the claims are read from.
+    """
+    if len(rows) != len(reference):
+        raise ValueError("paired comparison needs the same weeks")
+    diffs = np.array([row[key] - ref[key] for row, ref in zip(rows, reference, strict=True)])
+    n = len(diffs)
+    base = float(np.mean([ref[key] for ref in reference]))
+    mean = float(diffs.mean())
+    stderr = float(diffs.std(ddof=1) / np.sqrt(n)) if n > 1 else 0.0
+    return {
+        "mean_diff": round(mean, 4),
+        "stderr": round(stderr, 4),
+        "relative_pct": round(mean / base * 100, 3) if base else 0.0,
+        "weeks_better": int((diffs < 0).sum()),
+        "weeks_worse": int((diffs > 0).sum()),
+        "n_weeks": n,
+    }
 
 
 def run(config: dict[str, Any]) -> dict[str, Any]:
@@ -81,7 +138,8 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     names = list(config["regions"])
     n_slots = int(config["n_slots"])
     tokens = data.demand_profile(paths["demand"], n_slots)
-    sites = data.make_sites(config["sites"], names)
+    penalties = [float(v) for v in config["sla_penalties"]]
+    fleets = {str(f["name"]): int(f["n_gpus"]) for f in config["fleets"]}
 
     train_weeks = data.weekly_windows(
         series,
@@ -102,116 +160,182 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             f"not enough covered weeks: train={len(train_weeks)} eval={len(eval_weeks)}"
         )
 
-    # --- joint rules, scored on the held-out weeks ---
-    rule_rows: dict[str, list[dict[str, float]]] = {name: [] for name in baselines.JOINT_POLICIES}
-    for start in eval_weeks:
-        for name, policy in baselines.JOINT_POLICIES.items():
-            env = _build(
-                series,
-                tokens,
-                sites,
-                names,
-                start,
-                communicate=True,
-                include_band=True,
-                config=config,
-            )
-            rule_rows[name].append(baselines.run_joint_policy(env, policy))
-
-    # --- learned variants ---
-    agent_rows: dict[str, list[dict[str, float]]] = {}
+    rows_by_policy: dict[str, list[dict[str, float]]] = {}
     training: dict[str, dict[str, Any]] = {}
-    for variant in config["variants"]:
-        label = str(variant["name"])
-        communicate = bool(variant.get("communicate", True))
-        include_band = bool(variant.get("band", True))
-        centralized = variant["algorithm"] == "mappo"
-        cvar_weight = float(config["sla_penalty_kg_per_kwh"]) if variant.get("cvar", False) else 0.0
 
-        def factory(
-            episode: int,
-            _comm=communicate,
-            _band=include_band,
-            _weeks=train_weeks,
-        ) -> MultiAgentEnv:
-            start = _weeks[episode % len(_weeks)]
-            return _build(
-                series,
-                tokens,
-                sites,
-                names,
-                start,
-                communicate=_comm,
-                include_band=_band,
-                config=config,
-            )
+    for fleet, n_gpus in fleets.items():
+        spec = {**config["sites"], "n_gpus": n_gpus}
+        sites = data.make_sites(spec, names)
 
-        probe = factory(0)
-        actors, _critic, history = train_multi(
-            factory,
-            n_agents=probe.n_agents,
-            obs_dim=probe.obs_dim,
-            n_actions=probe.n_actions,
-            global_state_dim=probe.global_state_dim,
-            centralized_critic=centralized,
-            episodes=int(config["episodes"]),
-            seed=int(config["seed"]),
-            hidden=int(config["hidden"]),
-            lr=float(config["lr"]),
-            epochs=int(config["epochs"]),
-            cvar_alpha=float(config["cvar_alpha"]) if cvar_weight > 0 else None,
-            cvar_weight=cvar_weight,
-        )
+        # --- joint rules, scored on the held-out weeks ---
+        # Rules ignore the deadline weight, so they are one point per fleet.
+        for name, policy in baselines.JOINT_POLICIES.items():
+            label = f"{name}/{fleet}"
+            rows_by_policy[label] = []
+            for start in eval_weeks:
+                env = _build(
+                    series,
+                    tokens,
+                    sites,
+                    names,
+                    start,
+                    communicate=True,
+                    include_band=True,
+                    allow_decline=False,
+                    penalty=penalties[0],
+                    config=config,
+                )
+                rows_by_policy[label].append(baselines.run_joint_policy(env, policy))
 
-        rows = []
-        for start in eval_weeks:
-            env = _build(
-                series,
-                tokens,
-                sites,
-                names,
-                start,
-                communicate=communicate,
-                include_band=include_band,
-                config=config,
-            )
-            rows.append(evaluate_multi(env, actors))
-        agent_rows[label] = rows
-        training[label] = {
-            "algorithm": variant["algorithm"],
-            "communicate": communicate,
-            "band_in_obs": include_band,
-            "cvar_weight": cvar_weight,
-            "episodes": len(history),
-            "first_return": round(float(history[0]["episode_return"]), 4),
-            "last_return": round(float(history[-1]["episode_return"]), 4),
-            "last_entropy": round(float(history[-1]["entropy"]), 4),
-        }
+        # --- learned variants, one per (variant, deadline weight) ---
+        for penalty in penalties:
+            for variant in config["variants"]:
+                name = str(variant["name"])
+                label = f"{name}@{penalty:g}/{fleet}"
+                communicate = bool(variant.get("communicate", True))
+                include_band = bool(variant.get("band", True))
+                allow_decline = bool(variant.get("decline", False))
+                centralized = variant["algorithm"] == "mappo"
+                cvar_weight = penalty if variant.get("cvar", False) else 0.0
 
-    all_rows = {**rule_rows, **agent_rows}
-    aggregate = _aggregate(all_rows)
-    reference = aggregate["run_now"]["carbon_kg"]
-    comparison = {
-        name: {
+                def factory(
+                    episode: int,
+                    _comm=communicate,
+                    _band=include_band,
+                    _decline=allow_decline,
+                    _penalty=penalty,
+                    _weeks=train_weeks,
+                    _sites=sites,
+                ) -> MultiAgentEnv:
+                    start = _weeks[episode % len(_weeks)]
+                    return _build(
+                        series,
+                        tokens,
+                        _sites,
+                        names,
+                        start,
+                        communicate=_comm,
+                        include_band=_band,
+                        allow_decline=_decline,
+                        penalty=_penalty,
+                        config=config,
+                    )
+
+                probe = factory(0)
+                actors, _critic, history = train_multi(
+                    factory,
+                    n_agents=probe.n_agents,
+                    obs_dim=probe.obs_dim,
+                    n_actions=probe.n_actions,
+                    global_state_dim=probe.global_state_dim,
+                    centralized_critic=centralized,
+                    episodes=int(config["episodes"]),
+                    seed=int(config["seed"]),
+                    hidden=int(config["hidden"]),
+                    lr=float(config["lr"]),
+                    epochs=int(config["epochs"]),
+                    cvar_alpha=float(config["cvar_alpha"]) if cvar_weight > 0 else None,
+                    cvar_weight=cvar_weight,
+                )
+
+                rows = []
+                for start in eval_weeks:
+                    env = _build(
+                        series,
+                        tokens,
+                        sites,
+                        names,
+                        start,
+                        communicate=communicate,
+                        include_band=include_band,
+                        allow_decline=allow_decline,
+                        penalty=penalty,
+                        config=config,
+                    )
+                    rows.append(evaluate_multi(env, actors))
+                rows_by_policy[label] = rows
+                training[label] = {
+                    "algorithm": variant["algorithm"],
+                    "communicate": communicate,
+                    "band_in_obs": include_band,
+                    "allow_decline": allow_decline,
+                    "sla_penalty": penalty,
+                    "cvar_weight": cvar_weight,
+                    "episodes": len(history),
+                    "first_return": round(float(history[0]["episode_return"]), 4),
+                    "last_return": round(float(history[-1]["episode_return"]), 4),
+                    "last_entropy": round(float(history[-1]["entropy"]), 4),
+                }
+
+    aggregate = _aggregate(rows_by_policy)
+    comparison: dict[str, dict[str, Any]] = {}
+    for label, stats in aggregate.items():
+        fleet = label.split("/")[-1]
+        reference = aggregate[f"run_now/{fleet}"]["carbon_kg"]
+        limit = aggregate[f"run_now/{fleet}"]["unserved_fraction"] + SERVICE_TOLERANCE
+        comparison[label] = {
+            "fleet": fleet,
             "carbon_kg": stats["carbon_kg"],
             "carbon_kg_stderr": stats["carbon_kg_stderr"],
             "carbon_vs_run_now_pct": _relative(stats["carbon_kg"], reference),
             "sla_violation_fraction": stats["sla_violation_fraction"],
             "unserved_fraction": stats["unserved_fraction"],
+            "max_slot_violation_fraction": _mean(
+                rows_by_policy[label], "max_slot_violation_fraction"
+            ),
+            "cvar90_slot_violation_fraction": _mean(
+                rows_by_policy[label], "cvar90_slot_violation_fraction"
+            ),
+            "carbon_g_per_served_gpu_hour": _served_intensity(rows_by_policy[label]),
+            "service_matched": bool(
+                stats["unserved_fraction"] <= limit and stats["sla_violation_fraction"] <= limit
+            ),
+            "paired_vs_run_now": _paired(rows_by_policy[label], rows_by_policy[f"run_now/{fleet}"]),
         }
-        for name, stats in aggregate.items()
-    }
 
-    def gap(left: str, right: str) -> float:
-        return _relative(comparison[left]["carbon_kg"], comparison[right]["carbon_kg"])
+    effects: dict[str, dict[str, float]] = {}
+    for fleet in fleets:
+        pairs = (
+            ("communication_ippo", "ippo_full@1", "ippo_no_comm@1"),
+            ("centralised_critic_mappo", "mappo_full@1", "ippo_full@1"),
+            ("cvar_ippo", "ippo_cvar@1", "ippo_full@1"),
+            ("cvar_mappo", "mappo_cvar@1", "mappo_full@1"),
+            ("market_vs_obligation", "ippo_market@1", "ippo_full@1"),
+        )
+        for name, left, right in pairs:
+            left_label, right_label = f"{left}/{fleet}", f"{right}/{fleet}"
+            if left_label in comparison and right_label in comparison:
+                effects[f"{name}_{fleet}"] = _paired(
+                    rows_by_policy[left_label], rows_by_policy[right_label]
+                )
 
-    effects = {
-        "communication_ippo_pct": gap("ippo_full", "ippo_no_comm"),
-        "centralised_critic_mappo_pct": gap("mappo_full", "ippo_full"),
-        "cvar_ippo_pct": gap("ippo_cvar", "ippo_full"),
-        "cvar_mappo_pct": gap("mappo_cvar", "mappo_full"),
-    }
-    best = min(comparison, key=lambda name: comparison[name]["carbon_kg"])
+    # The frontier is the honest headline: at each deadline weight and fleet,
+    # which variant has the lowest carbon while still serving as much work as
+    # the carbon-greedy rule?
+    frontier: dict[str, dict[str, Any]] = {}
+    for fleet in fleets:
+        for penalty in penalties:
+            key = f"{penalty:g}/{fleet}"
+            matched = [
+                label
+                for label, row in comparison.items()
+                if row["fleet"] == fleet
+                and label.startswith(("ippo_", "mappo_"))
+                and label.split("/")[0].endswith(f"@{penalty:g}")
+                and row["service_matched"]
+            ]
+            if not matched:
+                frontier[key] = {"service_matched_policies": 0}
+                continue
+            best = min(matched, key=lambda label: comparison[label]["carbon_kg"])
+            frontier[key] = {
+                "service_matched_policies": len(matched),
+                "best": best,
+                "carbon_kg": comparison[best]["carbon_kg"],
+                "carbon_vs_run_now_pct": comparison[best]["carbon_vs_run_now_pct"],
+                "sla_violation_fraction": comparison[best]["sla_violation_fraction"],
+                "unserved_fraction": comparison[best]["unserved_fraction"],
+            }
 
     return {
         "window": {
@@ -220,6 +344,9 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             "calibration_days": int(config["calibration_days"]),
             "deadline_slots": int(config["deadline_slots"]),
             "n_agents": len(names),
+            "sla_penalties": penalties,
+            "fleets": fleets,
+            "service_tolerance": SERVICE_TOLERANCE,
         },
         "episodes": {
             "train_weeks": [w.strftime("%Y-%m-%d") for w in train_weeks],
@@ -229,17 +356,19 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             "demand_source": "one real Azure LLM week, reused (identical for all policies)",
         },
         "comparison": comparison,
-        "per_week": {name: rows for name, rows in all_rows.items()},
+        "per_week": rows_by_policy,
         "training": training,
         "effects_pct": effects,
-        "best_policy": best,
-        "best_carbon_kg": comparison[best]["carbon_kg"],
+        "frontier": frontier,
         "limitations": [
             "one seed: variants are point estimates with per-week standard errors; "
             "Phase 4 repeats them across seeds",
+            "carbon totals are only comparable between service-matched policies; "
+            "unserved work emits nothing",
             "the peering signal is the previous slot's mean bid and mean accepted "
             "share only -- richer communication is not tested here",
-            "blame for a missed deadline follows refused capacity; that rule is a "
-            "disclosed modelling choice, not a measured fact",
+            "the CVaR term is a terminal adjustment on each agent's own per-slot "
+            "violation series; an actor-critic with a per-step risk state would be "
+            "a different (stronger) object",
         ],
     }

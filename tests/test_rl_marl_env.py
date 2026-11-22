@@ -38,6 +38,7 @@ def make_env(
     deadline_slots: int = 2,
     communicate: bool = True,
     include_band: bool = True,
+    allow_decline: bool = True,
 ) -> MultiAgentEnv:
     n_agents = len(forecast[0]) if forecast else 2
     if forecast is not None:
@@ -55,6 +56,7 @@ def make_env(
         deadline_slots=deadline_slots,
         communicate=communicate,
         include_band_in_obs=include_band,
+        allow_decline=allow_decline,
     )
 
 
@@ -78,8 +80,10 @@ def test_action_encoding_round_trips() -> None:
     env = make_env()
     for action in range(env.n_actions):
         lam, offer = env.decode(action)
-        assert env.decode(env.encode(lam, offer)) == (lam, offer)
+        assert env.encode(lam, offer) == action
     assert env.encode(0.0, 1.0) == OFFERS.index(1.0)
+    # Declining collapses to the single wait action, so only offer > 0 rounds.
+    assert env.encode(0.0, 0.0) == env.wait_action
 
 
 def test_out_of_range_actions_are_rejected() -> None:
@@ -252,9 +256,9 @@ def test_exp013_builder_propagates_the_ablation_flags() -> None:
     config = {
         "calibration_days": 28,
         "deadline_slots": 8,
-        "sla_penalty_kg_per_kwh": 1.0,
         "hold_penalty_kg_per_kwh": 0.05,
     }
+    penalty = 1.0
     tokens = np.full(336, 1_000.0)
     sites = [site("s0")]
     common = {
@@ -263,6 +267,8 @@ def test_exp013_builder_propagates_the_ablation_flags() -> None:
         "sites": sites,
         "names": ["GB-London"],
         "start": start,
+        "penalty": penalty,
+        "allow_decline": False,
         "config": config,
     }
     full = exp013._build(communicate=True, include_band=True, **common)
@@ -271,3 +277,32 @@ def test_exp013_builder_propagates_the_ablation_flags() -> None:
     assert full.obs_dim == quiet.obs_dim + 2
     assert full.obs_dim == blind.obs_dim + 1
     assert full.global_state_dim == blind.global_state_dim + 1
+
+
+def test_service_obligation_removes_refusal_from_the_action_space() -> None:
+    """With ``allow_decline=False`` the only way to serve nothing is to wait."""
+    env = make_env(allow_decline=False)
+    assert env.n_actions == 5  # four risk levels + wait
+    assert env.decode(env.wait_action) == (0.0, 0.0)
+    for action in range(env.wait_action):
+        assert env.decode(action)[1] == 1.0
+    assert env.encode(0.0, 0.0) == env.wait_action
+    assert env.encode(1.0, 0.25) == env.encode(1.0, 1.0)
+
+
+def test_tail_metrics_report_the_worst_slot_not_just_the_total() -> None:
+    env = make_env(
+        forecast=[[100.0, 100.0]] * 5,
+        demand=[3 * SLOT_TOKENS, 0, 0, 0, 0],
+        deadline_slots=1,
+    )
+    env.reset()
+    decline, serve = env.encode(0.0, 0.0), env.encode(0.0, 1.0)
+    env.step([decline, serve])
+    env.step([decline, serve])
+    summary = env.summary()
+    # One slot carries the whole miss, so the worst slot equals the total here.
+    assert summary["max_slot_violation_fraction"] == pytest.approx(
+        summary["sla_violation_fraction"], abs=1e-4
+    )
+    assert summary["cvar90_slot_violation_fraction"] <= summary["max_slot_violation_fraction"]

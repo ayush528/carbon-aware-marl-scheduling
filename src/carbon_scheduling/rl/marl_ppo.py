@@ -51,9 +51,11 @@ def cvar_tail(values: np.ndarray, alpha: float) -> float:
 def cvar_adjustment(violations: np.ndarray, alpha: float, weight: float) -> np.ndarray:
     """Per-agent terminal reward adjustment, ``-weight * (CVaR - mean)``.
 
-    A penalty, so it is <= 0 and shape ``(n_agents,)``. Zero when the agent's
-    violations are uniform, which is the property that makes "CVaR on" a tail
-    effect and not a rescaling.
+    A penalty, so it is <= 0 and shape ``(n_agents,)``, in kilograms: the
+    violation series is in GPU-seconds, so it is divided by 3600 exactly as the
+    environment's own per-step penalty is. Zero when the agent's violations are
+    uniform, which is the property that makes "CVaR on" a tail effect and not a
+    rescaling.
     """
     if weight < 0:
         raise ValueError("cvar weight must be >= 0")
@@ -63,7 +65,7 @@ def cvar_adjustment(violations: np.ndarray, alpha: float, weight: float) -> np.n
     out = np.zeros(violations.shape[1])
     for i in range(violations.shape[1]):
         series = violations[:, i]
-        out[i] = -weight * (cvar_tail(series, alpha) - float(series.mean()))
+        out[i] = -weight * (cvar_tail(series, alpha) - float(series.mean())) / 3600.0
     return out
 
 

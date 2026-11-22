@@ -168,3 +168,30 @@ experiments:
       observation changes held-out carbon by 0.01% -- i.e. no effect. Reported as
       the honest outcome: at this fleet size and penalty, uncertainty changes
       risk reporting, not carbon.
+
+  - id: exp013-marl-dispatch
+    title: Decentralized dispatch -- IPPO/MAPPO, limited communication and CVaR on deadlines
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      Rung 6. One PPO agent per region quotes a risk level (its own forecast +
+      lam*band) and, under a service obligation, offers its slot capacity or
+      waits; an untrained rule clears the cheapest bids with spill. Five
+      variants (IPPO, no communication, CVaR tail penalty, MAPPO with a
+      centralised critic, and a market variant that may decline work) crossed
+      with two deadline weights and two fleet sizes, trained Jan-Sep 2024 and
+      evaluated on 12 held-out Oct-Dec weeks. Results, paired per week: in the
+      capacity-bound fleet the CVaR agent cuts carbon 1.57% (mean -15.1 +- 2.1
+      kg/week, better in 12/12 weeks) at exactly the carbon-greedy rule's
+      service level (12.8% missed work); at deadline weight 10 it reaches
+      -2.80% at 13.7%. Without the CVaR term the same agent gets -4.89% but
+      misses 16.7% of work, i.e. the extra carbon saving is bought with
+      service. In the slack fleet, where every policy can serve all demand,
+      nothing beats carbon-greedy (best +0.01%): with the regional ordering
+      exact (exp011) and a repeating demand profile there is no timing gain to
+      find. Communication (+4.72% at weight 1) and a centralised critic
+      (+0.79%) do not help; the market/decline variant costs carbon in both
+      fleets (+5.2% and +17.7% at weight 10). Recorded as the honest outcome:
+      risk-aware objectives, not coordination, carry the Phase 3 gain, and only
+      under capacity scarcity.

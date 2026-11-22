@@ -52,15 +52,15 @@ def test_cvar_adjustment_penalises_only_the_spiky_agent() -> None:
     violations = np.array([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 8.0]])
     adjustment = cvar_adjustment(violations, 0.75, 1.0)
     assert adjustment[0] == pytest.approx(0.0)
-    # Worst quarter of agent 1 is 8, its mean is 2 -> 6 extra.
-    assert adjustment[1] == pytest.approx(-6.0)
+    # Worst quarter of agent 1 is 8, its mean is 2 -> 6 GPU-seconds, in kg.
+    assert adjustment[1] == pytest.approx(-6.0 / 3600.0)
 
 
 def test_cvar_weight_scales_and_zero_disables() -> None:
     violations = np.array([[0.0], [10.0]])
     assert np.allclose(cvar_adjustment(violations, 0.5, 0.0), 0.0)
-    assert cvar_adjustment(violations, 0.5, 1.0)[0] == pytest.approx(-5.0)
-    assert cvar_adjustment(violations, 0.5, 2.0)[0] == pytest.approx(-10.0)
+    assert cvar_adjustment(violations, 0.5, 1.0)[0] == pytest.approx(-5.0 / 3600.0)
+    assert cvar_adjustment(violations, 0.5, 2.0)[0] == pytest.approx(-10.0 / 3600.0)
 
 
 def test_cvar_adjustment_rejects_bad_shapes() -> None:
@@ -165,7 +165,7 @@ def test_cvar_changes_the_terminal_reward_only() -> None:
     assert np.allclose(plain["rewards"][: steps - 1], risky["rewards"][: steps - 1])
     # Blamed series for agent 1 is [0, 0, 10]: mean 3.33, worst half (2, 10) -> 5.
     assert risky["rewards"][-1, 0] == pytest.approx(0.0)
-    assert risky["rewards"][-1, 1] == pytest.approx(-(5.0 - 10.0 / 3.0))
+    assert risky["rewards"][-1, 1] == pytest.approx(-(5.0 - 10.0 / 3.0) / 3600.0)
 
 
 class JointBandit:

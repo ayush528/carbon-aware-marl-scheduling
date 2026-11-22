@@ -6,8 +6,8 @@ that makes two choices every slot:
 
 * a **risk level** ``lam``: the price it quotes is ``forecast + lam * band``,
   i.e. how much of its own forecast uncertainty it charges for;
-* an **offer**: decline, or volunteer a quarter, a half, or all of its slot
-  capacity.
+* an **offer**: volunteer a quarter, a half, or all of its slot capacity (or
+  wait, which serves nothing at all).
 
 A coordinator we do not train fills the cheapest bids with spare capacity and
 spills down the order. That is the decentralized market the paper argues for:
@@ -37,7 +37,7 @@ from carbon_scheduling import dispatch
 from carbon_scheduling.cluster import Site, site_energy_kwh
 
 SLOT_MINUTES = 30
-OFFERS = (0.0, 0.25, 0.5, 1.0)  # fraction of slot capacity volunteered
+OFFERS = (0.25, 0.5, 1.0)  # fraction of slot capacity volunteered; 0 = wait
 LAMBDAS = (0.0, 0.5, 1.0, 2.0)  # risk levels an agent can quote
 
 
@@ -57,6 +57,7 @@ class MultiAgentEnv:
         hold_penalty_kg_per_kwh: float = 0.05,
         communicate: bool = True,
         include_band_in_obs: bool = True,
+        allow_decline: bool = True,
     ) -> None:
         forecast = np.asarray(forecast, dtype=np.float64)
         realized = np.asarray(realized, dtype=np.float64)
@@ -89,6 +90,7 @@ class MultiAgentEnv:
         self.hold_penalty = float(hold_penalty_kg_per_kwh)
         self.communicate = communicate
         self.include_band_in_obs = include_band_in_obs
+        self.allow_decline = allow_decline
 
         self.n_slots, self.n_agents = forecast.shape
         self.capacity_gpu_s = np.array(
@@ -97,9 +99,14 @@ class MultiAgentEnv:
         self.throughput = sites[0].tokens_per_gpu_second
         if len({site.tokens_per_gpu_second for site in sites}) != 1:
             raise ValueError("agents must share one throughput for demand to be one queue")
-        self.n_actions = len(LAMBDAS) * len(OFFERS)  # (lambda, offer) pairs
+        # With decline allowed, an action is a (risk level, offer) pair. Under a
+        # service obligation the offer is fixed at full capacity, so an action is
+        # just a risk level -- and "wait" is the only way to serve nothing.
+        self.offers = OFFERS if allow_decline else (1.0,)
+        self.n_actions = len(LAMBDAS) * len(self.offers) + 1
         # shared(4) + local(forecast, [band], next forecast) + [two peer numbers]
         self.obs_dim = 6 + (1 if include_band_in_obs else 0) + (2 if communicate else 0)
+        self.wait_action = self.n_actions - 1
         self.global_state_dim = 4 + self.n_agents * (2 if include_band_in_obs else 1) + 2
         self.reset()
 
@@ -110,13 +117,19 @@ class MultiAgentEnv:
         action = int(action)
         if not 0 <= action < self.n_actions:
             raise ValueError(f"action {action!r} outside 0..{self.n_actions - 1}")
-        return LAMBDAS[action // len(OFFERS)], OFFERS[action % len(OFFERS)]
+        if action == self.wait_action:
+            return LAMBDAS[0], 0.0
+        lam = LAMBDAS[action // len(self.offers)]
+        return lam, self.offers[action % len(self.offers)]
 
     def encode(self, lam: float, offer: float) -> int:
         """Inverse of :meth:`decode` for the nearest grid point (rules use it)."""
-        return int(np.argmin([abs(v - lam) for v in LAMBDAS])) * len(OFFERS) + int(
-            np.argmin([abs(v - offer) for v in OFFERS])
-        )
+        if offer == 0.0:
+            return self.wait_action
+        index = int(np.argmin([abs(v - lam) for v in LAMBDAS]))
+        if not self.allow_decline:
+            return index
+        return index * len(self.offers) + int(np.argmin([abs(v - offer) for v in OFFERS]))
 
     # --- lifecycle -------------------------------------------------------
 
@@ -132,6 +145,7 @@ class MultiAgentEnv:
         self.last_served_share = np.zeros(self.n_agents)
         self.refused_gpu_s = np.zeros(self.n_agents)
         self.violated_by_agent = np.zeros(self.n_agents)
+        self.slot_violations: list[float] = []
         self._arrive()
         return self.observations(), {}
 
@@ -265,6 +279,7 @@ class MultiAgentEnv:
         self.backlog = remaining
         served = sum(alloc.values())
         self.served_gpu_s += served
+        self.slot_violations.append(float(expired_gpu_s))
 
         carbon = np.zeros(self.n_agents)
         for i, site in enumerate(self.sites):
@@ -308,6 +323,7 @@ class MultiAgentEnv:
             self.violated_gpu_s += leftover
             self.violated_tasks += len(self.backlog)
             self.backlog = []
+            self.slot_violations[-1] += float(leftover)
             terminal_blame = self._blame(refused)
             self.violated_by_agent += terminal_blame * leftover
             rewards = rewards - self.sla_penalty * terminal_blame * leftover / 3600.0
@@ -339,4 +355,25 @@ class MultiAgentEnv:
             if offered
             else 0.0,
             "violated_tasks": int(self.violated_tasks),
+            # Tail risk: the worst single slot, and the mean of the worst 10% of
+            # slots. CVaR is supposed to move these, not the total.
+            "max_slot_violation_fraction": round(
+                float(max(self.slot_violations, default=0.0) / offered), 4
+            )
+            if offered
+            else 0.0,
+            "cvar90_slot_violation_fraction": round(
+                float(_cvar(self.slot_violations, 0.9) / offered), 4
+            )
+            if offered
+            else 0.0,
         }
+
+
+def _cvar(values: list[float], alpha: float) -> float:
+    """Mean of the worst ``1 - alpha`` fraction of a per-slot series."""
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    k = max(1, int(round((1.0 - alpha) * len(ordered))))
+    return sum(ordered[-k:]) / k

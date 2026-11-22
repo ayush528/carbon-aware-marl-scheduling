@@ -13,10 +13,18 @@ regions:
   GB-NorthWestEngland: 3
   GB-SouthScotland: 2
 
-# exp007's disclosed site spec. One agent per region, so capacity binds at the
-# trace peak and the offer decision is a real trade (as in exp012).
+# exp007's disclosed site spec, at two fleet sizes. `capacity_bound` is
+# exp007's 25 GPUs per site, where the real trace saturates the fleet (so any
+# carbon saving that comes from serving less is not a scheduling claim);
+# `slack` has enough capacity to serve all demand, so carbon differences there
+# are placement/timing differences and nothing else.
+fleets:
+  - name: capacity_bound
+    n_gpus: 25
+  - name: slack
+    n_gpus: 40
+
 sites:
-  n_gpus: 25
   gpu_idle_w: 72.0
   gpu_peak_w: 713.0
   pue: 1.1
@@ -25,7 +33,11 @@ sites:
 n_slots: 336
 deadline_slots: 8          # 4 hours
 calibration_days: 28       # band from the 28 days before each episode's week
-sla_penalty_kg_per_kwh: 1.0
+# Carbon and service are two objectives, so the deadline weight is swept rather
+# than fixed: a single weight would let the comparison "win" by serving less
+# work, because unserved work emits nothing. Each weight gives one point on the
+# carbon-vs-SLA frontier.
+sla_penalties: [1.0, 10.0]
 hold_penalty_kg_per_kwh: 0.05
 
 train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -69,3 +81,12 @@ variants:
     communicate: true
     band: true
     cvar: true
+  # The market variant: an agent may also volunteer only part of its capacity.
+  # Included to measure what the offer choice is worth, and to show the
+  # service loss it invites -- not as a headline number.
+  - name: ippo_market
+    algorithm: ippo
+    communicate: true
+    band: true
+    cvar: false
+    decline: true
