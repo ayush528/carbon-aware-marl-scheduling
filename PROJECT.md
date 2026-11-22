@@ -166,7 +166,9 @@ service the visualization consumes later.
 | Scheduling env | `src/carbon_scheduling/rl/env.py` | weekly single-agent environment on our own data: an action is a risk level (fill every site by `forecast + λ·band`, with spill) or a wait; deadline violations, holding cost, idle draw, optional band in the observation; fully deterministic |
 | Agent | `src/carbon_scheduling/rl/numpy_net.py`, `rl/ppo.py` | small actor-critic with hand-written backprop (checked against finite differences) + Adam, and clipped-surrogate PPO with GAE. numpy only, so CI and the Docker image keep one dependency set |
 | Episode assembly | `src/carbon_scheduling/rl/data.py` | 2024 weeks → (forecast, realized, band, demand); the band is always calibrated on the 28 days *before* the episode's week; the single real Azure week is reused as a demand profile (disclosed) |
-| Baselines (rung 4 rules) | `src/carbon_scheduling/rl/baselines.py` | `run_now`, `band_aware` and a deadline-aware `defer` rule, acting through the same action space as the agent |
+| Baselines (rung 4 rules) | `src/carbon_scheduling/rl/baselines.py` | `run_now`, `band_aware` and a deadline-aware `defer` rule, acting through the same action space as the agent; the same three joint rules for the multi-agent environment |
+| Multi-agent env | `src/carbon_scheduling/rl/marl_env.py` | one agent per region: quote a risk level, offer 25/50/100% of slot capacity (or wait), and an untrained rule clears the cheapest bids with spill. Local rewards (own carbon, deadline misses blamed by refused capacity, holding share), a thin peering signal that can be switched off, an optional service obligation, per-slot tail metrics and per-agent violation attribution |
+| MARL learners | `src/carbon_scheduling/rl/marl_ppo.py` | IPPO (independent actors) and MAPPO (the same actors plus a critic over the joint state, training only); shared GAE over the joint trajectory; the CVaR term is `-weight*(CVaR_alpha(own violation series) - mean)`, charged once at the episode end |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -278,10 +280,13 @@ docs/
       reorder sites, and under the national-scaling estimator the per-slot regional ordering is
       exact, so carbon-greedy is already optimal on ranking. Uncertainty has to earn its place on
       **level and timing** (deadlines, CVaR), not on site ranking.
-- [ ] Rung 6: decentralized agents (IPPO, then MAPPO) over per-region sub-agents with limited
-      communication, plus an explicit CVaR-on-SLA term — the headline combination
+- [x] Rung 6 (exp013): IPPO/MAPPO with limited communication and a CVaR-on-deadline term. The
+      risk term is the only thing that improves carbon at matched service (1.57%, 12/12 weeks);
+      coordination and communication add nothing measurable here, and the slack fleet has no
+      headroom. The Phase 3 headline is therefore a risk-objective result, not a coordination one.
 - [ ] Reward shaping for the deferral axis: today's deadline penalty makes "never wait" optimal, so
       the agent cannot express the deferral trade; sweep the penalty and report carbon-vs-SLA
       frontiers instead of one weight
-- [ ] Phase 4: multi-seed, multi-window evaluation and ablations (no band, no CVaR, no
-      communication) on the same held-out weeks
+- [ ] exp014: multi-seed replication of the exp013 headline (CVaR agent vs carbon-greedy, both
+      fleets, five seeds), because one seed is a point estimate
+- [ ] Phase 4: multi-window evaluation and the remaining ablations, then the thesis tables
