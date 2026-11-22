@@ -184,3 +184,14 @@ def test_aggregate_reports_mean_and_stderr() -> None:
 def test_relative_change_is_a_percentage() -> None:
     assert _relative(90.0, 100.0) == -10.0
     assert _relative(100.0, 0.0) == 0.0
+
+
+def test_spread_reports_mean_and_seed_spread() -> None:
+    from carbon_scheduling.experiments.exp014_marl_seeds import _spread
+
+    stats = _spread([-1.0, -3.0, -2.0])
+    assert stats["mean"] == pytest.approx(-2.0)
+    assert stats["min"] == -3.0
+    assert stats["max"] == -1.0
+    assert stats["sd"] > 0
+    assert _spread([1.5])["sd"] == 0.0

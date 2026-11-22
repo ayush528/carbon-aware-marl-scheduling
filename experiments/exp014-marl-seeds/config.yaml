@@ -1,0 +1,53 @@
+id: exp014-marl-seeds
+title: Multi-seed replication of the CVaR dispatch result
+phase: "3-agents"
+seed: 0
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+sites:
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+fleets:
+  - name: capacity_bound
+    n_gpus: 25
+  - name: slack
+    n_gpus: 40
+
+n_slots: 336
+deadline_slots: 8
+calibration_days: 28
+# exp013's setting where the CVaR agent matched carbon-greedy's service level.
+sla_penalty_kg_per_kwh: 1.0
+hold_penalty_kg_per_kwh: 0.05
+
+train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+eval_months: [10, 11, 12]
+
+hidden: 32
+episodes: 80
+lr: 0.003
+epochs: 3
+
+seeds: [0, 1, 2, 3, 4]
+
+variants:
+  - name: cvar80
+    cvar_alpha: 0.8
+  - name: cvar90
+    cvar_alpha: 0.9
+  - name: cvar95
+    cvar_alpha: 0.95
+  - name: risk_neutral
+    cvar_alpha: null
