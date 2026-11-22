@@ -60,17 +60,25 @@ def _relative(carbon: float, reference: float) -> float:
 def run(config: dict[str, Any]) -> dict[str, Any]:
     paths = data.resolve(config["data"])
     series = data.panel(paths, config["regions"])
-    demand = data.demand_tokens(paths["demand"])
+    n_slots = int(config["n_slots"])
+    tokens = data.demand_profile(paths["demand"], n_slots)
     names = list(config["regions"])
     sites = data.make_sites(config["sites"], names)
-    n_slots = int(config["n_slots"])
     deadline_slots = int(config["deadline_slots"])
 
     train_weeks = data.weekly_windows(
-        series, demand, months=config["train_months"], year=2024, n_slots=n_slots
+        series,
+        months=config["train_months"],
+        year=2024,
+        n_slots=n_slots,
+        calibration_days=int(config["calibration_days"]),
     )
     eval_weeks = data.weekly_windows(
-        series, demand, months=config["eval_months"], year=2024, n_slots=n_slots
+        series,
+        months=config["eval_months"],
+        year=2024,
+        n_slots=n_slots,
+        calibration_days=int(config["calibration_days"]),
     )
     if len(train_weeks) < 2 or not eval_weeks:
         raise ValueError(
@@ -78,7 +86,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         )
 
     def build(start, *, include_band: bool) -> SchedulingEnv:
-        forecast, realized, tokens = data.episode_arrays(series, demand, start, n_slots)
+        forecast, realized, _ = data.episode_arrays(series, tokens, start)
         band = data.week_band(series, start, days=int(config["calibration_days"]))
         band_array = np.tile(np.array([band[s] for s in names]), (n_slots, 1))
         return SchedulingEnv(

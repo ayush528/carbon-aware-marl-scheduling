@@ -75,12 +75,20 @@ def panel(
     return out
 
 
-def demand_tokens(path: Path) -> dict[datetime, float]:
-    """Tokens offered per half-hour slot, keyed by slot start."""
-    return {
-        _parse(slot["from"]): float(slot["context_tokens"] + slot["generated_tokens"])
-        for slot in requests_per_slot(path)
-    }
+def demand_profile(path: Path, n_slots: int) -> np.ndarray:
+    """Tokens offered per slot over the trace week, as a reusable profile.
+
+    There is one real LLM arrival stream (one Azure week). Every episode lays
+    this identical profile over its own carbon week, which is disclosed and is
+    what makes carbon the only thing that differs between episodes.
+    """
+    slots = requests_per_slot(path)
+    if len(slots) < n_slots:
+        raise ValueError(f"trace has {len(slots)} slots, need {n_slots}")
+    return np.array(
+        [float(s["context_tokens"] + s["generated_tokens"]) for s in slots[:n_slots]],
+        dtype=np.float64,
+    )
 
 
 def week_band(
@@ -108,25 +116,21 @@ def week_band(
 
 def episode_arrays(
     series: dict[str, dict[str, dict[datetime, float]]],
-    demand: dict[datetime, float],
+    tokens: np.ndarray,
     start: datetime,
-    n_slots: int,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Forecast, realized and demand arrays for one episode window.
 
-    A slot is kept only if every site has both carbon values and the demand
-    trace covers it; partial slots would silently mix truths. The window is
-    contiguous, so a gap raises rather than shifts the week.
+    Carbon is looked up by timestamp and must be complete: a gap raises rather
+    than shifting the week. Demand is the reusable profile (see
+    :func:`demand_profile`), laid over the window slot by slot.
     """
     sites = list(series)
+    n_slots = len(tokens)
     forecast = np.zeros((n_slots, len(sites)))
     realized = np.zeros((n_slots, len(sites)))
-    tokens = np.zeros(n_slots)
     for i in range(n_slots):
         stamp = start + timedelta(minutes=SLOT_MINUTES * i)
-        if stamp not in demand:
-            raise ValueError(f"demand trace does not cover {stamp:%Y-%m-%dT%H:%MZ}")
-        tokens[i] = demand[stamp]
         for j, slug in enumerate(sites):
             fc = series[slug]["forecast"].get(stamp)
             rc = series[slug]["realized"].get(stamp)
@@ -139,15 +143,15 @@ def episode_arrays(
 
 def weekly_windows(
     series: dict[str, dict[str, dict[datetime, float]]],
-    demand: dict[datetime, float],
     *,
     months: list[int],
     year: int,
     n_slots: int = 336,
+    calibration_days: int = 28,
 ) -> list[datetime]:
-    """Every week start inside ``months`` that the data fully covers."""
+    """Every week start inside ``months`` whose week *and* calibration span
+    are fully covered by the carbon series."""
     available = set.intersection(*(set(rows["realized"]) for rows in series.values()))
-    available &= set(demand)
     starts: list[datetime] = []
     cursor = datetime(year, 1, 1, tzinfo=None)
     while cursor.year == year:
@@ -155,7 +159,7 @@ def weekly_windows(
             span = [
                 cursor + timedelta(minutes=SLOT_MINUTES * i) for i in range(n_slots)
             ]
-            previous = cursor - timedelta(days=28)
+            previous = cursor - timedelta(days=calibration_days)
             cal_ok = previous in available and all(
                 previous + timedelta(minutes=SLOT_MINUTES * i) in available
                 for i in range(0, 28 * 48, 97)

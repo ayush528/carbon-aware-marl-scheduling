@@ -56,8 +56,8 @@ def test_episode_arrays_are_contiguous_and_complete() -> None:
     start = datetime(2024, 5, 10)
     stamps = [start + timedelta(minutes=30 * i) for i in range(3)]
     series = series_from([(t, 100.0, 120.0) for t in stamps])
-    demand = {t: 1_000.0 for t in stamps}
-    forecast, realized, tokens = episode_arrays(series, demand, start, 3)
+    tokens_in = np.array([1_000.0, 1_000.0, 1_000.0])
+    forecast, realized, tokens = episode_arrays(series, tokens_in, start)
     assert forecast.shape == (3, 1)
     assert realized[0, 0] == 120.0
     assert tokens.sum() == 3_000.0
@@ -67,17 +67,17 @@ def test_episode_arrays_raise_on_a_gap_instead_of_shifting() -> None:
     start = datetime(2024, 5, 10)
     stamps = [start + timedelta(minutes=30 * i) for i in range(3)]
     series = series_from([(t, 100.0, 120.0) for t in stamps[:2]])
-    demand = {t: 1.0 for t in stamps}
     with pytest.raises(ValueError):
-        episode_arrays(series, demand, start, 3)
+        episode_arrays(series, np.ones(3), start)
 
 
-def test_episode_arrays_raise_when_demand_is_missing() -> None:
+def test_episode_length_comes_from_the_demand_profile() -> None:
     start = datetime(2024, 5, 10)
     stamps = [start + timedelta(minutes=30 * i) for i in range(3)]
     series = series_from([(t, 100.0, 120.0) for t in stamps])
-    with pytest.raises(ValueError):
-        episode_arrays(series, {stamps[0]: 1.0}, start, 3)
+    forecast, _, tokens = episode_arrays(series, np.ones(2), start)
+    assert forecast.shape == (2, 1)
+    assert tokens.shape == (2,)
 
 
 class FakeEnv:
