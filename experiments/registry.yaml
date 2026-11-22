@@ -244,8 +244,8 @@ experiments:
   - id: exp016-queue-ownership
     title: Rung 7 -- agents own queues, so timing becomes a unilateral decision
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp016-queue-ownership
     description: >
       Rung 6 let an agent own a site, which meant deferral was only expressible
       as `wait` -- and a single agent withdrawing its capacity just let the
@@ -257,7 +257,7 @@ experiments:
       and a policy can express it. A coordinator still places whatever is
       offered, cheapest forecast site first, so rung 6's placement result -- the
       regional ordering is exactly known -- is preserved, and the only lever
-      under test is timing. The four classes (0.5, 1, 2 and 4 hours) split the
+      under test is timing. The four classes (1, 2, 4 and 8 hours) split the
       Azure arrivals equally, a disclosed modelling choice because the trace
       carries no latency labels; every arm sees the identical split. Each arm is
       scored against (a) four hand-written timing rules, (b) the exact
@@ -268,3 +268,30 @@ experiments:
       1.0 = a service obligation), two fleets; gamma 1.0 because the objective
       is the episode total, lam 0.98 and the episode count chosen on a hold-out
       slice of the training months, never on the evaluation weeks.
+
+  - id: exp017-hybrid-scheduler
+    title: A capacity-aware carbon scheduler -- the hybrid the timing rules cannot express
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      exp016 measured that timing rules are not ordered by how much they know:
+      forecast_timing sees the whole forecast and is worse per served GPU-hour
+      than last_slot, which sees only the deadline (65.4 vs 51.1 kg/MWh), because
+      the cost is the placement that timing forces -- 15.0% of its served work
+      landed on the dirtiest site against 8.0%, and a stagger intervention did
+      not recover it. A per-agent timing rule cannot see placement at all. This
+      experiment tests the scheduler that can: at each slot it prices every
+      (slot, site) block as forecast + robust * band and assigns the backlog to
+      the cheapest legal blocks, respecting each class's deadline window and each
+      site's per-slot capacity, then executes the current slot and replans. That
+      is the hybrid the project's premise needs -- a rule-shaped policy (cheapest
+      feasible capacity, deadline-feasible assignment, causal) with the
+      uncertainty model in the price and the exact flow as its bound. Swept: risk
+      appetite (robust 0 vs 1, i.e. point forecast vs whole calibrated band),
+      demand hedge (0-30% of capacity reserved for arrivals the planner cannot
+      see), and greedy vs rolling min-cost-flow on the same forecast, so the cost
+      of greediness is measured rather than assumed. Scored on 12 held-out Oct-Dec
+      2024 weeks, both fleets, on carbon + price * missed GPU-hours at 0.1 (parity),
+      0.3 (the rule frontier's crossover) and 1.0 (a service obligation), each arm
+      also scored against the exact schedule at its own served volume, week by week.

@@ -1,0 +1,44 @@
+id: exp017-hybrid-scheduler
+title: A capacity-aware carbon scheduler -- the hybrid the timing rules cannot express
+phase: "3-agents"
+seed: 42
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+# Two fleets, as in exp016: one where the arrivals nearly saturate the fleet and
+# one where they leave room. A scheduler that only wins on the slack fleet would
+# be winning on spare capacity, not on scheduling.
+fleets:
+  - name: capacity_bound
+    n_gpus: 25
+  - name: slack
+    n_gpus: 40
+
+sites:
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+n_slots: 336
+# Identical class structure to exp016 (1 h, 2 h, 4 h and 8 h deadlines, equal
+# arrivals -- the Azure trace has no latency labels), so the rule frontier the
+# planner is compared against is the same frontier exp016 measured.
+deadlines: [2, 4, 8, 16]
+calibration_days: 28
+eval_months: [10, 11, 12]
+year: 2024
+
+# Three regimes of the rule frontier: 0.1 is exp013's parity price (0.093 kg
+# emitted per GPU-hour served), 0.3 is where the best rule changes hands, 1.0
+# makes a miss ten times dearer than serving, i.e. effectively an obligation.
+prices: [0.1, 0.3, 1.0]
+rules: [run_now, last_slot, forecast_timing, band_timing]
