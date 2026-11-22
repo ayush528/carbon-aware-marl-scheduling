@@ -217,3 +217,26 @@ experiments:
       against a 15-point seed spread -- which is what exp013 predicted from the
       terminal charge entering one of 336 advantages. The learning gate passes
       for 4-5 of 5 seeds per variant.
+
+  - id: exp015-timing-headroom
+    title: The value of timing -- exact perfect-foresight bound at matched service
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      Measures the lever exp011 left standing. Under the national-scaling
+      estimator site ranking is exactly known, so carbon-aware placement has no
+      uncertainty and the oracle ties forecast-greedy; what a scheduler can
+      still control is *when* work runs. For each of the 12 held-out Oct-Dec
+      2024 weeks this serves the volume carbon-greedy serves and asks a min-cost
+      flow (a proven optimum, not a heuristic; verified against exhaustive
+      search on small instances) for the cheapest legal schedule at deadline
+      horizons of 0.5 h to 24 h. At the 4-hour deadline every policy since
+      exp012 uses, perfect foresight saves 29.4% on the slack fleet (40 GPUs
+      per site) and 14.5% on the capacity-bound fleet (25), at identical served
+      volume, better in 12/12 weeks. That gap is what the current action space
+      leaves on the table: under the service obligation an agent can only
+      express deferral by every agent waiting at once, which independent
+      learners never coordinate on. The bound is not a policy -- it sees every
+      realized intensity -- but it bounds what any causal policy could save and
+      motivates the queue-owning redesign (rung 7).

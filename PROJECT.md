@@ -169,6 +169,7 @@ service the visualization consumes later.
 | Baselines (rung 4 rules) | `src/carbon_scheduling/rl/baselines.py` | `run_now`, `band_aware` and a deadline-aware `defer` rule, acting through the same action space as the agent; the same three joint rules for the multi-agent environment |
 | Multi-agent env | `src/carbon_scheduling/rl/marl_env.py` | one agent per region: quote a risk level, offer 25/50/100% of slot capacity (or wait), and an untrained rule clears the cheapest bids with spill. Local rewards (own carbon, deadline misses blamed by refused capacity, holding share), a thin peering signal that can be switched off, an optional service obligation, per-slot tail metrics and per-agent violation attribution |
 | MARL learners | `src/carbon_scheduling/rl/marl_ppo.py` | IPPO (independent actors) and MAPPO (the same actors plus a critic over the joint state, training only); shared GAE over the joint trajectory; the CVaR term is `-weight*(CVaR_alpha(own violation series) - mean)`, charged once at the episode end |
+| Timing bound | `src/carbon_scheduling/rl/oracle.py` | `plan(cost, demand, capacity, deadline, volume=None)`: the cheapest legal schedule, solved as a min-cost flow, so it is a proven optimum rather than a heuristic's best effort. Carry arcs between slots cost nothing and are bounded by the work still inside its deadline window; `volume` pins the served work so a comparison is matched-service. Checked against exhaustive search on small instances |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -252,6 +253,9 @@ docs/
 | 2026-11-09 | exp007: cluster energy model + real-trace energy envelope (Phase 2 starts) | PR #9 |
 | 2026-11-20 | exp008: SustainCluster run as-is (5 rule-based controllers + 4 SAC checkpoints) through in-repo headless drivers | branch |
 | 2026-11-20 | exp009: SustainCluster on 4 UK sites with NESO regional carbon + Elexon prices; **Phase 2 exit test passed** (simulated vs input intensity max err 0.77 gCO₂/kWh, ordering matches; `lowest_carbon` −6.87% vs RR at 0.1% SLA) | branch |
+| 2026-11-22 | exp011–exp012: band-aware dispatch and a PPO agent on held-out weeks. A relative band cannot reorder sites, and under the national-scaling estimator per-slot regional ordering is exact, so carbon-greedy is already optimal on ranking; uncertainty must earn its place on level and timing | branch |
+| 2026-11-22 | exp013–exp014: decentralized IPPO/MAPPO with a service obligation and a deadline price swept around the 0.093 kg/GPU-hour parity price. The learner beats the hand-written rules on the objective it is given (+9.2% at parity, 12/12 weeks); direction seed-robust across 5 seeds, magnitude not (−24.8% to −60.5%). Negative results reported: terminal-only CVaR, communication and a centralised critic do not consistently help | branch |
+| 2026-11-22 | exp015: exact perfect-foresight timing bound at matched service — 29.4% (slack) and 14.5% (capacity-bound) carbon at the 4-hour deadline, 12/12 weeks. The lever is large and no policy so far can reach it, which sets the rung-7 redesign | branch |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 
@@ -294,7 +298,18 @@ docs/
       across seeds (bimodal, about −30% or about −59%), and every arm sheds 39–41% of work
       against the rule's 12.8%. The CVaR tail term changes nothing at alpha 0.8, 0.9 or 0.95
       (means within two points of risk-neutral against a fifteen-point seed spread).
-- [ ] exp015: a per-step tail surcharge in place of the terminal CVaR charge. The objective and
+- [x] exp015: the exact value of timing. Serving exactly the volume carbon-greedy serves, a
+      min-cost-flow planner (a proven optimum, verified against exhaustive search) saves **29.4%**
+      carbon on the slack fleet and **14.5%** on the capacity-bound fleet at the 4-hour deadline
+      every policy has used, better in 12/12 held-out weeks. The bound is not a policy — it sees
+      every realized intensity — but it proves the lever is large and that no policy so far has
+      any of it: under the service obligation, deferral requires *every* agent to wait at the same
+      slot, and the observation carries no per-agent queue age.
+- [ ] Rung 7: agents own queues. Each agent gets its own deadline-constrained backlog and decides
+      *when* to serve it, so deferral is unilateral and expressible, queue age enters the
+      observation, and exp015's bound becomes a per-agent target instead of a fleet-wide number.
+      Rung 6 stays in the record as the negative result that motivates the redesign.
+- [ ] exp016: a per-step tail surcharge in place of the terminal CVaR charge. The objective and
       the units are right; charging the tail once, at the last step, is why it cannot move the
       tail.
 - [ ] Phase 4: multi-window evaluation and the remaining ablations, then the thesis tables

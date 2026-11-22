@@ -1,0 +1,41 @@
+id: exp015-timing-headroom
+title: The value of timing -- exact perfect-foresight bound at matched service
+phase: "3-agents"
+seed: 42
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+# Same two fleets and the same site spec as exp013, so the numbers are
+# comparable to every rung since exp007.
+fleets:
+  - name: capacity_bound
+    n_gpus: 25
+  - name: slack
+    n_gpus: 40
+
+sites:
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+n_slots: 336
+deadline_slots: 8          # 4 hours, the deadline every policy since exp012 uses
+calibration_days: 28       # for the band the market quotes; not a tuning knob here
+hold_penalty_kg_per_kwh: 0.0
+year: 2024
+months: [10, 11, 12]       # held out from training, as in exp012/exp013
+
+# The sweep is the point: the size of the timing lever *is* the deadline. One
+# slot is the floor (no room to defer), 8 slots is what the agents actually
+# face, and 48 slots shows how much of the lever the deadline is hiding.
+horizons: [1, 2, 4, 8, 16, 48]
+headline_deadline_slots: 8

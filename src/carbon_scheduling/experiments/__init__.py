@@ -23,6 +23,7 @@ from carbon_scheduling.experiments.exp011_band_dispatch import run as exp011
 from carbon_scheduling.experiments.exp012_rl_dispatch import run as exp012
 from carbon_scheduling.experiments.exp013_marl_dispatch import run as exp013
 from carbon_scheduling.experiments.exp014_marl_seeds import run as exp014
+from carbon_scheduling.experiments.exp015_timing_headroom import run as exp015
 
 REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp001-uk-carbon-baseline": exp001,
@@ -39,4 +40,5 @@ REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp012-rl-dispatch": exp012,
     "exp013-marl-dispatch": exp013,
     "exp014-marl-seeds": exp014,
+    "exp015-timing-headroom": exp015,
 }
