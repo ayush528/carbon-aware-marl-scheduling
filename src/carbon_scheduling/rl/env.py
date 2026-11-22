@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from carbon_scheduling import dispatch
 from carbon_scheduling.cluster import Site, site_energy_kwh
 
 SLOT_MINUTES = 30
@@ -36,8 +37,11 @@ SLOT_MINUTES = 30
 class SchedulingEnv:
     """Single-agent view of the multi-region dispatch problem.
 
-    Action space: ``0..N-1`` dispatch the batch to that region, ``N`` wait one
-    slot. Observations are float32 vectors; see :meth:`_obs`.
+    Action space: one action per risk level in ``lam_grid`` (dispatch the batch
+    with scores ``forecast + lam * band``, filling sites cheapest-first with
+    spill) plus a final "wait one slot" action. So the agent learns a *risk
+    schedule over time*, not just a single site pick -- and the band is inside
+    the action, which is what exp011 showed it cannot be for a plain argmin.
     """
 
     def __init__(
@@ -52,6 +56,7 @@ class SchedulingEnv:
         sla_penalty_kg_per_kwh: float = 1.0,
         hold_penalty_kg_per_kwh: float = 0.05,
         include_band_in_obs: bool = True,
+        lam_grid: list[float] | None = None,
     ) -> None:
         forecast = np.asarray(forecast, dtype=np.float64)
         realized = np.asarray(realized, dtype=np.float64)
@@ -70,6 +75,9 @@ class SchedulingEnv:
             raise ValueError(f"{len(sites)} sites for {forecast.shape[1]} carbon columns")
         if deadline_slots < 1:
             raise ValueError("deadline_slots must be >= 1")
+        names = [site.name for site in sites]
+        if len(set(names)) != len(names):
+            raise ValueError(f"site names must be unique, got {names}")
 
         self.forecast = forecast
         self.realized = realized
@@ -80,13 +88,17 @@ class SchedulingEnv:
         self.sla_penalty = float(sla_penalty_kg_per_kwh)
         self.hold_penalty = float(hold_penalty_kg_per_kwh)
         self.include_band_in_obs = include_band_in_obs
+        self.lam_grid = [float(v) for v in (lam_grid or [0.0])]
+        if any(lam < 0 for lam in self.lam_grid):
+            raise ValueError("lam_grid must be non-negative")
 
         self.n_slots, self.n_sites = forecast.shape
         self.capacity_gpu_s = np.array(
             [s.n_gpus * SLOT_MINUTES * 60 for s in sites], dtype=np.float64
         )
         self.throughput = sites[0].tokens_per_gpu_second
-        self.action_space = self.n_sites + 1  # +1 = wait
+        self.wait_action = len(self.lam_grid)  # last action = wait a slot
+        self.action_space = len(self.lam_grid) + 1
         self.obs_dim = 6 + self.n_sites * (4 if include_band_in_obs else 3)
         self.idle_carbon_kg = self._idle_carbon_per_slot()
         self.reset()
@@ -94,11 +106,24 @@ class SchedulingEnv:
     # --- internals -------------------------------------------------------
 
     def _idle_carbon_per_slot(self) -> np.ndarray:
-        """Carbon of an idle fleet per slot (sites never power down)."""
+        """Carbon of the idle draw per slot (sites never power down).
+
+        Kept for reporting only: :meth:`step` prices every site through
+        ``site_energy_kwh``, which already includes the idle draw, so this is
+        never added on top of a dispatch.
+        """
         idle_energy = np.array(
             [site_energy_kwh(site, 0.0, SLOT_MINUTES) for site in self.sites]
         )
         return idle_energy[None, :] * self.realized / 1000.0  # kg
+
+    def action_for_lam(self, lam: float) -> int:
+        """The action whose risk level is closest to ``lam``.
+
+        Baselines use this so a rule and the agent act through the same
+        machinery -- a rule cannot be given a decision the agent cannot make.
+        """
+        return int(np.argmin([abs(v - lam) for v in self.lam_grid]))
 
     def _obs(self) -> np.ndarray:
         t = self.t
@@ -151,8 +176,8 @@ class SchedulingEnv:
             self.backlog.append((amount, self.t + self.deadline_slots))
 
     def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
-        if not 0 <= action <= self.n_sites:
-            raise ValueError(f"action {action!r} outside 0..{self.n_sites}")
+        if not 0 <= action < self.action_space:
+            raise ValueError(f"action {action!r} outside 0..{self.action_space - 1}")
 
         # Everything already queued had its chance to run this slot; anything
         # whose deadline was this slot and is still here has now missed it.
@@ -160,27 +185,43 @@ class SchedulingEnv:
         self.violated_gpu_s += expired_gpu_s
         self.violated_tasks += expired_tasks
 
-        carbon = float(self.idle_carbon_kg[self.t].sum())
+        carbon = 0.0
         ran = 0.0
-        if action < self.n_sites:
-            # Earliest deadline first at the chosen site: the oldest debt is
-            # the most expensive to leave behind.
+        if action != self.wait_action:
+            lam = self.lam_grid[action]
+            scores = {
+                self.sites[i].name: self.forecast[self.t, i] + lam * self.band[self.t, i]
+                for i in range(self.n_sites)
+            }
+            capacity = {
+                self.sites[i].name: float(self.capacity_gpu_s[i])
+                for i in range(self.n_sites)
+            }
+            queued = sum(item[0] for item in self.backlog)
+            alloc, _left = dispatch.allocate(scores, queued, capacity)
+
+            # Earliest deadline first: the oldest debt is the most expensive to
+            # leave behind, so it takes the capacity first.
             self.backlog.sort(key=lambda item: item[1])
-            room = float(self.capacity_gpu_s[action])
+            to_serve = sum(alloc.values())
             remaining: list[tuple[float, int]] = []
             for amount, deadline in self.backlog:
-                if room <= 0:
+                if to_serve <= 0:
                     remaining.append((amount, deadline))
                     continue
-                take = min(amount, room)
-                ran += take
-                room -= take
+                take = min(amount, to_serve)
+                to_serve -= take
                 if amount - take > 0:
                     remaining.append((amount - take, deadline))
             self.backlog = remaining
-            carbon += site_energy_kwh(self.sites[action], ran, SLOT_MINUTES) * float(
-                self.realized[self.t, action]
-            ) / 1000.0
+            ran = sum(alloc.values())
+
+            for i, site in enumerate(self.sites):
+                energy = site_energy_kwh(site, alloc[site.name], SLOT_MINUTES)
+                carbon += energy * float(self.realized[self.t, i]) / 1000.0
+        else:
+            # Waiting is not free: the fleet still draws idle power.
+            carbon = float(self.idle_carbon_kg[self.t].sum())
 
         self.carbon_kg += carbon
         self.served_gpu_s += ran

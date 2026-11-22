@@ -31,12 +31,13 @@ def _horizon(env, slots: int) -> tuple[np.ndarray, np.ndarray]:
 
 
 def run_now(env) -> int:
-    return int(np.argmin(env.forecast[env.t]))
+    """Dispatch carbon-greedily (risk level 0), never wait."""
+    return env.action_for_lam(0.0)
 
 
 def band_aware(env, lam: float = 1.0) -> int:
-    scores = env.forecast[env.t] + lam * env.band[env.t]
-    return int(np.argmin(scores))
+    """Dispatch with the band in the score (the risk level closest to lam)."""
+    return env.action_for_lam(lam)
 
 
 def defer(env, *, lookahead: int = 4, lam: float = 1.0, margin: float = 0.0) -> int:
@@ -48,7 +49,7 @@ def defer(env, *, lookahead: int = 4, lam: float = 1.0, margin: float = 0.0) -> 
     few grams, which is the risk-aversion the CVaR term formalises.
     """
     if not env.backlog:
-        return int(np.argmin(env.forecast[env.t]))
+        return env.action_for_lam(0.0)
     urgency = min(item[1] - env.t for item in env.backlog)
     if urgency <= 1:
         return band_aware(env, lam)
@@ -56,7 +57,7 @@ def defer(env, *, lookahead: int = 4, lam: float = 1.0, margin: float = 0.0) -> 
     fc, bd = _horizon(env, lookahead)
     future = (fc + lam * bd).min(axis=1)
     if future.size and future.min() < now.min() - margin:
-        return env.n_sites  # wait
+        return env.wait_action
     return band_aware(env, lam)
 
 

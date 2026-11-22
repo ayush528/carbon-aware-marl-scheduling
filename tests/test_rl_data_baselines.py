@@ -90,22 +90,28 @@ class FakeEnv:
         self.t = t
         self.n_slots = 1
         self.n_sites = len(forecast)
+        self.lam_grid = [0.0, 1.0]
+        self.wait_action = len(self.lam_grid)
+
+    def action_for_lam(self, lam: float) -> int:
+        return int(np.argmin([abs(v - lam) for v in self.lam_grid]))
 
 
-def test_run_now_picks_the_cleanest_region() -> None:
+def test_run_now_uses_the_zero_risk_level() -> None:
     env = FakeEnv([200.0, 50.0, 120.0], [1.0, 1.0, 1.0], backlog=[])
-    assert baselines.run_now(env) == 1
-
-
-def test_band_aware_can_prefer_a_tighter_region() -> None:
-    env = FakeEnv([100.0, 120.0], [90.0, 1.0], backlog=[])
     assert baselines.run_now(env) == 0
+
+
+def test_band_aware_uses_the_risk_aware_level() -> None:
+    """The rule's risk level is an action, so the agent can match it exactly."""
+    env = FakeEnv([100.0, 120.0], [90.0, 1.0], backlog=[])
+    assert baselines.band_aware(env, 0.0) == 0
     assert baselines.band_aware(env, 1.0) == 1
 
 
 def test_deferral_never_waits_on_an_urgent_deadline() -> None:
     env = FakeEnv([300.0, 300.0], [1.0, 1.0], backlog=[(100.0, 1)])
-    assert baselines.defer(env) != env.n_sites
+    assert baselines.defer(env) != env.wait_action
 
 
 def test_deferral_waits_when_a_cleaner_hour_is_ahead() -> None:
@@ -113,7 +119,7 @@ def test_deferral_waits_when_a_cleaner_hour_is_ahead() -> None:
     env.forecast = np.array([[300.0, 300.0], [10.0, 10.0], [10.0, 10.0]])
     env.band = np.zeros_like(env.forecast)
     env.n_slots = 3
-    assert baselines.defer(env, lookahead=3) == env.n_sites
+    assert baselines.defer(env, lookahead=3) == env.wait_action
 
 
 def test_aggregate_reports_mean_and_stderr() -> None:

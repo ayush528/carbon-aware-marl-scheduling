@@ -99,6 +99,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             sla_penalty_kg_per_kwh=float(config["sla_penalty_kg_per_kwh"]),
             hold_penalty_kg_per_kwh=float(config["hold_penalty_kg_per_kwh"]),
             include_band_in_obs=include_band,
+            lam_grid=[float(v) for v in config["lam_grid"]],
         )
 
     # --- rule-based rungs, scored on the held-out weeks ---

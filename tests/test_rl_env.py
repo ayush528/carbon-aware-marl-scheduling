@@ -24,7 +24,7 @@ from carbon_scheduling.cluster import Site
 from carbon_scheduling.rl.env import SchedulingEnv
 
 SITE = Site(
-    name="s",
+    name="s0",
     n_gpus=1,
     gpu_idle_w=100.0,
     gpu_peak_w=700.0,
@@ -50,12 +50,23 @@ def make_env(
     r = np.array(realized if realized is not None else f.tolist())
     b = np.array(band if band is not None else [[10.0] * n_sites] * n_slots)
     d = np.array(demand if demand is not None else [0.0] * n_slots)
+    sites = [
+        Site(
+            name=f"s{i}",
+            n_gpus=SITE.n_gpus,
+            gpu_idle_w=SITE.gpu_idle_w,
+            gpu_peak_w=SITE.gpu_peak_w,
+            pue=SITE.pue,
+            tokens_per_gpu_second=SITE.tokens_per_gpu_second,
+        )
+        for i in range(n_sites)
+    ]
     return SchedulingEnv(
         forecast=f,
         realized=r,
         band=b,
         demand_tokens=d,
-        sites=[SITE] * n_sites,
+        sites=sites,
         deadline_slots=deadline_slots,
         include_band_in_obs=include_band,
     )
@@ -97,33 +108,39 @@ def test_dispatch_emits_carbon_from_the_chosen_site() -> None:
         realized=[[100.0, 200.0]] * 4,
         demand=[SLOT_TOKENS, 0, 0, 0],
     )
-    # Full slot at site 0: 1 GPU at peak 700 W for 0.5 h = 0.35 kWh -> 0.035 kg
-    # on top of the idle draw every site pays anyway.
-    idle = float(env.idle_carbon_kg[0].sum())
+    # One slot's work fills site 0 (0.35 kWh at peak); site 1 keeps drawing
+    # idle. Both are priced from their own realized intensity.
+    from carbon_scheduling.cluster import site_energy_kwh
+
     env.step(0)
-    assert env.carbon_kg - idle == pytest.approx(0.35 * 100.0 / 1000.0, rel=1e-6)
+    expected = (
+        site_energy_kwh(SITE, 1800.0) * 100.0 + site_energy_kwh(SITE, 0.0) * 200.0
+    ) / 1000.0
+    assert env.carbon_kg == pytest.approx(expected, rel=1e-9)
 
 
 def test_capacity_binds_and_the_remainder_waits() -> None:
     env = make_env(
         realized=[[100.0, 200.0]] * 4,
-        demand=[2 * SLOT_TOKENS, 0, 0, 0],
+        demand=[3 * SLOT_TOKENS, 0, 0, 0],
         deadline_slots=3,
     )
     _, _, _, _, info = env.step(0)
-    assert info["served_gpu_s"] == pytest.approx(1800.0)
-    # Half the work is still queued, and it kept its deadline.
+    # Two sites, one slot each: two slots' worth of the three offered runs and
+    # the last slot's worth stays queued, keeping its deadline.
+    assert info["served_gpu_s"] == pytest.approx(3600.0)
     assert env.backlog == [(1800.0, 0 + 3)]
     assert env.t == 1
 
 
 def test_waiting_costs_no_carbon_but_accrues_holding() -> None:
     env = make_env(realized=[[100.0, 100.0]] * 4, demand=[SLOT_TOKENS, 0, 0, 0])
-    env.step(2)  # wait
-    assert env.carbon_kg > 0  # idle draw only
+    env.step(1)  # wait: only the idle draw is emitted
+    assert env.carbon_kg > 0
     idle_only = env.carbon_kg
     assert env.held_gpu_s == pytest.approx(1800.0)
-    assert idle_only < 0.35 * 100.0 / 1000.0  # less than actually running
+    # Two sites idling for half an hour is less than one site running flat out.
+    assert idle_only < 0.35 * 100.0 / 1000.0
 
 
 def test_a_missed_deadline_is_a_violation_and_is_counted_once() -> None:
@@ -133,26 +150,26 @@ def test_a_missed_deadline_is_a_violation_and_is_counted_once() -> None:
         deadline_slots=2,
         n_slots=6,
     )
-    env.step(2)  # wait: arrival at t=0 with deadline_slots=2 expires at t=2
-    env.step(2)
-    env.step(2)  # the start of this step is where it expires
+    env.step(1)  # wait: arrival at t=0 with deadline_slots=2 expires at t=2
+    env.step(1)
+    env.step(1)  # the start of this step is where it expires
     assert env.violated_gpu_s == pytest.approx(1800.0)
     assert env.violated_tasks == 1
-    env.step(2)
-    env.step(2)
+    env.step(1)
+    env.step(1)
     assert env.violated_gpu_s == pytest.approx(1800.0)  # not double-counted
 
 
 def test_work_unfinished_at_the_end_of_the_window_is_a_violation() -> None:
     env = make_env(
         realized=[[100.0, 100.0]] * 2,
-        demand=[3 * SLOT_TOKENS, 0],
+        demand=[6 * SLOT_TOKENS, 0],
         deadline_slots=10,
         n_slots=2,
     )
-    env.step(0)  # runs one slot's worth, two slots' worth stays
+    env.step(0)  # two sites x one slot each; the rest waits
     env.step(0)
-    assert env.violated_gpu_s == pytest.approx(1800.0)
+    assert env.violated_gpu_s == pytest.approx(3600.0)
     summary = env.summary()
     # Offered 3 slots' worth, ran 2, so one third of the work missed out.
     assert summary["sla_violation_fraction"] == pytest.approx(1 / 3, abs=1e-4)
@@ -166,7 +183,7 @@ def test_summary_accounts_for_every_offered_gpu_second() -> None:
         deadline_slots=2,
     )
     done = False
-    for action in (0, 1, 2, 2):
+    for action in (0, 0, 1, 1):
         if done:
             break
         _, _, done, _, _ = env.step(action)
@@ -181,7 +198,7 @@ def test_episode_ends_after_n_slots() -> None:
     done = False
     steps = 0
     while not done:
-        _, _, done, _, _ = env.step(2)
+        _, _, done, _, _ = env.step(1)
         steps += 1
     assert steps == 3
 
@@ -192,6 +209,18 @@ def test_actions_outside_the_space_are_rejected() -> None:
         env.step(-1)
     with pytest.raises(ValueError):
         env.step(env.n_sites + 1)
+
+
+def test_duplicate_site_names_are_rejected() -> None:
+    """Names key the dispatch; two sites sharing one would be mispriced."""
+    with pytest.raises(ValueError):
+        SchedulingEnv(
+            forecast=np.full((2, 2), 100.0),
+            realized=np.full((2, 2), 100.0),
+            band=np.full((2, 2), 1.0),
+            demand_tokens=np.zeros(2),
+            sites=[SITE, SITE],
+        )
 
 
 def test_mismatched_inputs_are_rejected() -> None:

@@ -36,6 +36,12 @@ hold_penalty_kg_per_kwh: 0.05
 train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 eval_months: [10, 11, 12]
 
+# The action space: one dispatch per risk level (score = forecast + lam*band,
+# filling sites cheapest-first) plus "wait". The rules act through the same
+# levels, so the agent is not given a decision the rules cannot make -- the
+# ablation is information (band in the observation), not capability.
+lam_grid: [0.0, 0.5, 1.0, 2.0]
+
 hidden: 32
 episodes: 60
 lr: 0.003

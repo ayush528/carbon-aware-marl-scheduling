@@ -134,13 +134,14 @@ def test_rollout_reports_the_episode_and_shapes() -> None:
     from carbon_scheduling.cluster import Site
     from carbon_scheduling.rl.env import SchedulingEnv
 
-    site = Site("s", 1, 100.0, 700.0, 1.0, 3600.0)
+    site_a = Site("a", 1, 100.0, 700.0, 1.0, 3600.0)
+    site_b = Site("b", 1, 100.0, 700.0, 1.0, 3600.0)
     env = SchedulingEnv(
         forecast=np.full((4, 2), 100.0),
         realized=np.full((4, 2), 100.0),
         band=np.full((4, 2), 10.0),
         demand_tokens=np.array([6_480_000.0, 0.0, 0.0, 0.0]),
-        sites=[site, site],
+        sites=[site_a, site_b],
         deadline_slots=2,
     )
     batch = rollout(env, ActorCritic(env.obs_dim, env.action_space, 4), np.random.default_rng(0))
