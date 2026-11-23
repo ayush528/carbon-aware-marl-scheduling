@@ -26,27 +26,52 @@ space, which means it takes the identical assignment path as the published rules
   realized series would have perfect foresight and the comparison would be void.
 * **Accounting** is the simulator's own, on its realized series.
 
+## Correction on the record (read this first)
+
+The first run of this experiment reported an **exact tie to the decimal**. That
+was an artefact and it is retracted. `current_time_task` inside the simulator is
+a timezone-aware UTC timestamp, while our loaded forecast series are keyed by
+naive datetimes. Every lookup therefore missed, `_window_risk` returned `None`,
+and `DurationAwareStrategy` fell back to `dc.get_current_carbon_intensity()` —
+which *is* `lowest_carbon`'s signal. All three "planner" arms were literally
+`lowest_carbon`, so the tie measured nothing.
+
+Fixed by normalising to naive UTC in `_hour`, pinned by three regression tests,
+and made impossible to repeat silently: the strategy now counts fallbacks, the
+driver reports them, and this experiment **raises** if any arm fell back. The
+canonical run below reports `forecast_fallbacks: 0` for all three arms.
+
+## A second fact the correction exposed
+
+The carbon series installed into the simulator is the **realized** estimate
+(`national_actual × regional_forecast / national_forecast`, see exp009). So
+`lowest_carbon`, which reads `dc.get_current_carbon_intensity()`, sees realized
+intensity: **it is an oracle.** Our planner reads the NESO *forecast* and is
+causal. The comparison is therefore not like-for-like in information, and the
+honest framing is "how close does a causal forecast-driven rule get to an oracle
+that sees the answer", not "do we beat a published scheduler".
+
 ## Results
 
-| controller | carbon (kg) | vs RR | vs `lowest_carbon` | SLA violated | tasks | energy cost |
+| controller | carbon (kg) | vs RR | vs `lowest_carbon` | SLA violated | tasks | information |
 |---|---|---|---|---|---|---|
-| `lowest_carbon` (published) | 106,449.2 | −6.87 % | +0.00 % | 0.05 % | 21,943 | $64,696 |
-| `planner_instant` | 106,449.2 | −6.87 % | +0.00 % | 0.05 % | 21,943 | $64,696 |
-| `planner_window` | 106,449.2 | −6.87 % | +0.00 % | 0.05 % | 21,943 | $64,696 |
-| `planner_window_band` | 106,449.2 | −6.87 % | +0.00 % | 0.05 % | 21,943 | $64,696 |
-| `least_pending` (published) | 114,240.9 | −0.06 % | +7.32 % | 0.00 % | 21,943 | $64,371 |
-| `round_robin` (published) | 114,306.2 | +0.00 % | +7.38 % | 0.00 % | 21,943 | $64,372 |
-| `most_available` (published) | 114,579.5 | +0.24 % | +7.64 % | 0.00 % | 21,943 | $64,378 |
-| `lowest_price` (published) | 117,863.7 | +3.11 % | +10.72 % | 0.05 % | 21,943 | $64,701 |
+| `lowest_carbon` (published) | **106,449.2** | −6.87 % | +0.00 % | 0.05 % | 21,943 | **realized (oracle)** |
+| `planner_window` (ours, causal) | 106,457.4 | −6.86 % | **+0.01 %** | 0.05 % | 21,943 | forecast |
+| `planner_window_band` (ours, causal) | 106,457.4 | −6.86 % | **+0.01 %** | 0.05 % | 21,943 | forecast + band |
+| `planner_instant` (ours, causal) | 106,477.9 | −6.86 % | **+0.03 %** | 0.05 % | 21,943 | forecast |
+| `least_pending` (published) | 114,240.9 | −0.06 % | +7.32 % | 0.00 % | 21,943 | load only |
+| `round_robin` (published) | 114,306.2 | +0.00 % | +7.38 % | 0.00 % | 21,943 | none |
+| `most_available` (published) | 114,579.5 | +0.24 % | +7.64 % | 0.00 % | 21,943 | load only |
+| `lowest_price` (published) | 117,863.7 | +3.11 % | +10.72 % | 0.05 % | 21,943 | price only |
 
-**Verdict, stated plainly: we do not beat the published controllers here — we tie the best
-one exactly.** Not "within noise": our three arms and `lowest_carbon` are identical to the
-decimal on carbon (106,449.2 kg), energy (591,224 kWh), cost ($64,696.2), SLA (0.05 %) and
-served work (21,943). Three independent arms — instantaneous-slot placement, placement
-integrated over each task's duration, and the same plus the calibrated band — collapse onto
-the same number.
+**Verdict, stated plainly: we do not beat the published best here — we come
+within 0.01 % of it while using strictly less information.** 8.2 kg out of
+106,449 kg. Every arm serves identical work (21,943 tasks) at identical SLA
+(0.05 %). The calibrated band changes nothing at all (`planner_window` and
+`planner_window_band` are identical), which is exp026's theorem showing up in the
+simulator for the fourth independent time.
 
-That equality is not a coincidence to be papered over. Two measured facts explain it.
+Two measured facts explain why there is so little room.
 
 **1. The only decision the interface exposes is *which site*.** `ClusterManager.distribute_workload`
 queues a task only if the strategy returns a datacenter id; returning `None` discards it,
@@ -65,8 +90,9 @@ changes nothing and the calibrated band — which scales all sites by a common f
 slot, so it cannot reorder them, as exp011/exp016/exp017 each measured independently —
 changes nothing either.
 
-So the correct reading is: **this benchmark is saturated for the decision it exposes, and the
-published `lowest_carbon` rule already attains the optimum.** exp023 quantifies how much of
+So the correct reading is: **this benchmark is saturated for the decision it exposes, the
+published `lowest_carbon` rule already attains the optimum, and it attains it with realized
+information we deliberately do not use.** exp023 quantifies how much of
 the arena was ever contestable at all by measuring the idle floor; that is where the
 explanation belongs, not in an excuse here.
 
@@ -109,3 +135,5 @@ make exp-run EXP=exp022-head-to-head
 Requires the external checkout (`make sc-setup`) with the UK inputs installed
 (`make sc-uk-data && make sc-uk-install`); the run asserts all eight controllers read one
 identical window and one identical clock, and fails rather than silently compare two weeks.
+
+Canonical run recorded under `runs/`; see the manifest for git SHA, config hash and data hashes.

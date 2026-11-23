@@ -24,14 +24,25 @@ cooling, pumps, fans. No placement rule and no deferral rule can remove it.
 | **idle floor** (no work at all) | **101,414.2** | 521,913 |
 | `round_robin` | 114,306.2 | 588,234 |
 | `lowest_carbon` (best published) | 106,449.2 | 591,224 |
-| our planner | 106,449.2 | 591,224 |
+| our planner (causal forecast) | 106,457.4 | 591,228 |
 
 * **88.7 % of this benchmark's carbon is idle draw.** Energy and carbon agree to the decimal
   because the floor run spreads load evenly, so the two ratios coincide.
 * **The contestable range is 12,892 kg** (`round_robin` − floor) = **11.3 % of the reported
   carbon**.
-* `lowest_carbon` removes **7,857 kg = 60.95 %** of that range. Our planner removes exactly
-  the same 7,857 kg — the same run, to the decimal.
+* `lowest_carbon` removes **7,857 kg = 60.95 %** of that range. Our causal planner removes
+  **7,849 kg = 60.88 %** — a 0.07 percentage-point shortfall, 8.3 kg out of 12,892.
+
+> **Correction on the record.** The first run of this experiment reported our planner
+> removing *exactly* the same 7,857 kg. That was an artefact: a timezone mismatch made every
+> forecast lookup miss, so our strategy silently fell back to the simulator's own carbon
+> signal and *was* `lowest_carbon` (see exp022's correction). The numbers above are the
+> corrected run, with `forecast_fallbacks: 0` asserted.
+>
+> **And `lowest_carbon` is an oracle.** The series installed into the simulator is the
+> *realized* estimate, and that controller reads it directly. Our planner reads the NESO
+> forecast. So the honest reading of the 0.07 pp gap is: a causal, forecast-driven rule
+> captures 60.88 % of the contestable range against an oracle's 60.95 %.
 
 ## Why placement cannot do better
 
@@ -45,9 +56,8 @@ cooling, pumps, fans. No placement rule and no deferral rule can remove it.
 
 The cheapest region is not marginally cheapest — it is typically **half** the intensity of
 the next one. So the placement decision is an argmin with a large margin and a single
-winner, which is why every correct rule computes the same assignment: `lowest_carbon`,
-our instantaneous arm, our duration-integrated arm and our band arm all land on
-106,449.2 kg. The fourth independent confirmation that a common scaling cannot reorder
+winner, which is why every correct rule computes nearly the same assignment: `lowest_carbon`
+lands on 106,449.2 kg and our three causal arms on 106,457.4–106,477.9 kg, a spread of 0.03 %. The fourth independent confirmation that a common scaling cannot reorder
 sites (after exp011, exp016, exp017).
 
 Under `lowest_carbon` the movable work is on South Scotland: implied intensity 72.4 gCO₂/kWh
@@ -90,3 +100,5 @@ above and excluded from every headline.
 ```
 make exp-run EXP=exp023-controllable-share
 ```
+
+Canonical run recorded under `runs/`; see the manifest for git SHA, config hash and data hashes.
