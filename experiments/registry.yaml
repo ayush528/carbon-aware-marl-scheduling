@@ -299,8 +299,8 @@ experiments:
   - id: exp018-arrival-reserve
     title: A calibrated reserve for the arrivals the planner cannot see
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp018-arrival-reserve
     description: >
       exp017 left the reserve as the only thing that moves the planner's numbers
       after placement is solved (slack fleet 854.6 kg with no reserve, 784.0 with
