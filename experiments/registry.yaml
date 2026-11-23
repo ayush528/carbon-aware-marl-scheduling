@@ -272,8 +272,8 @@ experiments:
   - id: exp017-hybrid-scheduler
     title: A capacity-aware carbon scheduler -- the hybrid the timing rules cannot express
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp017-hybrid-scheduler
     description: >
       exp016 measured that timing rules are not ordered by how much they know:
       forecast_timing sees the whole forecast and is worse per served GPU-hour

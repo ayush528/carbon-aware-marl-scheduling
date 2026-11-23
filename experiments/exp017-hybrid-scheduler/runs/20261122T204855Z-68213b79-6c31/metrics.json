@@ -1,0 +1,574 @@
+{
+  "weeks": [
+    "2024-10-07",
+    "2024-10-14",
+    "2024-10-21",
+    "2024-10-28",
+    "2024-11-04",
+    "2024-11-11",
+    "2024-11-18",
+    "2024-11-25",
+    "2024-12-02",
+    "2024-12-09",
+    "2024-12-16",
+    "2024-12-23"
+  ],
+  "deadlines": [
+    2,
+    4,
+    8,
+    16
+  ],
+  "prices": [
+    0.1,
+    0.3,
+    1.0
+  ],
+  "fleets": {
+    "capacity_bound": {
+      "n_gpus_per_site": 25,
+      "arms": {
+        "run_now": {
+          "carbon_kg": 991.519,
+          "missed_fraction": 0.1073,
+          "served_gpu_h": 10559.2,
+          "carbon_g_per_served_kwh": 76.3,
+          "objective_at_price": {
+            "0.1": 1118.431,
+            "0.3": 1372.255,
+            "1.0": 2260.639
+          },
+          "paired_vs_run_now": null,
+          "bound_at_own_volume_kg": 909.209,
+          "gap_to_own_bound_pct": 9.05
+        },
+        "last_slot": {
+          "carbon_kg": 816.996,
+          "missed_fraction": 0.193,
+          "served_gpu_h": 9544.8,
+          "carbon_g_per_served_kwh": 66.1,
+          "objective_at_price": {
+            "0.1": 1045.272,
+            "0.3": 1501.824,
+            "1.0": 3099.756
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -174.5227,
+            "stderr": 10.302,
+            "relative_pct": -17.602,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 665.827,
+          "gap_to_own_bound_pct": 22.7
+        },
+        "forecast_timing": {
+          "carbon_kg": 932.23,
+          "missed_fraction": 0.1438,
+          "served_gpu_h": 10127.2,
+          "carbon_g_per_served_kwh": 73.7,
+          "objective_at_price": {
+            "0.1": 1102.284,
+            "0.3": 1442.392,
+            "1.0": 2632.768
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -59.2882,
+            "stderr": 6.76,
+            "relative_pct": -5.98,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 795.615,
+          "gap_to_own_bound_pct": 17.17
+        },
+        "band_timing": {
+          "carbon_kg": 961.912,
+          "missed_fraction": 0.1251,
+          "served_gpu_h": 10347.7,
+          "carbon_g_per_served_kwh": 75.0,
+          "objective_at_price": {
+            "0.1": 1109.927,
+            "0.3": 1405.956,
+            "1.0": 2442.059
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -29.6064,
+            "stderr": 5.6377,
+            "relative_pct": -2.986,
+            "weeks_better": 10,
+            "weeks_worse": 2,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 850.202,
+          "gap_to_own_bound_pct": 13.14
+        },
+        "plan_r0": {
+          "carbon_kg": 811.335,
+          "missed_fraction": 0.1355,
+          "served_gpu_h": 9584.8,
+          "carbon_g_per_served_kwh": 65.3,
+          "objective_at_price": {
+            "0.1": 971.601,
+            "0.3": 1292.134,
+            "1.0": 2413.998
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -180.1837,
+            "stderr": 10.5051,
+            "relative_pct": -18.172,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 673.907,
+          "gap_to_own_bound_pct": 20.39
+        },
+        "plan_r0_res10": {
+          "carbon_kg": 782.598,
+          "missed_fraction": 0.1581,
+          "served_gpu_h": 9433.2,
+          "carbon_g_per_served_kwh": 63.3,
+          "objective_at_price": {
+            "0.1": 969.595,
+            "0.3": 1343.589,
+            "1.0": 2652.569
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -208.9203,
+            "stderr": 11.7238,
+            "relative_pct": -21.071,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 643.904,
+          "gap_to_own_bound_pct": 21.54
+        },
+        "plan_r0_res20": {
+          "carbon_kg": 770.895,
+          "missed_fraction": 0.1564,
+          "served_gpu_h": 9371.9,
+          "carbon_g_per_served_kwh": 62.4,
+          "objective_at_price": {
+            "0.1": 955.882,
+            "0.3": 1325.854,
+            "1.0": 2620.759
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -220.6233,
+            "stderr": 12.0051,
+            "relative_pct": -22.251,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 632.289,
+          "gap_to_own_bound_pct": 21.92
+        },
+        "plan_r0_res30": {
+          "carbon_kg": 778.011,
+          "missed_fraction": 0.1506,
+          "served_gpu_h": 9380.3,
+          "carbon_g_per_served_kwh": 63.2,
+          "objective_at_price": {
+            "0.1": 956.137,
+            "0.3": 1312.39,
+            "1.0": 2559.273
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -213.5077,
+            "stderr": 11.8909,
+            "relative_pct": -21.533,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 633.821,
+          "gap_to_own_bound_pct": 22.75
+        },
+        "plan_r1": {
+          "carbon_kg": 812.055,
+          "missed_fraction": 0.1355,
+          "served_gpu_h": 9583.9,
+          "carbon_g_per_served_kwh": 65.4,
+          "objective_at_price": {
+            "0.1": 972.321,
+            "0.3": 1292.854,
+            "1.0": 2414.718
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -179.4637,
+            "stderr": 10.4562,
+            "relative_pct": -18.1,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 673.731,
+          "gap_to_own_bound_pct": 20.53
+        },
+        "plan_r1_res20": {
+          "carbon_kg": 771.045,
+          "missed_fraction": 0.1564,
+          "served_gpu_h": 9371.8,
+          "carbon_g_per_served_kwh": 62.5,
+          "objective_at_price": {
+            "0.1": 956.031,
+            "0.3": 1326.004,
+            "1.0": 2620.908
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -220.4739,
+            "stderr": 11.997,
+            "relative_pct": -22.236,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 632.216,
+          "gap_to_own_bound_pct": 21.96
+        },
+        "plan_arr16": {
+          "carbon_kg": 785.3,
+          "missed_fraction": 0.1499,
+          "served_gpu_h": 9380.5,
+          "carbon_g_per_served_kwh": 63.9,
+          "objective_at_price": {
+            "0.1": 962.638,
+            "0.3": 1317.313,
+            "1.0": 2558.677
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -206.2185,
+            "stderr": 11.9483,
+            "relative_pct": -20.798,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 633.942,
+          "gap_to_own_bound_pct": 23.88
+        },
+        "plan_flow": {
+          "carbon_kg": 712.349,
+          "missed_fraction": 0.1868,
+          "served_gpu_h": 8894.9,
+          "carbon_g_per_served_kwh": 59.2,
+          "objective_at_price": {
+            "0.1": 933.331,
+            "0.3": 1375.295,
+            "1.0": 2922.171
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -279.1697,
+            "stderr": 18.4385,
+            "relative_pct": -28.156,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 551.84,
+          "gap_to_own_bound_pct": 29.09
+        },
+        "plan_flow_res20": {
+          "carbon_kg": 525.626,
+          "missed_fraction": 0.2658,
+          "served_gpu_h": 7691.7,
+          "carbon_g_per_served_kwh": 44.2,
+          "objective_at_price": {
+            "0.1": 840.018,
+            "0.3": 1468.803,
+            "1.0": 3669.547
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -465.8922,
+            "stderr": 28.7168,
+            "relative_pct": -46.988,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 409.452,
+          "gap_to_own_bound_pct": 28.37
+        }
+      },
+      "oracle_at_run_now_volume": 909.209
+    },
+    "slack": {
+      "n_gpus_per_site": 40,
+      "arms": {
+        "run_now": {
+          "carbon_kg": 1109.038,
+          "missed_fraction": 0.0,
+          "served_gpu_h": 11827.8,
+          "carbon_g_per_served_kwh": 68.7,
+          "objective_at_price": {
+            "0.1": 1109.038,
+            "0.3": 1109.038,
+            "1.0": 1109.038
+          },
+          "paired_vs_run_now": null,
+          "bound_at_own_volume_kg": 811.481,
+          "gap_to_own_bound_pct": 36.67
+        },
+        "last_slot": {
+          "carbon_kg": 870.62,
+          "missed_fraction": 0.05,
+          "served_gpu_h": 11236.1,
+          "carbon_g_per_served_kwh": 51.1,
+          "objective_at_price": {
+            "0.1": 929.758,
+            "0.3": 1048.036,
+            "1.0": 1462.008
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -238.4182,
+            "stderr": 10.8233,
+            "relative_pct": -21.498,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 703.548,
+          "gap_to_own_bound_pct": 23.75
+        },
+        "forecast_timing": {
+          "carbon_kg": 1057.426,
+          "missed_fraction": 0.0169,
+          "served_gpu_h": 11627.6,
+          "carbon_g_per_served_kwh": 65.4,
+          "objective_at_price": {
+            "0.1": 1077.445,
+            "0.3": 1117.482,
+            "1.0": 1257.611
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -51.6117,
+            "stderr": 9.1089,
+            "relative_pct": -4.654,
+            "weeks_better": 11,
+            "weeks_worse": 1,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 768.287,
+          "gap_to_own_bound_pct": 37.63
+        },
+        "band_timing": {
+          "carbon_kg": 1086.387,
+          "missed_fraction": 0.006,
+          "served_gpu_h": 11756.3,
+          "carbon_g_per_served_kwh": 67.1,
+          "objective_at_price": {
+            "0.1": 1093.533,
+            "0.3": 1107.825,
+            "1.0": 1157.846
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -22.6507,
+            "stderr": 11.1768,
+            "relative_pct": -2.042,
+            "weeks_better": 8,
+            "weeks_worse": 4,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 793.958,
+          "gap_to_own_bound_pct": 36.83
+        },
+        "plan_r0": {
+          "carbon_kg": 854.648,
+          "missed_fraction": 0.0342,
+          "served_gpu_h": 11274.3,
+          "carbon_g_per_served_kwh": 49.5,
+          "objective_at_price": {
+            "0.1": 895.099,
+            "0.3": 976.001,
+            "1.0": 1259.158
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -254.39,
+            "stderr": 11.8617,
+            "relative_pct": -22.938,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 709.326,
+          "gap_to_own_bound_pct": 20.49
+        },
+        "plan_r0_res10": {
+          "carbon_kg": 833.422,
+          "missed_fraction": 0.0391,
+          "served_gpu_h": 11122.2,
+          "carbon_g_per_served_kwh": 48.2,
+          "objective_at_price": {
+            "0.1": 879.668,
+            "0.3": 972.161,
+            "1.0": 1295.888
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -275.6162,
+            "stderr": 13.2492,
+            "relative_pct": -24.852,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 687.235,
+          "gap_to_own_bound_pct": 21.27
+        },
+        "plan_r0_res20": {
+          "carbon_kg": 812.552,
+          "missed_fraction": 0.0375,
+          "served_gpu_h": 11012.5,
+          "carbon_g_per_served_kwh": 46.8,
+          "objective_at_price": {
+            "0.1": 856.906,
+            "0.3": 945.614,
+            "1.0": 1256.093
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -296.486,
+            "stderr": 14.0618,
+            "relative_pct": -26.734,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 671.931,
+          "gap_to_own_bound_pct": 20.93
+        },
+        "plan_r0_res30": {
+          "carbon_kg": 783.961,
+          "missed_fraction": 0.0341,
+          "served_gpu_h": 10804.2,
+          "carbon_g_per_served_kwh": 45.1,
+          "objective_at_price": {
+            "0.1": 824.293,
+            "0.3": 904.959,
+            "1.0": 1187.288
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -325.0772,
+            "stderr": 15.2112,
+            "relative_pct": -29.312,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 644.706,
+          "gap_to_own_bound_pct": 21.6
+        },
+        "plan_r1": {
+          "carbon_kg": 855.549,
+          "missed_fraction": 0.0342,
+          "served_gpu_h": 11274.3,
+          "carbon_g_per_served_kwh": 49.5,
+          "objective_at_price": {
+            "0.1": 896.0,
+            "0.3": 976.902,
+            "1.0": 1260.059
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -253.4886,
+            "stderr": 11.7077,
+            "relative_pct": -22.857,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 709.326,
+          "gap_to_own_bound_pct": 20.61
+        },
+        "plan_r1_res20": {
+          "carbon_kg": 813.13,
+          "missed_fraction": 0.0375,
+          "served_gpu_h": 11010.4,
+          "carbon_g_per_served_kwh": 46.9,
+          "objective_at_price": {
+            "0.1": 857.484,
+            "0.3": 946.193,
+            "1.0": 1256.672
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -295.9075,
+            "stderr": 14.0529,
+            "relative_pct": -26.681,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 671.663,
+          "gap_to_own_bound_pct": 21.06
+        },
+        "plan_arr16": {
+          "carbon_kg": 818.802,
+          "missed_fraction": 0.0358,
+          "served_gpu_h": 10928.9,
+          "carbon_g_per_served_kwh": 47.7,
+          "objective_at_price": {
+            "0.1": 861.146,
+            "0.3": 945.833,
+            "1.0": 1242.237
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -290.2355,
+            "stderr": 13.6279,
+            "relative_pct": -26.17,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 660.69,
+          "gap_to_own_bound_pct": 23.93
+        },
+        "plan_flow": {
+          "carbon_kg": 840.065,
+          "missed_fraction": 0.0404,
+          "served_gpu_h": 11192.4,
+          "carbon_g_per_served_kwh": 48.5,
+          "objective_at_price": {
+            "0.1": 887.849,
+            "0.3": 983.418,
+            "1.0": 1317.907
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -268.9726,
+            "stderr": 12.8958,
+            "relative_pct": -24.253,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 697.651,
+          "gap_to_own_bound_pct": 20.41
+        },
+        "plan_flow_res20": {
+          "carbon_kg": 727.3,
+          "missed_fraction": 0.0769,
+          "served_gpu_h": 10491.5,
+          "carbon_g_per_served_kwh": 41.0,
+          "objective_at_price": {
+            "0.1": 818.226,
+            "0.3": 1000.078,
+            "1.0": 1636.56
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -381.7379,
+            "stderr": 20.3878,
+            "relative_pct": -34.421,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 608.319,
+          "gap_to_own_bound_pct": 19.56
+        }
+      },
+      "oracle_at_run_now_volume": 811.481
+    }
+  },
+  "note": "Every carbon number is against the identical demand stream, and each arm is also scored against the exact schedule at its own served volume, week by week, because unserved work emits nothing. The planner is causal: it sees the calibrated forecast and its own backlog, never the realized intensity. Absolute totals are illustrative of this workload and fleet size, not a general claim."
+}

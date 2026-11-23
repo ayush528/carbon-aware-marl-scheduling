@@ -171,6 +171,7 @@ service the visualization consumes later.
 | MARL learners | `src/carbon_scheduling/rl/marl_ppo.py` | IPPO (independent actors) and MAPPO (the same actors plus a critic over the joint state, training only); shared GAE over the joint trajectory. The CVaR term has two attributions: charged once at the episode end (`terminal`, what exp013/exp014 measured, where one advantage in 336 carries it and the tail does not move) or charged every slot through a running-quantile Rockafellar-Uryasev estimate (`per_step`). Both replace the mean charge, so both carry the episode length as a factor -- without it the risk term was 1/336 of the quantity it replaced |
 | Queue env (rung 7) | `src/carbon_scheduling/rl/queue_env.py` | agents own work streams instead of sites: four deadline classes (1/2/4/8 h) split the arrivals equally (disclosed -- the public trace has no latency labels), each agent chooses what fraction of its own slack to coast before offering its queue, and a coordinator places whatever is offered, cheapest forecast first. Per-agent carbon is the marginal energy only; the idle floor is the operator's standing cost and enters no agent's incentive. Misses are blamed to the queue that let them expire, which is what makes a per-slot tail signal possible |
 | Queue rules (rung 7) | `src/carbon_scheduling/rl/queue_rules.py` | the timing yardsticks: immediate, deadline-only holding, forecast-aware, and band-aware (defer only while the future's worst case beats the present's best case) -- the first place the calibrated band enters a timing decision, since it provably cannot reorder sites |
+| Hybrid scheduler | `src/carbon_scheduling/rl/hybrid.py` | `BlockPlanner`: at each slot, price every (slot, site) block as `forecast + robust*band`, then assign the tightest-deadline backlog to the cheapest legal blocks under each site's per-slot capacity, execute one slot, replan. `reserve`/`arrival_forecast` hold capacity back for arrivals the plan cannot see (`reserve` is the demand hedge; `arrival_forecast` derives it from a trailing arrival rate). `ForecastFlowPlanner` solves the same horizon exactly with the min-cost flow. `HybridEnv` is the rung-7 environment with offers set by the plan instead of by an action, so the planner is scored on the same accounting as every rule and learner |
 | Timing bound | `src/carbon_scheduling/rl/oracle.py` | `plan(cost, demand, capacity, deadline, volume=None)` and `plan_multi(cost, demand, capacity, deadlines, volume=None)`: the cheapest legal schedule, solved as a min-cost flow, so it is a proven optimum rather than a heuristic's best effort. Carry arcs between slots cost nothing and are bounded by the work still inside its deadline window; `volume` pins the served work so a comparison is matched-service. Checked against exhaustive search on small instances, single-class and per-class deadlines |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
@@ -258,6 +259,8 @@ docs/
 | 2026-11-22 | exp011–exp012: band-aware dispatch and a PPO agent on held-out weeks. A relative band cannot reorder sites, and under the national-scaling estimator per-slot regional ordering is exact, so carbon-greedy is already optimal on ranking; uncertainty must earn its place on level and timing | branch |
 | 2026-11-22 | exp013–exp014: decentralized IPPO/MAPPO with a service obligation and a deadline price swept around the 0.093 kg/GPU-hour parity price. The learner beats the hand-written rules on the objective it is given (+9.2% at parity, 12/12 weeks); direction seed-robust across 5 seeds, magnitude not (−24.8% to −60.5%). Negative results reported: terminal-only CVaR, communication and a centralised critic do not consistently help | branch |
 | 2026-11-22 | exp015: exact perfect-foresight timing bound at matched service — 29.4% (slack) and 14.5% (capacity-bound) carbon at the 4-hour deadline, 12/12 weeks. The lever is large and no policy so far can reach it, which sets the rung-7 redesign | branch |
+| 2026-11-22 | exp016: rung 7 — agents own work queues, so deferral is unilateral. Negative result, reported as one: no learner beats the best timing rule at any price (within 2.1% at parity, worse at the service price), because a coast fraction withholds work by age and cannot say *how much* of a queue to serve. Mechanism pinned: the forecast-aware rule is worse per served GPU-hour than deadline-only holding (65.4 vs 51.1 g/kWh) not because it sheds or de-aligns classes, but because its peaks force placement on the dirtiest site (15.0% of served work vs 8.0%) | branch |
+| 2026-11-22 | exp017: a capacity-aware planner — **the scheduler beats every hand-written rule on the objective at the parity price (824 vs 930 slack, 840 vs 1045 capacity-bound) and at the crossover (905 vs 1048, 1292 vs 1372), 12/12 weeks better than carbon-greedy on carbon.** At a service-obligation price it correctly loses to "never defer". The calibrated band changes no decision for the third time (0.1%), and the exact rolling flow is the best *carbon* arm but the worst *objective* arm — exactness is not the same as being right | branch |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 
@@ -307,10 +310,30 @@ docs/
       every realized intensity — but it proves the lever is large and that no policy so far has
       any of it: under the service obligation, deferral requires *every* agent to wait at the same
       slot, and the observation carries no per-agent queue age.
-- [ ] Rung 7: agents own queues. Each agent gets its own deadline-constrained backlog and decides
-      *when* to serve it, so deferral is unilateral and expressible, queue age enters the
-      observation, and exp015's bound becomes a per-agent target instead of a fleet-wide number.
-      Rung 6 stays in the record as the negative result that motivates the redesign.
+- [x] Rung 7 (exp016): agents own queues, so deferral is unilateral. It is a **negative result**:
+      the learners do not beat the best timing rule at any price, because a coast fraction can only
+      withhold work by age -- it cannot express *how much* of a queue to serve -- and no per-agent
+      timing rule can see where the work will land. What the rules reveal is the constructive part:
+      the forecast-aware rule is worse per served GPU-hour than deadline-only holding, and the
+      mechanism is placement (15.0% of its served work on the dirtiest site against 8.0%), not
+      shedding and not class de-alignment (both tested and refuted).
+- [x] exp017: the hybrid the mechanism points to. A capacity-aware planner (price every slot-site
+      block as forecast + band, assign the tightest-deadline backlog to the cheapest legal
+      capacity, execute one slot and replan) **beats every hand-written rule on the objective at
+      the parity price and at the crossover, on both fleets, and is 12/12 weeks better than
+      carbon-greedy on carbon at every reserve setting.** At a service-obligation price it loses to
+      "never defer" -- correctly, because at that price the right policy is not to defer. The
+      calibrated band changes no decision for the third independent time, and the exact rolling
+      flow is the best carbon arm but the worst objective arm: being optimal on the forecast is not
+      the same as being right.
+- [ ] exp018: the band's claim needs forecast error to be real. Re-run the point-forecast vs
+      whole-band pair under the *measured* national forecast error distribution resampled onto the
+      regional series (a labelled stress test, not a data claim). Either the band protects the plan
+      there -- the uncertainty-aware evidence the project needs -- or the project's uncertainty
+      claim is a negative result about this estimator and must be written as one.
+- [ ] Learned arrival pressure on top of the planner: the 20% residual gap to the exact schedule is
+      the part of the schedule that depends on arrivals the plan has not seen, which is the one
+      quantity the fix belongs to.
 - [ ] exp016: a per-step tail surcharge in place of the terminal CVaR charge. The objective and
       the units are right; charging the tail once, at the last step, is why it cannot move the
       tail.

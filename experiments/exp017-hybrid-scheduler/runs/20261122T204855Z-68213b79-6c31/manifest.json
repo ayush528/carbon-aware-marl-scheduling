@@ -1,0 +1,16 @@
+{
+  "exp_id": "exp017-hybrid-scheduler",
+  "git_sha": "26ff040108139803b33142cf18f8da18c3d1d5d3",
+  "git_dirty": false,
+  "config_hash": "68213b790307bef08850bc0a74afad7f329fd40f241f3ba82cae1f7ee98c7791",
+  "seed": 42,
+  "data_hashes": {
+    "data/uk_regional_2024_tidy.csv": "a973c6c89071a64824c03c274531ad2a81e81652432e6a3c2b21121fcd3a782b",
+    "data/uk_national_2023-12_2024-12.json": "684811e39afc3e7632866fb2f97bdbe17220b97b490c50c03650b9947173009d",
+    "docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.15-76070215-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261122T204855Z",
+  "run_dir": "20261122T204855Z-68213b79-6c31"
+}
