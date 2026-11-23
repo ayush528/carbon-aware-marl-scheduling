@@ -341,3 +341,19 @@ experiments:
       held-out weeks, both fleets, three prices, own-volume bound, and a paired
       comparison against the no-anticipation planner. No parameter is chosen on the
       evaluation weeks.
+
+  - id: exp020-selected-scheduler
+    title: One shipped scheduler, operating point chosen on training months
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      exp017-019 report frontiers -- six arms, three prices, two fleets, a different
+      winner at each corner -- which is honest but is not a scheduler. A deployment
+      has one price, so it needs one arm, and the only defensible way to pick it is
+      on weeks the reported numbers do not come from. This experiment runs six
+      candidate arms over Jan-Sep 2024, selects the arm with the best mean objective
+      per (fleet, price) cell on those weeks, and reports that arm on the 12
+      held-out Oct-Dec weeks. It also reports the best arm per cell *on* the
+      held-out weeks, so the cost of honest selection is visible rather than
+      assumed.
