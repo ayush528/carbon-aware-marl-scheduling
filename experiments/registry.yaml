@@ -324,8 +324,8 @@ experiments:
   - id: exp019-arrival-shape
     title: Does the shape of the incoming work beat one constant reserve?
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp019-arrival-shape
     description: >
       exp018 made the reserve calibrated but left it a single number for the whole
       week, while the workload is diurnal -- so it over-holds in the quiet period
