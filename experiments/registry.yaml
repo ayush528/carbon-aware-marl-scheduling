@@ -361,8 +361,8 @@ experiments:
   - id: exp021-service-frontier
     title: What does the carbon saving cost in service, at matched SLA and matched volume?
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp021-service-frontier
     description: >
       exp017-020's carbon savings all come with less work served and more missed
       deadlines, so the headline percentage is not like-for-like. This experiment

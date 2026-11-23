@@ -1,0 +1,17 @@
+{
+  "exp_id": "exp021-service-frontier",
+  "git_sha": "1d6bfc680f337d2903f1bbd1a163c919fb810b6d",
+  "git_dirty": false,
+  "config_hash": "487d8c962007d698576512d24e283d67b5f8e3b3f96599063562c5778d0469a8",
+  "seed": 42,
+  "data_hashes": {
+    "data/uk_regional_2024_tidy.csv": "a973c6c89071a64824c03c274531ad2a81e81652432e6a3c2b21121fcd3a782b",
+    "data/uk_national_2023-12_2024-12.json": "684811e39afc3e7632866fb2f97bdbe17220b97b490c50c03650b9947173009d",
+    "docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f",
+    "data/sustaincluster_uk/prices/gb_2024_hourly.csv": "b94ba374f338e9120018e1b9fb91e4cca2c626fe6626dcd048c3ea165616d0ba"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.15-76070215-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261123T094258Z",
+  "run_dir": "20261123T094258Z-487d8c96-fa5e"
+}
