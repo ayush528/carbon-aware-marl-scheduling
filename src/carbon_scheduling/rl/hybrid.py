@@ -61,6 +61,13 @@ class BlockPlanner:
     max_slots_ahead
         Planning horizon. Defaults to the longest deadline, because no queued
         item can legally run later than that.
+    max_lookahead
+        Absolute cap on how far ahead the plan may place work, in slots. ``None``
+        keeps the full deadline horizon (the original behaviour); ``0`` places
+        everything in the current slot, so the only decision left is *which site*
+        -- this is the serve-now placement bound and it measurably costs nothing
+        in service while giving up the timing lever. Intermediate values trace
+        the carbon-versus-service frontier directly (exp021).
     reserve
         Fraction of each site's per-slot capacity held back from the plan. A
         myopic planner fills a cheap slot with present backlog and leaves the
@@ -107,6 +114,7 @@ class BlockPlanner:
         arrival_model: str = "none",
         arrival_window: int = 8,
         ghost_arrivals: bool = False,
+        max_lookahead: int | None = None,
     ) -> None:
         self.robust = float(robust)
         self.max_slots_ahead = max_slots_ahead
@@ -119,6 +127,9 @@ class BlockPlanner:
         self.arrival_model = arrival_model
         self.arrival_window = max(1, int(arrival_window))
         self.ghost_arrivals = bool(ghost_arrivals)
+        if max_lookahead is not None and int(max_lookahead) < 0:
+            raise ValueError("max_lookahead must be None or >= 0")
+        self.max_lookahead = None if max_lookahead is None else int(max_lookahead)
 
     # One day of half-hour slots: the same slot-of-day in the previous day.
     SEASONAL_OFFSET = 48
@@ -181,6 +192,8 @@ class BlockPlanner:
         """Volume each agent should offer in slot ``t``, and the blocks it goes to."""
         horizon = self.max_slots_ahead or max(env.deadlines)
         last = min(t + horizon, env.n_slots)
+        if self.max_lookahead is not None:
+            last = min(t + self.max_lookahead + 1, last)
 
         # Capacity still free in every block of the horizon.
         keep = max(0.0, 1.0 - self.reserve)
@@ -347,6 +360,8 @@ class ForecastFlowPlanner(BlockPlanner):
 
         horizon = self.max_slots_ahead or max(env.deadlines)
         horizon = min(horizon, env.n_slots - t)
+        if self.max_lookahead is not None:
+            horizon = min(horizon, self.max_lookahead + 1)
         keep = max(0.0, 1.0 - self.reserve)
 
         unit = np.array(

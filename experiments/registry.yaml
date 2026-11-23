@@ -357,3 +357,22 @@ experiments:
       held-out Oct-Dec weeks. It also reports the best arm per cell *on* the
       held-out weeks, so the cost of honest selection is visible rather than
       assumed.
+
+  - id: exp021-service-frontier
+    title: What does the carbon saving cost in service, at matched SLA and matched volume?
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      exp017-020's carbon savings all come with less work served and more missed
+      deadlines, so the headline percentage is not like-for-like. This experiment
+      makes the trade the measurement: BlockPlanner gains max_lookahead, an
+      absolute cap on how far ahead a block may be placed, so look0 is serve-now
+      placement and look16 is the full planner. The frontier is traced over six
+      horizons, with and without the calibrated reserve and the ghost arrival
+      model, on the same 12 held-out weeks and both fleets. Each arm is scored
+      three ways: its own carbon and missed fraction, an explicit matched-service
+      extrapolation (its own measured g per served GPU-hour applied to run_now's
+      served volume), and the exact schedule at its own volume as the ceiling.
+      The Pareto flag is set only when an arm is no worse than run_now on both
+      carbon and missed fraction.
