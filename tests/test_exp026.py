@@ -123,3 +123,30 @@ def test_aggregate_counts_weeks_instead_of_averaging_them_away() -> None:
     assert row["worst_carbon_delta_pct"] == pytest.approx(0.10)
     # A mean of +0.037 would have hidden that one week improved; the counts do not.
     assert agg["any_band_week_better"] == 1
+
+
+def test_relative_bands_multiply_the_forecast_not_add_a_constant() -> None:
+    """A relative band is a fraction of the forecast, so it must scale the score.
+
+    Adding the fraction as if it were gCO2/kWh is a silent bug: it turns every
+    relative band into a common additive constant, which cannot reorder for a
+    trivial reason. That would make the proportional-band theorem look verified
+    while never actually exercising it.
+    """
+    forecast = [{"A": 100.0, "B": 200.0}]
+    absolute = {"absolute": {"A": 10.0, "B": 5.0}}
+    relative = {"pooled_relative": {"A": 0.1, "B": 0.1}}
+    table = exp026._policy_table(forecast, absolute, relative, [2.0])
+    assert table["pooled_relative_lam2.0"][0] == {"A": 120.0, "B": 240.0}
+    assert table["absolute_lam2.0"][0] == {"A": 120.0, "B": 210.0}
+
+
+def test_proportional_band_cannot_reorder_but_a_heterogeneous_one_can() -> None:
+    """The theorem and its boundary, on two sites, with the correct application."""
+    from carbon_scheduling import dispatch
+
+    forecast = [{"A": 100.0, "B": 110.0}]
+    relative = {"proportional": {"A": 0.2, "B": 0.2}, "heterogeneous": {"A": 0.5, "B": 0.0}}
+    table = exp026._policy_table(forecast, {}, relative, [1.0])
+    assert dispatch.rank(table["proportional_lam1.0"][0]) == ["A", "B"]
+    assert dispatch.rank(table["heterogeneous_lam1.0"][0]) == ["B", "A"]

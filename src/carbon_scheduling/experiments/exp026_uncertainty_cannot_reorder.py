@@ -125,15 +125,29 @@ def _week_frames(
 
 def _policy_table(
     forecast: list[dict[str, float]],
-    bands: dict[str, dict[str, float]],
+    absolute_bands: dict[str, dict[str, float]],
+    relative_bands: dict[str, dict[str, float]],
     lams: list[float],
 ) -> dict[str, list[dict[str, float]]]:
-    """Score tables for forecast-greedy and every (band, lambda) pair."""
+    """Score tables for forecast-greedy and every (band, lambda) pair.
+
+    The two families enter the score differently and must not be confused: an
+    absolute band is gCO2/kWh and is *added*; a relative band is a fraction of
+    the forecast and *scales* it. Adding a fraction as if it were an intensity
+    turns every relative band into a common constant, which cannot reorder for a
+    trivial reason and would fake the theorem's verification.
+    """
     table: dict[str, list[dict[str, float]]] = {"forecast_greedy": [dict(row) for row in forecast]}
-    for name, half_width in bands.items():
+    for name, half_width in absolute_bands.items():
         for lam in lams:
             table[f"{name}_lam{lam}"] = [
                 dispatch.risk_scores(row, half_width, float(lam)) for row in forecast
+            ]
+    for name, fraction in relative_bands.items():
+        for lam in lams:
+            table[f"{name}_lam{lam}"] = [
+                {site: value * (1.0 + float(lam) * fraction[site]) for site, value in row.items()}
+                for row in forecast
             ]
     return table
 
@@ -186,8 +200,12 @@ def _bands(
     cal_end: datetime,
     regions: dict[str, int],
     alpha: float,
-) -> dict[str, dict[str, float]]:
-    """The three band constructions, calibrated strictly before the week."""
+) -> tuple[dict[str, dict[str, float]], dict[str, dict[str, float]]]:
+    """The three band constructions, calibrated strictly before the week.
+
+    Returns ``(absolute_bands, relative_bands)`` because the two are applied
+    differently -- see :func:`_policy_table`.
+    """
     absolute_res, levels, relative_res = residuals(series, cal_start, cal_end)
     pooled = dispatch.relative_half_widths(
         {"all": [v for values in relative_res.values() for v in values]},
@@ -195,13 +213,13 @@ def _bands(
         alpha,
     )["all"]
     per_site_relative = dispatch.relative_half_widths(relative_res, levels, alpha)
-    # Applied as a fraction of each site's forecast, so the pooled band and the
-    # per-site relative band both enter the score multiplicatively.
-    return {
-        "absolute": dispatch.absolute_half_widths(absolute_res, alpha),
-        "pooled_relative": {slug: pooled for slug in regions},
-        "per_region_relative": per_site_relative,
-    }
+    return (
+        {"absolute": dispatch.absolute_half_widths(absolute_res, alpha)},
+        {
+            "pooled_relative": dict.fromkeys(regions, pooled),
+            "per_region_relative": per_site_relative,
+        },
+    )
 
 
 def _aggregate(weeks: list[dict[str, Any]]) -> dict[str, Any]:
@@ -274,11 +292,11 @@ def _boundary(
     weeks = []
     for start in starts:
         cal_start = start - timedelta(days=calibration_days)
-        bands = _bands(series, cal_start, start, regions, alpha)
+        absolute_bands, relative_bands = _bands(series, cal_start, start, regions, alpha)
         slots, forecast, realized = _week_frames(series, start, regions, tokens)
         if len(slots) < WEEK_SLOTS // 2:
             continue
-        table = _policy_table(forecast, bands, lams)
+        table = _policy_table(forecast, absolute_bands, relative_bands, lams)
         weeks.append(
             {"policies": _score_week(slots, forecast, realized, sites, table, tail_quantile)}
         )
@@ -347,11 +365,11 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         weeks: list[dict[str, Any]] = []
         for start in starts:
             cal_start = start - timedelta(days=calibration_days)
-            bands = _bands(series, cal_start, start, regions, alpha)
+            absolute_bands, relative_bands = _bands(series, cal_start, start, regions, alpha)
             slots, forecast, realized = _week_frames(series, start, regions, tokens)
             if len(slots) < WEEK_SLOTS // 2:
                 continue
-            table = _policy_table(forecast, bands, lams)
+            table = _policy_table(forecast, absolute_bands, relative_bands, lams)
             weeks.append(
                 {
                     "start_utc": start.strftime("%Y-%m-%dT%H:%MZ"),

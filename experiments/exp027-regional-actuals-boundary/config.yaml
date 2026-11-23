@@ -1,0 +1,77 @@
+id: exp027-regional-actuals-boundary
+title: Does the band reorder on a grid whose regional actuals are measured, not scaled?
+phase: "3-agents"
+seed: 42
+data:
+  # EIA-930 hourly generation by fuel per balancing authority (public domain),
+  # and the same Azure demand week every other dispatch experiment uses.
+  - docs/datasets/data-audit/downloads/eia930_balance_2024_janjun_sample.csv
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+# The gate: an hour is priced only if its fuel breakdown accounts for reported
+# net generation within integer-rounding noise. 0.5% is far above the audited
+# median mismatch (0.004%) and far below a real gap.
+rounding_tolerance: 0.005
+min_site_coverage: 0.95
+
+# Five real US grid regions spanning 24 -> 949 gCO2/kWh, chosen for a wide
+# intensity spread AND a wide volatility spread (hydro and coal are steady,
+# wind and solar are not). "Other Fuel Sources" is priced at zero, so the set
+# keeps that share near zero; the experiment reports it per site.
+sites:
+  - authority: BPAT
+    label: Bonneville (hydro 71%)
+  - authority: CISO
+    label: California ISO (gas + solar)
+  - authority: ERCO
+    label: ERCOT (gas + wind)
+  - authority: MISO
+    label: Midcontinent ISO (coal + gas + wind)
+  - authority: LGEE
+    label: Louisville (coal 84%)
+
+# EIA publishes no carbon forecast, so the forecast is ours and is disclosed as
+# such. Two causal models, so the structural conclusion cannot be an artefact of
+# one naive forecaster: day-ahead persistence, and the mean of the same hour
+# over the previous week.
+forecast_models:
+  - name: persistence_24h
+    kind: persistence
+    lag_hours: 24
+  - name: same_hour_7d
+    kind: same_hour_mean
+    days: 7
+
+# Rolling origin over Jan-Jun 2024: each week calibrated on the 28 days before
+# it, exactly the rule exp026 uses on the UK series.
+weeks:
+  year: 2024
+  months: [1, 2, 3, 4, 5, 6]
+calibration_days: 28
+alpha: 0.1
+slot_minutes: 60
+
+# Same two fleets and the same disclosed site spec as exp026, so the numbers
+# sit beside the UK result rather than in their own units. Hourly slots double
+# both demand and capacity, so utilisation is unchanged.
+fleets:
+  - label: capacity_bound
+    n_gpus: 25
+    gpu_idle_w: 72.0
+    gpu_peak_w: 713.0
+    pue: 1.1
+    tokens_per_gpu_second: 1000.0
+  - label: slack
+    n_gpus: 40
+    gpu_idle_w: 72.0
+    gpu_peak_w: 713.0
+    pue: 1.1
+    tokens_per_gpu_second: 1000.0
+
+lam_grid: [0.5, 1.0, 2.0, 4.0]
+tail_quantile: 0.95
+
+# Sensitivity: "Other Fuel Sources" is priced at zero. Re-price it at the
+# natural-gas factor to show the ranking conclusion does not depend on that
+# assumption.
+other_factor_sensitivity: true
