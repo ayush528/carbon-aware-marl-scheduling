@@ -324,3 +324,19 @@ def test_served_latency_is_measured_on_the_work_that_was_served() -> None:
     summary = env.summary()
     assert summary["mean_served_wait_slots"] == pytest.approx(1.0)
     assert summary["max_served_wait_slots"] == 1
+
+
+def test_energy_accounting_covers_served_work_and_the_idle_floor() -> None:
+    """Energy is measurable separately from carbon so a run can be priced."""
+    idle_env = _env([0.0], deadlines=(2,), n_gpus=10)
+    idle_env.reset()
+    idle_env.step_offers([0.0])
+    idle = idle_env.summary()["energy_kwh"]
+
+    busy_env = _env([1_000.0], deadlines=(2,), n_gpus=10)
+    busy_env.reset()
+    busy_env.step_offers([1_000.0])
+    busy = busy_env.summary()["energy_kwh"]
+
+    assert idle > 0.0
+    assert busy > idle

@@ -6,6 +6,7 @@ data:
   - data/uk_regional_2024_tidy.csv
   - data/uk_national_2023-12_2024-12.json
   - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+  - data/sustaincluster_uk/prices/gb_2024_hourly.csv
 
 regions:
   GB-London: 13

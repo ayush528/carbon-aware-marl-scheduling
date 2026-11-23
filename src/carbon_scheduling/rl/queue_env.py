@@ -149,6 +149,7 @@ class QueueEnv:
         self.carbon_kg = np.zeros(self.n_agents)
         self.idle_carbon_kg = 0.0
         self.served_gpu_s = 0.0
+        self.energy_kwh_by_slot = np.zeros(self.n_slots)
         self.served_wait_slot_s = 0.0
         self.max_served_wait_slots = 0
         self.served_by_agent = np.zeros(self.n_agents)
@@ -326,12 +327,17 @@ class QueueEnv:
                 marginal = site_energy_kwh(site, take, SLOT_MINUTES) - site_energy_kwh(
                     site, 0.0, SLOT_MINUTES
                 )
+                self.energy_kwh_by_slot[t] += marginal
                 carbon[agent] += marginal * float(self.realized[t, site_index]) / 1000.0
             if amount <= 1e-9:
                 self.queues[agent].pop(arrival, None)
             else:
                 self.queues[agent][arrival] = amount
 
+        idle_energy = sum(
+            site_energy_kwh(site, 0.0, SLOT_MINUTES) for site in self.sites
+        )
+        self.energy_kwh_by_slot[t] += idle_energy
         idle = sum(
             site_energy_kwh(site, 0.0, SLOT_MINUTES) * float(self.realized[t, j]) / 1000.0
             for j, site in enumerate(self.sites)
@@ -394,6 +400,10 @@ class QueueEnv:
             "idle_carbon_kg": round(float(self.idle_carbon_kg), 3),
             "offered_gpu_s": round(offered, 1),
             "served_gpu_s": round(float(self.served_gpu_s), 1),
+            # Energy is the quantity a tariff is applied to. It is NOT the
+            # objective here (carbon is); this exists so a run can be costed
+            # afterwards against a real price series instead of assumed.
+            "energy_kwh": round(float(self.energy_kwh_by_slot.sum()), 3),
             # Response latency of the work that WAS served: GPU-second-weighted
             # mean queueing delay and the worst one. A deferral that lowers carbon
             # by making every served request slower is a different product, and
