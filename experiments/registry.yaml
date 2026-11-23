@@ -88,8 +88,8 @@ experiments:
   - id: exp008-sustaincluster-baseline
     title: SustainCluster as-is -- rule-based baselines and shipped SAC checkpoints
     phase: "2-simulator"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp008-sustaincluster-baseline
     description: >
       Runs upstream SustainCluster unmodified (their 5 sites, their carbon
       data, 7 days, seed 42) through in-repo headless drivers: 5 rule-based
@@ -101,8 +101,8 @@ experiments:
   - id: exp009-uk-sites
     title: SustainCluster on four UK sites -- NESO regional carbon, Elexon prices
     phase: "2-simulator"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp009-uk-sites
     description: >
       Re-runs exp008's unmodified simulator code but swaps in four UK sites
       (London, South Wales, North West England, South Scotland) fed by real
@@ -117,8 +117,8 @@ experiments:
   - id: exp010-rolling-bands
     title: Rolling-origin conformal bands on 2024 (calibrate 28 days before each month)
     phase: "2-simulator"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp010-rolling-bands
     description: >
       Replaces exp004/exp005's single Jan->Feb split with walk-forward
       evaluation on 2024. Every month is calibrated on the 28 days before it
@@ -133,8 +133,8 @@ experiments:
   - id: exp011-band-dispatch
     title: Band-aware dispatch on four real UK regions (Phase 3, rung 4)
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp011-band-dispatch
     description: >
       First experiment where the calibrated band is an input to a decision: a
       capacity-aware carbon-greedy dispatcher runs over the real Azure LLM week
@@ -153,8 +153,8 @@ experiments:
   - id: exp012-rl-dispatch
     title: PPO dispatch with and without the band -- held-out 2024 weeks
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp012-rl-dispatch
     description: >
       Rung 5: the first learned agent. PPO (numpy, in-repo, gradients verified
       against finite differences) over a weekly environment where each action is
@@ -172,8 +172,8 @@ experiments:
   - id: exp013-marl-dispatch
     title: Decentralized dispatch -- IPPO/MAPPO, communication, and the price of a missed deadline
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp013-marl-dispatch
     description: >
       Rung 6. One PPO agent per region quotes a risk level (its own forecast +
       lam*band) and, under a service obligation, offers its slot capacity or
@@ -198,8 +198,8 @@ experiments:
   - id: exp014-marl-seeds
     title: Multi-seed replication of the decentralized dispatch result
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp014-marl-seeds
     description: >
       Five training seeds x four variants (CVaR at alpha 0.8/0.9/0.95 and
       risk-neutral) x two fleets, at the parity deadline price (0.1 kg per
@@ -221,8 +221,8 @@ experiments:
   - id: exp015-timing-headroom
     title: The value of timing -- exact perfect-foresight bound at matched service
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp015-timing-headroom
     description: >
       Measures the lever exp011 left standing. Under the national-scaling
       estimator site ranking is exactly known, so carbon-aware placement has no
@@ -400,8 +400,8 @@ experiments:
   - id: exp023-controllable-share
     title: How much of the published benchmark's carbon is a controller decision at all
     phase: "2-simulator"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp023-controllable-share
     description: >
       Separates "our rule is no better" from "there is nothing left to win", which
       a tie alone cannot distinguish. Runs the identical environment -- same sites,

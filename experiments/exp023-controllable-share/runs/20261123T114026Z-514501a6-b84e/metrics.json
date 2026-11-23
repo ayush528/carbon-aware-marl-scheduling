@@ -1,0 +1,68 @@
+{
+  "sustaincluster_commit": "3f6ea95cb835b89ba50b0ef76d66d14b8037643e",
+  "carbon_window_start_utc": "2024-01-09T18:00Z",
+  "carbon_window_hours": 168,
+  "days": 7.0,
+  "seed": 42,
+  "n_sites": 4,
+  "floor": {
+    "carbon_kg": 101414.18,
+    "energy_kwh": 521913.18,
+    "note": "The same environment with the task stream switched off: servers, cooling, pumps and fans. A hard lower bound, not a controller."
+  },
+  "controllable_carbon_kg": 12892.05,
+  "controllable_share_of_total_pct": 11.28,
+  "controllers": {
+    "round_robin": {
+      "carbon_kg": 114306.2308,
+      "energy_kwh": 588234.3458,
+      "energy_cost_usd": 64371.8351,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "carbon_above_floor_kg": 12892.05,
+      "share_of_controllable_captured_pct": 0.0,
+      "carbon_vs_floor_pct": 12.71
+    },
+    "lowest_carbon": {
+      "carbon_kg": 106449.1617,
+      "energy_kwh": 591223.785,
+      "energy_cost_usd": 64696.1826,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0005,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "carbon_above_floor_kg": 5034.98,
+      "share_of_controllable_captured_pct": 60.95,
+      "carbon_vs_floor_pct": 4.96
+    },
+    "planner": {
+      "carbon_kg": 106449.1617,
+      "energy_kwh": 591223.785,
+      "energy_cost_usd": 64696.1826,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0005,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "carbon_above_floor_kg": 5034.98,
+      "share_of_controllable_captured_pct": 60.95,
+      "carbon_vs_floor_pct": 4.96
+    }
+  },
+  "best_controller": "lowest_carbon",
+  "best_share_of_controllable_captured_pct": 60.95,
+  "placement_stability": {
+    "hours_scored": 168,
+    "argmin_counts": {
+      "GB-London": 1,
+      "GB-NorthWestEngland": 5,
+      "GB-SouthScotland": 162
+    },
+    "dominant_site": "GB-SouthScotland",
+    "dominant_share": 0.9643,
+    "mean_gap_to_runner_up_gco2_per_kwh": 54.2,
+    "median_relative_gap": 0.4933
+  },
+  "note": "Carbon values are the simulator's own (derived regional estimate -- NESO ships no regional actuals). The floor is measured by an identical run with no arrivals, so 'controllable' is exactly the part of emissions that a placement decision can move in this benchmark. Deferral is not available to any strategy-map controller: returning None discards the task and the stream is never re-served, so this range is the whole arena."
+}
