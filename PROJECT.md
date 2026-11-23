@@ -41,6 +41,16 @@ carbon emissions without missing deadlines — built on real-world data only.
   reported beside carbon. Claims are relative only (identical demand);
   absolutes are labelled illustrative. The region-mapping assumption is
   disclosed early.
+- **The benchmark finding (exp022/exp023), now part of the argument:** in the
+  published simulator, on the same UK week, our planner *ties* its best
+  controller exactly rather than beating it — and the reason is measurable:
+  88.7% of that benchmark's carbon is idle draw no controller can touch, the
+  contestable range is 11.3%, and the best published rule already takes 61% of
+  it because placement has one dominant winner (South Scotland cheapest in
+  162/168 hours, median gap 49.3%). Placement-only carbon scheduling is
+  saturated; the only remaining lever is *when* work runs, and that
+  benchmark's controller interface cannot express it for any controller. State
+  the win (6–12% at matched service) only together with the arena it holds in.
 - Full study, literature survey (30 papers) and data audit:
   `docs/research/findings-and-plan.md` — the roadmap phases come from there.
 
@@ -142,8 +152,18 @@ region, so **transmission cost is exactly 0** and that term is inoperative; the
 price series is national, so `lowest_price` has nothing to differentiate and is
 degenerate (+3.11% carbon); and the cluster reset **jitters the data window**
 ±7 days/random hour, so the drivers probe that seeded draw and put the workload
-clock on the same window before verifying carbon against it → Phase 3: agents
-(heuristics → PPO → IPPO/MAPPO + CVaR) → Phase 4: evaluation.
+clock on the same window before verifying carbon against it. Head-to-head against
+those controllers is **done** (exp022) and the answer is a tie, which exp023
+explains by measurement: our rule is injected into the simulator's own strategy
+map, so it is dispatched identically to `lowest_carbon` and lands on that
+controller's carbon to the decimal (106,449.2 kg). The interface is placement-only
+(a task is queued only if a site is returned; arrivals are never re-served), and
+placement has one dominant winner here (South Scotland cheapest in 162/168 hours,
+median gap 49.3%), so the argmin is the whole game. The identical week with no
+arrivals emits 101,414.2 kg — **88.7% of the benchmark's carbon is idle draw no
+controller can touch**, leaving an 11.3% contestable range of which the best
+published rule takes 60.95% → Phase 3: agents (heuristics → PPO → IPPO/MAPPO +
+CVaR) → Phase 4: evaluation.
 
 **Service boundary.** The scheduler (`src/carbon_scheduling/`,
 `experiments/`) and the visualization service (`viz/frontend/` + `viz/backend/`) are
@@ -184,6 +204,12 @@ service the visualization consumes later.
 | Queue rules (rung 7) | `src/carbon_scheduling/rl/queue_rules.py` | the timing yardsticks: immediate, deadline-only holding, forecast-aware, and band-aware (defer only while the future's worst case beats the present's best case) -- the first place the calibrated band enters a timing decision, since it provably cannot reorder sites |
 | Hybrid scheduler | `src/carbon_scheduling/rl/hybrid.py` | `BlockPlanner`: at each slot, price every (slot, site) block as `forecast + robust*band`, then assign the tightest-deadline backlog to the cheapest legal blocks under each site's per-slot capacity, execute one slot, replan. `reserve`/`arrival_forecast` hold capacity back for arrivals the plan cannot see (`reserve` is the demand hedge; `arrival_forecast` derives it from a trailing arrival rate). `ForecastFlowPlanner` solves the same horizon exactly with the min-cost flow. `HybridEnv` is the rung-7 environment with offers set by the plan instead of by an action, so the planner is scored on the same accounting as every rule and learner |
 | Timing bound | `src/carbon_scheduling/rl/oracle.py` | `plan(cost, demand, capacity, deadline, volume=None)` and `plan_multi(cost, demand, capacity, deadlines, volume=None)`: the cheapest legal schedule, solved as a min-cost flow, so it is a proven optimum rather than a heuristic's best effort. Carry arcs between slots cost nothing and are bounded by the work still inside its deadline window; `volume` pins the served work so a comparison is matched-service. Checked against exhaustive search on small instances, single-class and per-class deadlines |
+| Arrival risk | `src/carbon_scheduling/rl/arrival_risk.py` | the one calibrated quantity with decision value: a trailing-mean arrival predictor, a split-conformal upper quantile of positive arrival exceedance, and a reserve spread over sites and the tightest deadline window. Measured coverage is 0.778 at a nominal 0.90 across the two halves of one diurnal week — the guarantee needs exchangeability, which one week does not have, and the experiment reports that instead of claiming it |
+| Arrival models | `src/carbon_scheduling/rl/hybrid.py` | `hold` reserves capacity in future blocks for predicted arrivals; `ghost` instead adds the prediction to the plan as an item under the tightest deadline, so it competes for the cheapest legal blocks and consumes capacity only where it would run. Measured: ghosts dominate holds at equal service, anticipation is a service lever that costs a little carbon, and the diurnal shape is below the resolution of a two-slot reserve |
+| Selection rule | `src/carbon_scheduling/experiments/exp020_selected_scheduler.py` | the shipped scheduler: candidate arms scored over Jan–Sep only, one arm picked per (fleet, price) cell, reported once on the held-out months; the best-on-test arm is printed beside it so the cost of honest selection is visible (≤1.79%) |
+| Head-to-head planner | `src/carbon_scheduling/sim/uk_planner.py` | `DurationAwareStrategy` — our placement rule shaped as one of the external simulator's own rule-based controllers, so it is dispatched by the *same* cluster-manager path as the published controllers (no transit step, no action translation). Prices a task as the mean risk-qualified intensity over its own duration (`window_hours=None`) or over the arrival slot only (`0`); `lam` adds the calibrated band, and calibration is strictly before the window so the band never sees the week it decides on. A test pins that at a single slot the band cannot reorder sites. A first attempt drove the RL action path instead and manufactured a 22% SLA violation from the extra transit step — the strategy map is the only fair entry point |
+| Simulator planner driver | `scripts/sustaincluster/run_planner.py` | runs that strategy inside the checkout with the simulator's own interpreter via `harness.build_env(inject_strategy=...)`, which adds it to the cluster's strategy map, so capacity checks, pending queues and accounting are the simulator's. Emits the same JSON shape as the baseline driver |
+| Idle-floor probe | `scripts/sustaincluster/run_idle_floor.py` | the same environment with no arrivals: what it still emits is the idle draw of the estate. A hard lower bound rather than a controller, so every saving can be scored against what was ever contestable (exp023) |
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
@@ -276,6 +302,8 @@ docs/
 | 2026-11-23 | exp019: **anticipation buys service, the reserve buys carbon.** Ghosts (predicted arrivals placed as tightest-class items, never offered) dominate holds at any given service level (slack 865.5 kg at 2.85% missed against the hold's 1006.7 at 2.21%), but every anticipation arm costs a little carbon; the calibrated reserve stays the carbon lever (810.1 kg). The diurnal shape barely matters (flat vs seasonal within 0.4%) — volume does, shape does not. And for the first time a planner beats never-deferring at the obligation price on the slack fleet (1029 vs 1109), so exp017/exp018's "no planner can" was a property of myopic planning | branch |
 | 2026-11-23 | exp020: **one shipped scheduler, its operating point chosen on Jan–Sep only.** Four of six (fleet, price) cells pick the same arm that is best on the held-out weeks; the worst cost of honest selection is 1.79%. Against never deferring: −14.8 / −5.8 / 0.0% on the capacity-bound fleet and −23.1 / −14.3 / −7.2% on the slack fleet at prices 0.1 / 0.3 / 1.0, with 21–27% less carbon at the parity price. The map is monotone in the price, and the two fleets find different extremes at the obligation price: keep deferring with spare capacity, never defer without it | branch |
 | 2026-11-23 | exp021: **the frontier, and the correction to the headline.** The 27% carbon figure was not like-for-like: those arms miss 3–4% of arrivals where `run_now` misses none. `max_lookahead` caps how far ahead work may be placed (`0` = serve now, `None` = full horizon), tracing the trade instead of arguing about it. Capacity-bound fleet: a real Pareto region — `look8_ghost` cuts **11.8% carbon and 2.34 pp of misses at once**, and 8.7% at literally matched served volume, so served-work intensity genuinely falls (76.3 → 68.2 g/GPU-h) rather than work disappearing. Slack fleet: no Pareto point (nothing was missing), so inside a 0.5 pp miss budget the reachable saving is **6.6%**; 15–27% needs 2–4 pp of misses. Two axes measured for the first time: every arm is *cheaper* at the real GB day-ahead price (−1.5% to −9.4%, because GB low-carbon hours are low-price hours) and every arm delays served work by 1–2 h **within its deadline**. Honest claim: 6–12% carbon at matched service, same money or less, same SLA, later completion inside it | branch |
+| 2026-11-23 | exp022: **head-to-head against the published controllers — the honest verdict is a tie.** Our placement rule is injected into the external simulator's own strategy map, so it takes the identical assignment path as all five published rule-based controllers on one week, one site list, one carbon series. All three of our arms (instantaneous, duration-integrated, duration+band) land on `lowest_carbon`'s number to the decimal — 106,449.2 kg, 591,224 kWh, same cost, 0.05% SLA, 21,943 tasks — and the published −6.87% vs round-robin is reproduced exactly, so the harness is sound. Two code facts explain it: the controller interface queues a task only if a site is returned (`None` discards it) and arrivals are never re-served, so deferral exists only in the RL path no published controller uses; and South Scotland is the cheapest region in 336 of 348 half-hours. The benchmark is **saturated for the one decision it exposes** | branch |
+| 2026-11-23 | exp023: **88.7% of that benchmark's carbon is not a decision.** The identical environment with the task stream switched off emits 101,414.2 kg of round-robin's 114,306.2 — idle draw that no placement or deferral rule can remove. The contestable range is 12,892 kg (11.3%); `lowest_carbon` removes 7,857 kg of it (60.95%) and so does our planner, identically. Placement stability is measured, not asserted: South Scotland cheapest in 162/168 hours with a median gap to the runner-up of 49.3% of its own intensity, so the argmin has one winner and a wide margin and every correct rule computes the same assignment. Both caveats stated: the floor share is a property of this operating point (four sites at ~7% utilisation), and the marginal-intensity split is labelled derived and kept out of every headline | branch |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 
@@ -358,6 +386,24 @@ docs/
       saving is 6.6%, not 27%. Also measured for the first time: every arm is cheaper at the real GB
       day-ahead price, and every arm delays served work 1-2 h inside its deadline. The honest claim
       is 6-12% carbon at matched service.
+- [x] exp022: the external baseline, answered. Our rule runs inside the published simulator's own
+      controller map against all five published rule-based controllers on one week and **ties the
+      best of them exactly** (106,449.2 kg, same energy, cost, SLA and 21,943 tasks, across three
+      independent arms). Not a win, and not reported as one: the controller interface is
+      placement-only (returning no site discards the task and arrivals are never re-served), and on
+      this grid placement has one dominant winner.
+- [x] exp023: the denominator. The identical environment with no arrivals emits 101,414.2 kg of
+      round-robin's 114,306.2 -- **88.7% is idle draw no controller can touch**, the contestable
+      range is 11.3%, and the best published rule already takes 60.95% of it. So the paper's claim
+      must always be stated with its arena: where a deadline permits deferral, our planner removes
+      6-12% at matched service against the same decision rule the published controllers use; where
+      the benchmark forbids deferral, the two are provably identical.
+- [ ] Report the idle floor as a curve, not a point: re-run the free-arrival measurement at higher
+      utilisation so the 88.7% is tied to an operating point in the paper rather than quoted bare.
+- [ ] Rewrite related work around the denominator. Every saving we cite is a percentage against
+      another controller on an estate whose emissions were mostly idle draw; saying that once, with
+      our own measurement, is a stronger contribution than another percentage -- but it must be
+      written as "the denominator is rarely reported", never as "their numbers are wrong".
 - [ ] The uncertainty claim needs forecast error to be real. Re-run the point-forecast vs whole-band
       pair under the *measured* national forecast error distribution resampled onto the regional
       series (a labelled stress test, not a data claim). Either the band protects the plan there --
