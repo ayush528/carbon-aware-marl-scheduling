@@ -52,7 +52,7 @@ Best published controller (`lowest_carbon`), with and without the shared lever:
 | 8× + lever | 104,281.7 | −8.77% | **77.76%** | 1.44% | 20,666 |
 
 So the timing lever is worth **+0.27 → +8.83 → +16.81 percentage points of the
-contestable range**, i.e. 0.03% → 1.07% → 2.02% of *total* carbon. That is the
+contestable range**, i.e. 0.03% → 1.07% → 2.04% of *total* carbon. That is the
 reconciliation this project needed: 2% of total here and 6–12% of total in our own
 environment are the same order of magnitude once the idle share is divided out.
 

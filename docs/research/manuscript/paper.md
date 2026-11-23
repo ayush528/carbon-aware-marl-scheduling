@@ -144,9 +144,9 @@ arms missed 3–4% where serve-now misses none.
 ### 5.2 Demand robustness
 
 The matched-service saving is positive in 12 of 12 variant × fleet cells
-(2.69–18.69% capacity-bound, 3.73–18.24% slack); the real-week row reproduces
-the main result exactly, so neither the week's shape nor its day order carries
-the claim.
+(2.69–18.69% capacity-bound, 3.73–18.24% slack); the `real` row reproduces
+exp021 on the capacity-bound fleet (−8.70% matched), which validates the harness,
+so neither the week's shape nor its day order carries the claim.
 
 ### 5.3 Published benchmark: placement only
 
@@ -162,7 +162,7 @@ A tested runtime deferral buffer given identically to all six controllers
 yields, at the published 1.5× SLA, 106,375.4 kg for our planner against
 106,413.3 kg for `lowest_carbon` (−0.036%) at identical 0.27% SLA and 21,886
 tasks. At 4× and 8× slack the two converge. The lever is worth 0.03%, 1.07%
-and 2.02% of total carbon at 1.5×/4×/8×. At 8× the natural myopic timing rule
+and 2.04% of total carbon at 1.5×/4×/8×. At 8× the natural myopic timing rule
 violates 1.44% of SLAs (29× the placement baseline); our calibrated reserve
 holds it to 0.13% while finishing 847 more tasks for +0.55% carbon.
 

@@ -112,8 +112,9 @@ explanation belongs, not in an excuse here.
   fleet, 12/12 weeks, at equal or lower GB day-ahead cost.
 * The honest combined claim is therefore conditional and must always be written with its
   condition: *where a workload's deadline permits deferral, our planner removes 6–12 % of
-  carbon at matched service against the same decision rule the published controllers use;
-  where the benchmark forbids deferral, the two are provably identical.*
+  total carbon with no worse SLA against the same decision rule the published controllers
+  use, and 8.7 % at literally identical served volume; where the benchmark forbids deferral,
+  the two are within 0.01 % (our causal forecast against a realized-carbon oracle).*
 
 ## Disclosures carried from exp009
 
