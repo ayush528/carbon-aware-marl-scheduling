@@ -376,3 +376,23 @@ experiments:
       served volume), and the exact schedule at its own volume as the ceiling.
       The Pareto flag is set only when an arm is no worse than run_now on both
       carbon and missed fraction.
+
+  - id: exp022-head-to-head
+    title: Our scheduler against the published SustainCluster controllers, same simulator, same week
+    phase: "2-simulator"
+    status: draft
+    rollback_tag: null
+    description: >
+      The only comparator that can be held fixed. Our placement rule is injected
+      into SustainCluster's own strategy map -- not bolted on through the action
+      space -- so it takes the identical assignment path as round_robin,
+      lowest_carbon, lowest_price, most_available and least_pending, on the same
+      four UK sites, the same derived NESO carbon, the same week and the same
+      accounting. Decisions use the NESO forecast plus a conformal band
+      calibrated strictly before the window; accounting uses the simulator's
+      realized series. Three arms separate instantaneous-slot placement (the
+      published rule) from duration-integrated placement, with and without the
+      band. Deferral is deliberately absent: upstream's SLA is 1.5x duration,
+      which leaves less than one 15-minute step of slack, so the timing lever
+      exp021 measures is not expressible here -- reported as a property of the
+      benchmark, not worked around.

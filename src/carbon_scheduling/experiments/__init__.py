@@ -30,6 +30,7 @@ from carbon_scheduling.experiments.exp018_arrival_reserve import run as exp018
 from carbon_scheduling.experiments.exp019_arrival_shape import run as exp019
 from carbon_scheduling.experiments.exp020_selected_scheduler import run as exp020
 from carbon_scheduling.experiments.exp021_service_frontier import run as exp021
+from carbon_scheduling.experiments.exp022_head_to_head import run as exp022
 
 REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp001-uk-carbon-baseline": exp001,
@@ -53,4 +54,5 @@ REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp019-arrival-shape": exp019,
     "exp020-selected-scheduler": exp020,
     "exp021-service-frontier": exp021,
+    "exp022-head-to-head": exp022,
 }

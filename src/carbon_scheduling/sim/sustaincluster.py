@@ -38,6 +38,7 @@ DEFAULT_CHECKOUT = REPO_ROOT / "external" / "sustain-cluster"
 DRIVER_DIR = REPO_ROOT / "scripts" / "sustaincluster"
 BASELINE_DRIVER = DRIVER_DIR / "run_baseline.py"
 RL_DRIVER = DRIVER_DIR / "run_rl.py"
+PLANNER_DRIVER = DRIVER_DIR / "run_planner.py"
 CHECKOUT_MARKER = Path("envs") / "task_scheduling_env.py"
 
 
@@ -174,6 +175,62 @@ def run_checkpoint(
             str(seed),
             "--device",
             device,
+            "--out",
+            str(out_path),
+            *_config_flags(init_day_of_year, sim_config, datacenters, reward_config, align_clock),
+        ],
+    )
+
+
+def run_planner(
+    checkout: Path,
+    python: str,
+    *,
+    days: float,
+    seed: int,
+    out_path: Path,
+    forecast_csv: str | Path,
+    national_json: str | Path,
+    region_map: dict[str, int],
+    lam: float,
+    window_hours: float | None,
+    alpha: float,
+    calibration_end: str,
+    init_day_of_year: int | None = None,
+    sim_config: str | Path | None = None,
+    datacenters: str | Path | None = None,
+    reward_config: str | Path | None = None,
+    align_clock: bool = False,
+) -> dict[str, Any]:
+    """Run our carbon-aware planner inside the simulator; return its metrics JSON.
+
+    Decisions are made from the NESO *forecast* series and a conformal band, not
+    from the simulator's realized series, so the run is causal. See
+    ``scripts/sustaincluster/planner_policy.py``.
+    """
+    mapping = ",".join(f"{slug}={rid}" for slug, rid in region_map.items())
+    return _invoke(
+        PLANNER_DRIVER,
+        checkout,
+        python,
+        [
+            "--forecast-csv",
+            str(forecast_csv),
+            "--national-json",
+            str(national_json),
+            "--region-map",
+            mapping,
+            "--lam",
+            str(lam),
+            *(["--window-hours", str(window_hours)] if window_hours is not None else []),
+            "--alpha",
+            str(alpha),
+            "--calibration-end",
+            str(calibration_end),
+            "--days",
+            str(days),
+            "--seed",
+            str(seed),
             "--out",
             str(out_path),
             *_config_flags(init_day_of_year, sim_config, datacenters, reward_config, align_clock),
