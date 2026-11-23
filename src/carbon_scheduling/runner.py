@@ -65,11 +65,19 @@ def git_sha() -> str:
 
 
 def git_is_dirty() -> bool:
-    """True when uncommitted changes exist (a run made on such a tree is
-    *not* guaranteed reproducible -- the manifest says so)."""
+    """True when a *tracked* file has uncommitted changes.
+
+    Untracked files are ignored on purpose: a run writes its own record into
+    ``experiments/<id>/runs/``, so counting untracked files would mark every
+    record as dirty and the flag would say nothing. What matters here is
+    whether the code that ran was committed.
+    """
     try:
         result = subprocess.run(
-            ["git", "status", "--porcelain"], capture_output=True, text=True, check=True
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            capture_output=True,
+            text=True,
+            check=True,
         )
         return bool(result.stdout.strip())
     except (subprocess.CalledProcessError, FileNotFoundError):

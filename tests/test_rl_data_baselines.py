@@ -122,6 +122,53 @@ def test_deferral_waits_when_a_cleaner_hour_is_ahead() -> None:
     assert baselines.defer(env, lookahead=3) == env.wait_action
 
 
+class FakeJointEnv:
+    """Two agents on a one-slot clock, for the joint rules."""
+
+    def __init__(self, forecast, band, backlog, t=0, n_slots=1):
+        self.forecast = np.atleast_2d(np.array(forecast, dtype=float))
+        self.band = np.atleast_2d(np.array(band, dtype=float))
+        self.backlog = backlog
+        self.t = t
+        self.n_slots = n_slots
+        self.n_agents = self.forecast.shape[1]
+
+    def encode(self, lam: float, offer: float) -> int:
+        from carbon_scheduling.rl.marl_env import OFFERS
+
+        lam_grid = (0.0, 0.5, 1.0, 2.0)
+        return int(np.argmin([abs(v - lam) for v in lam_grid])) * len(OFFERS) + int(
+            np.argmin([abs(v - offer) for v in OFFERS])
+        )
+
+
+def test_joint_run_now_offers_everything() -> None:
+    env = FakeJointEnv([[100.0, 200.0]], [[1.0, 1.0]], backlog=[])
+    actions = baselines.marl_run_now(env)
+    assert len(actions) == 2
+    assert all(env.encode(0.0, 1.0) == a for a in actions)
+
+
+def test_joint_defer_declines_when_tomorrow_is_cleaner() -> None:
+    env = FakeJointEnv(
+        [[300.0, 300.0], [10.0, 10.0], [10.0, 10.0]],
+        [[0.0, 0.0]] * 3,
+        backlog=[(100.0, 6)],
+        n_slots=3,
+    )
+    assert baselines.marl_defer(env, lookahead=3) == [env.encode(0.0, 0.0)] * 2
+
+
+def test_joint_defer_never_waits_on_an_urgent_deadline() -> None:
+    env = FakeJointEnv(
+        [[300.0, 300.0], [10.0, 10.0]],
+        [[0.0, 0.0]] * 2,
+        backlog=[(100.0, 1)],
+        n_slots=2,
+    )
+    assert baselines.marl_defer(env, lookahead=2) != [env.encode(0.0, 0.0)] * 2
+
+
 def test_aggregate_reports_mean_and_stderr() -> None:
     rows = {
         "a": [
@@ -137,3 +184,60 @@ def test_aggregate_reports_mean_and_stderr() -> None:
 def test_relative_change_is_a_percentage() -> None:
     assert _relative(90.0, 100.0) == -10.0
     assert _relative(100.0, 0.0) == 0.0
+
+
+def test_spread_reports_mean_and_seed_spread() -> None:
+    from carbon_scheduling.experiments.exp014_marl_seeds import _spread
+
+    stats = _spread([-1.0, -3.0, -2.0])
+    assert stats["mean"] == pytest.approx(-2.0)
+    assert stats["min"] == -3.0
+    assert stats["max"] == -1.0
+    assert stats["sd"] > 0
+    assert _spread([1.5])["sd"] == 0.0
+
+
+def test_objective_value_is_the_reward_the_agent_actually_optimises() -> None:
+    """Carbon plus priced misses plus priced holding, the same terms the
+    environment charges, so a learner can be scored against a rule on its own
+    objective instead of on carbon alone."""
+    from carbon_scheduling.experiments.exp013_marl_dispatch import objective_value
+
+    row = {
+        "carbon_kg": 100.0,
+        "offered_gpu_s": 3600.0,
+        "sla_violation_fraction": 0.5,  # 1800 GPU-s = 0.5 GPU-hour missed
+        "held_gpu_s": 7200.0,  # 2 GPU-hours held
+    }
+    assert objective_value(row, 1.0, 0.0) == pytest.approx(100.5)
+    assert objective_value(row, 2.0, 0.0) == pytest.approx(101.0)
+    assert objective_value(row, 1.0, 0.5) == pytest.approx(101.5)
+
+
+def test_learning_gate_scores_a_policy_against_the_best_rule_at_the_same_price() -> None:
+    """The gate answers one question: did the learner optimise the price it was
+    given? A policy that sheds work is not failing when work is priced cheap."""
+    from carbon_scheduling.experiments.exp013_marl_dispatch import learning_gate
+
+    def rows(carbon: float, missed: float) -> list[dict[str, float]]:
+        return [
+            {
+                "carbon_kg": carbon,
+                "offered_gpu_s": 3600.0,
+                "sla_violation_fraction": missed,
+                "held_gpu_s": 0.0,
+            }
+            for _ in range(3)
+        ]
+
+    # Deferring saves 0.3 kg of carbon and misses 0.2 GPU-hours of work, so the
+    # two options cross over between a cheap and a dear miss price.
+    deferred = rows(99.7, 0.2)
+    rules = {"run_now": rows(100.0, 0.0), "defer": deferred}
+    # At a cheap miss price the rule that defers wins the objective...
+    assert learning_gate(deferred, rules, 0.01, 0.0)["best_rule"] == "defer"
+    # ...and a learner that matches it passes.
+    assert learning_gate(deferred, rules, 0.01, 0.0)["passed"] is True
+    # At a dear miss price serving everything wins, and the same learner fails.
+    assert learning_gate(deferred, rules, 10.0, 0.0)["best_rule"] == "run_now"
+    assert learning_gate(deferred, rules, 10.0, 0.0)["passed"] is False

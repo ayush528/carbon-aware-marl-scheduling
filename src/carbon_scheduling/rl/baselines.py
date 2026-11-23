@@ -71,8 +71,54 @@ def run_policy(env, policy: Callable[[Any], int]) -> dict[str, float]:
     return env.summary()
 
 
+def marl_run_now(env) -> list[int]:
+    """Every agent offers everything and quotes its bare forecast."""
+    return [env.encode(0.0, 1.0)] * env.n_agents
+
+
+def marl_band_aware(env, lam: float = 1.0) -> list[int]:
+    """Every agent offers everything and charges its band at risk level ``lam``."""
+    return [env.encode(lam, 1.0)] * env.n_agents
+
+
+def marl_defer(env, *, lookahead: int = 4, lam: float = 1.0, margin: float = 0.0) -> list[int]:
+    """Joint rule: decline for everyone when a cleaner slot is genuinely ahead.
+
+    The multi-agent version of :func:`defer`. It only waits if every agent is
+    better off later, so no agent is asked to sit out a slot the others are
+    going to use -- otherwise the rule would manufacture violations.
+    """
+    if not env.backlog:
+        return marl_run_now(env)
+    urgency = min(item[1] - env.t for item in env.backlog)
+    if urgency <= 1:
+        return marl_band_aware(env, lam)
+    now = float((env.forecast[env.t] + lam * env.band[env.t]).min())
+    horizon = slice(env.t, min(env.t + lookahead, env.n_slots))
+    future = float((env.forecast[horizon] + lam * env.band[horizon]).min())
+    if future < now - margin:
+        return [env.encode(0.0, 0.0)] * env.n_agents
+    return marl_band_aware(env, lam)
+
+
 POLICIES: dict[str, Callable[[Any], int]] = {
     "run_now": run_now,
     "band_aware": lambda env: band_aware(env, 1.0),
     "defer": lambda env: defer(env, lookahead=4, lam=1.0),
 }
+
+JOINT_POLICIES: dict[str, Callable[[Any], list[int]]] = {
+    "run_now": marl_run_now,
+    "band_aware": lambda env: marl_band_aware(env, 1.0),
+    "defer": lambda env: marl_defer(env, lookahead=4, lam=1.0),
+}
+
+
+def run_joint_policy(env, policy: Callable[[Any], list[int]]) -> dict[str, float]:
+    """Run a joint policy through one episode."""
+    env.reset()
+    while True:
+        _obs, _reward, done, truncated, _info = env.step(policy(env))
+        if done or truncated:
+            break
+    return env.summary()

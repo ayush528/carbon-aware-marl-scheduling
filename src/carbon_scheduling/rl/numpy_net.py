@@ -141,6 +141,68 @@ class ActorCritic:
         return net
 
 
+class ValueNet:
+    """Shared value function over the joint state (MAPPO's centralised critic).
+
+    A separate network from any actor: MAPPO's critic is trained on the global
+    state, which no actor is allowed to see. Same shape as the actor's value
+    head, one hidden layer, and the same finite-difference test.
+    """
+
+    def __init__(self, state_dim: int, hidden: int = 32, seed: int = 0) -> None:
+        if state_dim < 1 or hidden < 1:
+            raise ValueError("state_dim and hidden must both be >= 1")
+        rng = np.random.default_rng(seed)
+        self.state_dim = state_dim
+        self.hidden = hidden
+        self.params = {
+            "W1": rng.normal(0.0, np.sqrt(2.0 / state_dim), (hidden, state_dim)),
+            "b1": np.zeros(hidden),
+            "Wv": rng.normal(0.0, 0.01, (1, hidden)),
+            "bv": np.zeros(1),
+        }
+
+    def forward(self, state: np.ndarray) -> np.ndarray:
+        """Value estimate for a batch of global states."""
+        x = np.atleast_2d(np.asarray(state, dtype=np.float64))
+        p = self.params
+        z = np.maximum(0.0, x @ p["W1"].T + p["b1"])
+        return (z @ p["Wv"].T + p["bv"]).ravel()
+
+    def loss_and_grads(
+        self, state: np.ndarray, returns: np.ndarray
+    ) -> tuple[float, dict[str, np.ndarray], dict[str, float]]:
+        """Mean-squared error and its gradients."""
+        x = np.asarray(state, dtype=np.float64)
+        returns = np.asarray(returns, dtype=np.float64)
+        n = x.shape[0]
+        p = self.params
+        z = np.maximum(0.0, x @ p["W1"].T + p["b1"])
+        value = (z @ p["Wv"].T + p["bv"]).ravel()
+        loss = float(((value - returns) ** 2).mean())
+        d_value = 2.0 * (value - returns) / n
+        grads = {
+            "Wv": d_value[:, None].T @ z,
+            "bv": np.array([d_value.sum()]),
+        }
+        d_z = d_value[:, None] @ p["Wv"]
+        d_z = d_z * (z > 0)
+        grads["W1"] = d_z.T @ x
+        grads["b1"] = d_z.sum(axis=0)
+        return loss, grads, {"value_loss": loss}
+
+    def save(self, path) -> None:
+        np.savez(path, **self.params, state_dim=self.state_dim, hidden=self.hidden)
+
+    @classmethod
+    def load(cls, path) -> ValueNet:
+        with np.load(path) as data:
+            net = cls(int(data["state_dim"]), int(data["hidden"]))
+            for key in net.params:
+                net.params[key] = data[key]
+        return net
+
+
 class Adam:
     """Adam, written out so the optimiser is part of the reviewed code."""
 

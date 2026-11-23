@@ -1,0 +1,727 @@
+{
+  "grid": {
+    "source": "EIA-930 hourly generation by fuel per balancing authority",
+    "factors": "EIA published averages (coal 2.31, gas 0.96, petroleum 2.46 lb CO2/kWh)",
+    "rounding_tolerance": 0.005,
+    "site_coverage": {
+      "BPAT": {
+        "total": 4367,
+        "usable": 4366,
+        "dropped": 1,
+        "coverage_pct": 99.98
+      },
+      "CISO": {
+        "total": 4367,
+        "usable": 4367,
+        "dropped": 0,
+        "coverage_pct": 100.0
+      },
+      "ERCO": {
+        "total": 4367,
+        "usable": 4367,
+        "dropped": 0,
+        "coverage_pct": 100.0
+      },
+      "MISO": {
+        "total": 4368,
+        "usable": 4368,
+        "dropped": 0,
+        "coverage_pct": 100.0
+      },
+      "LGEE": {
+        "total": 4368,
+        "usable": 4368,
+        "dropped": 0,
+        "coverage_pct": 100.0
+      }
+    },
+    "other_fuel_share_pct": {
+      "BPAT": 1.702,
+      "CISO": -0.484,
+      "ERCO": 0.422,
+      "MISO": 0.432,
+      "LGEE": 0.0
+    },
+    "sites": {
+      "BPAT": "Bonneville (hydro 71%)",
+      "CISO": "California ISO (gas + solar)",
+      "ERCO": "ERCOT (gas + wind)",
+      "MISO": "Midcontinent ISO (coal + gas + wind)",
+      "LGEE": "Louisville (coal 84%)"
+    },
+    "n_authorities_in_file": 61,
+    "n_authorities_priced": 61
+  },
+  "n_weeks": 18,
+  "models": {
+    "persistence_24h": {
+      "diagnostic": {
+        "n_hours": 4339,
+        "error_structure_counts": {
+          "common-multiplicative": 0,
+          "common-additive": 0,
+          "regional": 4339
+        },
+        "hours_with_reordered_realized": 1086,
+        "reordered_pct": 25.029,
+        "max_relative_error_spread_across_regions": 48.2383,
+        "per_site": {
+          "BPAT": {
+            "relative_error_std": 4.1141,
+            "mean_realized_gco2_per_kwh": 24.19
+          },
+          "CISO": {
+            "relative_error_std": 0.197,
+            "mean_realized_gco2_per_kwh": 175.96
+          },
+          "ERCO": {
+            "relative_error_std": 0.3203,
+            "mean_realized_gco2_per_kwh": 298.23
+          },
+          "MISO": {
+            "relative_error_std": 0.1426,
+            "mean_realized_gco2_per_kwh": 427.9
+          },
+          "LGEE": {
+            "relative_error_std": 0.0386,
+            "mean_realized_gco2_per_kwh": 949.03
+          }
+        }
+      },
+      "fleets": {
+        "capacity_bound": {
+          "n_weeks": 18,
+          "by_policy": {
+            "absolute_lam0.5": {
+              "mean_carbon_delta_pct": -0.0239,
+              "best_carbon_delta_pct": -0.4119,
+              "worst_carbon_delta_pct": 0.1644,
+              "weeks_better": 4,
+              "weeks_worse": 9,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 9.392
+            },
+            "absolute_lam1.0": {
+              "mean_carbon_delta_pct": 0.043,
+              "best_carbon_delta_pct": -0.2209,
+              "worst_carbon_delta_pct": 0.1979,
+              "weeks_better": 2,
+              "weeks_worse": 13,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 15.575
+            },
+            "absolute_lam2.0": {
+              "mean_carbon_delta_pct": 0.2364,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.5678,
+              "weeks_better": 0,
+              "weeks_worse": 16,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 34.656
+            },
+            "absolute_lam4.0": {
+              "mean_carbon_delta_pct": 0.6443,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 1.7457,
+              "weeks_better": 0,
+              "weeks_worse": 16,
+              "mean_tail_delta_pct": 0.017,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 68.188
+            },
+            "pooled_relative_lam0.5": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam1.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam2.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam4.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "per_region_relative_lam0.5": {
+              "mean_carbon_delta_pct": 0.6216,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 11.1891,
+              "weeks_better": 0,
+              "weeks_worse": 1,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 4.762,
+              "mean_ranking_changed_pct": 4.828
+            },
+            "per_region_relative_lam1.0": {
+              "mean_carbon_delta_pct": 1.2515,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 20.8325,
+              "weeks_better": 0,
+              "weeks_worse": 3,
+              "mean_tail_delta_pct": 0.0103,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 8.069,
+              "mean_ranking_changed_pct": 8.168
+            },
+            "per_region_relative_lam2.0": {
+              "mean_carbon_delta_pct": 1.6984,
+              "best_carbon_delta_pct": -0.0258,
+              "worst_carbon_delta_pct": 23.9082,
+              "weeks_better": 1,
+              "weeks_worse": 3,
+              "mean_tail_delta_pct": 0.0103,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 9.094,
+              "mean_ranking_changed_pct": 9.358
+            },
+            "per_region_relative_lam4.0": {
+              "mean_carbon_delta_pct": 2.1416,
+              "best_carbon_delta_pct": -0.0258,
+              "worst_carbon_delta_pct": 24.9124,
+              "weeks_better": 2,
+              "weeks_worse": 4,
+              "mean_tail_delta_pct": 0.0103,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 9.094,
+              "mean_ranking_changed_pct": 9.821
+            }
+          },
+          "any_band_week_better": 9
+        },
+        "slack": {
+          "n_weeks": 18,
+          "by_policy": {
+            "absolute_lam0.5": {
+              "mean_carbon_delta_pct": 0.0036,
+              "best_carbon_delta_pct": -0.3132,
+              "worst_carbon_delta_pct": 0.6552,
+              "weeks_better": 5,
+              "weeks_worse": 5,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 9.392
+            },
+            "absolute_lam1.0": {
+              "mean_carbon_delta_pct": 0.0848,
+              "best_carbon_delta_pct": -0.2108,
+              "worst_carbon_delta_pct": 0.6997,
+              "weeks_better": 4,
+              "weeks_worse": 11,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 15.575
+            },
+            "absolute_lam2.0": {
+              "mean_carbon_delta_pct": 0.353,
+              "best_carbon_delta_pct": -0.0011,
+              "worst_carbon_delta_pct": 0.9435,
+              "weeks_better": 1,
+              "weeks_worse": 16,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 34.656
+            },
+            "absolute_lam4.0": {
+              "mean_carbon_delta_pct": 1.0792,
+              "best_carbon_delta_pct": -0.0011,
+              "worst_carbon_delta_pct": 2.4039,
+              "weeks_better": 1,
+              "weeks_worse": 16,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 68.188
+            },
+            "pooled_relative_lam0.5": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam1.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam2.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam4.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "per_region_relative_lam0.5": {
+              "mean_carbon_delta_pct": 0.8406,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 15.0999,
+              "weeks_better": 0,
+              "weeks_worse": 2,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 4.762,
+              "mean_ranking_changed_pct": 4.828
+            },
+            "per_region_relative_lam1.0": {
+              "mean_carbon_delta_pct": 1.551,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 24.2837,
+              "weeks_better": 0,
+              "weeks_worse": 2,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 8.069,
+              "mean_ranking_changed_pct": 8.168
+            },
+            "per_region_relative_lam2.0": {
+              "mean_carbon_delta_pct": 2.621,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 37.1074,
+              "weeks_better": 0,
+              "weeks_worse": 2,
+              "mean_tail_delta_pct": 0.1893,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 9.094,
+              "mean_ranking_changed_pct": 9.358
+            },
+            "per_region_relative_lam4.0": {
+              "mean_carbon_delta_pct": 3.261,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 41.5924,
+              "weeks_better": 0,
+              "weeks_worse": 3,
+              "mean_tail_delta_pct": 0.1913,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 9.094,
+              "mean_ranking_changed_pct": 9.821
+            }
+          },
+          "any_band_week_better": 11
+        }
+      }
+    },
+    "same_hour_7d": {
+      "diagnostic": {
+        "n_hours": 4189,
+        "error_structure_counts": {
+          "common-multiplicative": 0,
+          "common-additive": 0,
+          "regional": 4189
+        },
+        "hours_with_reordered_realized": 864,
+        "reordered_pct": 20.625,
+        "max_relative_error_spread_across_regions": 24.4544,
+        "per_site": {
+          "BPAT": {
+            "relative_error_std": 1.5208,
+            "mean_realized_gco2_per_kwh": 24.02
+          },
+          "CISO": {
+            "relative_error_std": 0.219,
+            "mean_realized_gco2_per_kwh": 173.6
+          },
+          "ERCO": {
+            "relative_error_std": 0.2622,
+            "mean_realized_gco2_per_kwh": 295.67
+          },
+          "MISO": {
+            "relative_error_std": 0.1234,
+            "mean_realized_gco2_per_kwh": 423.68
+          },
+          "LGEE": {
+            "relative_error_std": 0.0484,
+            "mean_realized_gco2_per_kwh": 948.41
+          }
+        }
+      },
+      "fleets": {
+        "capacity_bound": {
+          "n_weeks": 18,
+          "by_policy": {
+            "absolute_lam0.5": {
+              "mean_carbon_delta_pct": 0.0016,
+              "best_carbon_delta_pct": -0.0627,
+              "worst_carbon_delta_pct": 0.1027,
+              "weeks_better": 2,
+              "weeks_worse": 1,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 2.116
+            },
+            "absolute_lam1.0": {
+              "mean_carbon_delta_pct": 0.031,
+              "best_carbon_delta_pct": -0.0627,
+              "worst_carbon_delta_pct": 0.4187,
+              "weeks_better": 2,
+              "weeks_worse": 3,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 5.985
+            },
+            "absolute_lam2.0": {
+              "mean_carbon_delta_pct": 0.153,
+              "best_carbon_delta_pct": -0.0663,
+              "worst_carbon_delta_pct": 0.8514,
+              "weeks_better": 1,
+              "weeks_worse": 11,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 18.849
+            },
+            "absolute_lam4.0": {
+              "mean_carbon_delta_pct": 0.7386,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 1.5653,
+              "weeks_better": 0,
+              "weeks_worse": 17,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 75.066
+            },
+            "pooled_relative_lam0.5": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam1.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam2.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam4.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "per_region_relative_lam0.5": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "per_region_relative_lam1.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "per_region_relative_lam2.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.066
+            },
+            "per_region_relative_lam4.0": {
+              "mean_carbon_delta_pct": 0.0127,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.2279,
+              "weeks_better": 0,
+              "weeks_worse": 1,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.562,
+              "mean_ranking_changed_pct": 0.628
+            }
+          },
+          "any_band_week_better": 5
+        },
+        "slack": {
+          "n_weeks": 18,
+          "by_policy": {
+            "absolute_lam0.5": {
+              "mean_carbon_delta_pct": 0.0061,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.1106,
+              "weeks_better": 0,
+              "weeks_worse": 1,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 2.116
+            },
+            "absolute_lam1.0": {
+              "mean_carbon_delta_pct": 0.026,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.4681,
+              "weeks_better": 0,
+              "weeks_worse": 1,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 5.985
+            },
+            "absolute_lam2.0": {
+              "mean_carbon_delta_pct": 0.1553,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 1.3383,
+              "weeks_better": 0,
+              "weeks_worse": 6,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 18.849
+            },
+            "absolute_lam4.0": {
+              "mean_carbon_delta_pct": 1.0636,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 1.8262,
+              "weeks_better": 0,
+              "weeks_worse": 16,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 75.066
+            },
+            "pooled_relative_lam0.5": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam1.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam2.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "pooled_relative_lam4.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "per_region_relative_lam0.5": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "per_region_relative_lam1.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.0
+            },
+            "per_region_relative_lam2.0": {
+              "mean_carbon_delta_pct": 0.0,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.0,
+              "weeks_better": 0,
+              "weeks_worse": 0,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.0,
+              "mean_ranking_changed_pct": 0.066
+            },
+            "per_region_relative_lam4.0": {
+              "mean_carbon_delta_pct": 0.0241,
+              "best_carbon_delta_pct": 0.0,
+              "worst_carbon_delta_pct": 0.4334,
+              "weeks_better": 0,
+              "weeks_worse": 1,
+              "mean_tail_delta_pct": 0.0,
+              "best_tail_delta_pct": 0.0,
+              "mean_reordered_pct": 0.562,
+              "mean_ranking_changed_pct": 0.628
+            }
+          },
+          "any_band_week_better": 0
+        }
+      }
+    }
+  },
+  "other_factor_sensitivity": {
+    "other_factor": "natural_gas",
+    "diagnostic": {
+      "n_hours": 4339,
+      "error_structure_counts": {
+        "common-multiplicative": 0,
+        "common-additive": 0,
+        "regional": 4339
+      },
+      "hours_with_reordered_realized": 1025,
+      "reordered_pct": 23.623,
+      "max_relative_error_spread_across_regions": 5.6025,
+      "per_site": {
+        "BPAT": {
+          "relative_error_std": 0.5364,
+          "mean_realized_gco2_per_kwh": 31.82
+        },
+        "CISO": {
+          "relative_error_std": 0.2039,
+          "mean_realized_gco2_per_kwh": 174.85
+        },
+        "ERCO": {
+          "relative_error_std": 0.3196,
+          "mean_realized_gco2_per_kwh": 300.03
+        },
+        "MISO": {
+          "relative_error_std": 0.1421,
+          "mean_realized_gco2_per_kwh": 429.78
+        },
+        "LGEE": {
+          "relative_error_std": 0.0386,
+          "mean_realized_gco2_per_kwh": 949.03
+        }
+      }
+    }
+  },
+  "disclosures": [
+    "Realized intensity is computed from each authority's own measured fuel mix, not from a national series. That is the whole point of this experiment.",
+    "EIA publishes no carbon forecast, so the forecast is ours (persistence and same-hour weekly mean), disclosed and run as two models.",
+    "Emission factors are national averages applied to a real mix: the mix is measured, the factor is a modelling assumption, with a sensitivity on the unclassified 'Other' fuel.",
+    "Interchange is not attributed, so an authority importing clean power looks dirtier than its consumption would.",
+    "Demand is the single real Azure week laid positionally over each carbon week, as in every other dispatch experiment."
+  ]
+}

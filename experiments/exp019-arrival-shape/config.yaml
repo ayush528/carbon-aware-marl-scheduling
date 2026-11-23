@@ -1,0 +1,39 @@
+id: exp019-arrival-shape
+title: Does the shape of the incoming work beat one constant reserve?
+phase: "3-agents"
+seed: 42
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+fleets:
+  - name: capacity_bound
+    n_gpus: 25
+  - name: slack
+    n_gpus: 40
+
+sites:
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+n_slots: 336
+deadlines: [2, 4, 8, 16]
+calibration_days: 28
+eval_months: [10, 11, 12]
+year: 2024
+
+prices: [0.1, 0.3, 1.0]
+rules: [run_now, last_slot]
+
+# Fixed at the values exp018 already ran, not chosen on these weeks.
+arrival_level: 0.95
+arrival_window: 8

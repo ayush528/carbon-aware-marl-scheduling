@@ -1,0 +1,16 @@
+{
+  "exp_id": "exp019-arrival-shape",
+  "git_sha": "868efb7f4c1b634280ffb33a92f4a039fe0e523a",
+  "git_dirty": false,
+  "config_hash": "66cbddac37e75f99a7103f0fccd685684d3a60b403dc92c9c775f3fe870e9a0d",
+  "seed": 42,
+  "data_hashes": {
+    "data/uk_regional_2024_tidy.csv": "a973c6c89071a64824c03c274531ad2a81e81652432e6a3c2b21121fcd3a782b",
+    "data/uk_national_2023-12_2024-12.json": "684811e39afc3e7632866fb2f97bdbe17220b97b490c50c03650b9947173009d",
+    "docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.15-76070215-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261123T070623Z",
+  "run_dir": "20261123T070623Z-66cbddac-e9de"
+}

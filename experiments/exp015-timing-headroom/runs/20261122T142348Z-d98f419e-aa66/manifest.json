@@ -1,0 +1,16 @@
+{
+  "exp_id": "exp015-timing-headroom",
+  "git_sha": "9d3853a613324a7f5209fe4baec71fcab93d7783",
+  "git_dirty": true,
+  "config_hash": "d98f419ef6f53421cbec3386f9de83f0a3922455b8aa0d2f3bc4dd341062a466",
+  "seed": 42,
+  "data_hashes": {
+    "data/uk_regional_2024_tidy.csv": "a973c6c89071a64824c03c274531ad2a81e81652432e6a3c2b21121fcd3a782b",
+    "data/uk_national_2023-12_2024-12.json": "684811e39afc3e7632866fb2f97bdbe17220b97b490c50c03650b9947173009d",
+    "docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.15-76070215-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261122T142348Z",
+  "run_dir": "20261122T142348Z-d98f419e-aa66"
+}

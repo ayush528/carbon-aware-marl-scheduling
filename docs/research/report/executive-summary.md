@@ -25,7 +25,9 @@ Only source worldwide with **native forecast-vs-actual carbon pairs**; genuine m
 
 ## The research gap (checked against 30 papers, 2024–2026, DOIs verified)
 
-No published work combines **decentralized limited-communication MARL + forecast uncertainty + region-matched real data + risk-aware deadlines**. SustainCluster has the real data but one centralized agent and lists forecasting/MARL as *future work*; the conformal-uncertainty paper (SIGENERGY 2024) has no control agents; the MADRL papers use deterministic signals; the DRO/CVaR papers have single controllers. Our contribution — uncertainty-aware, risk-penalized, communication-limited decentralized scheduling evaluated on the UK stack — is a defensible novelty.
+**We did not find** a published work that combines **decentralized limited-communication MARL + forecast uncertainty + region-matched real data + risk-aware deadlines**. SustainCluster has the real data but one centralized agent and lists forecasting/MARL as *future work*; the conformal-uncertainty paper (arXiv 2407.02390 / SIGENERGY 2024) has no control agents; the MADRL papers use deterministic signals; the DRO/CVaR papers have single controllers. Our contribution — uncertainty-aware, risk-penalized, communication-limited decentralized scheduling evaluated on the UK stack — is a defensible combination.
+
+**Refresh note (2026-11-23).** This survey covers 2024–2025. 2026 added strong *centralized* carbon+SLA solvers — arXiv 2610.14571 (MILP, up to 60% carbon at ~3% SLO violation), 2607.22806 (SLA-constrained routing, 27.4% average at zero violations), 2609.14775 (CATS, 16% temporal at 3.27% SLA) — none of which is a decentralized MARL scheduler with a CVaR tail term. The claim above is unchanged in kind but must be re-worded as "we did not find", and the survey re-run before submission. Comparison and caveats: `docs/research/2024-2026-carbon-scheduling-comparison.md`.
 
 ## Recommended build
 

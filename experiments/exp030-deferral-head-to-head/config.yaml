@@ -1,0 +1,117 @@
+# Built from exp022's config so the arena is provably identical: same sites,
+# same window, same reward, same carbon and price series.
+id: exp030-deferral-head-to-head
+title: The head-to-head with the timing lever available to every controller equally
+phase: 2-simulator
+seed: 42
+data:
+- data/sustaincluster_uk/carbon/GB-London_2024_hourly.csv
+- data/sustaincluster_uk/carbon/GB-SouthWales_2024_hourly.csv
+- data/sustaincluster_uk/carbon/GB-NorthWestEngland_2024_hourly.csv
+- data/sustaincluster_uk/carbon/GB-SouthScotland_2024_hourly.csv
+- data/sustaincluster_uk/prices/gb_2024_hourly.csv
+- data/sustaincluster_uk/provenance.json
+- data/uk_regional_2024_tidy.csv
+- data/uk_national_2023-12_2024-12.json
+sustaincluster:
+  checkout: external/sustain-cluster
+  device: cpu
+  baselines:
+  - round_robin
+  - lowest_carbon
+  - lowest_price
+  - most_available
+  - least_pending
+simulation:
+  year: 2024
+  month: 1
+  init_day: 15
+  init_hour: 0
+  duration_days: 7
+  timestep_minutes: 15
+  workload_path: data/workload/alibaba_2020_dataset/result_df_full_year_2020.pkl
+  cloud_provider: aws
+  shuffle_datacenters: false
+  use_tensorboard: false
+  log_dir: runs/uk-deferral
+  disable_defer_action: true
+  single_action_mode: true
+  aggregation_method: average
+  location_regions:
+    GB-London: eu-west-2
+    GB-SouthWales: eu-west-2
+    GB-NorthWestEngland: eu-west-2
+    GB-SouthScotland: eu-west-2
+  init_day_of_year: 14
+planner:
+  forecast_csv: data/uk_regional_2024_tidy.csv
+  national_json: data/uk_national_2023-12_2024-12.json
+  region_ids:
+    GB-London: 13
+    GB-SouthWales: 7
+    GB-NorthWestEngland: 3
+    GB-SouthScotland: 2
+  alpha: 0.1
+  calibration_end: 2024-01-09T00:00Z
+  lam: 0.0
+  window_hours: null
+sites:
+- dc_id: 1
+  location: GB-London
+  timezone_shift: 0
+  population_weight: 0.25
+  total_cores: 50000
+  total_gpus: 1000
+  total_mem: 80000
+  dc_config_file: configs/dcs/dc_config.json
+- dc_id: 2
+  location: GB-SouthWales
+  timezone_shift: 0
+  population_weight: 0.25
+  total_cores: 50000
+  total_gpus: 1000
+  total_mem: 80000
+  dc_config_file: configs/dcs/dc_config.json
+- dc_id: 3
+  location: GB-NorthWestEngland
+  timezone_shift: 0
+  population_weight: 0.25
+  total_cores: 50000
+  total_gpus: 1000
+  total_mem: 80000
+  dc_config_file: configs/dcs/dc_config.json
+- dc_id: 4
+  location: GB-SouthScotland
+  timezone_shift: 0
+  population_weight: 0.25
+  total_cores: 50000
+  total_gpus: 1000
+  total_mem: 80000
+  dc_config_file: configs/dcs/dc_config.json
+hypothesis: exp022 could not express deferral for any controller, so it compared placement
+  only. Here a shared deferral buffer gives every controller the identical timing
+  lever, and the declared SLA is widened identically so the lever's value can be measured
+  as a function of available slack. If our planner still does not beat the best published
+  controller, the honest conclusion is that placement is saturated and the lever is
+  worth the same to everyone -- and the saving must be reported against the contestable
+  carbon (total minus the idle floor), not against the total.
+reward:
+  normalize: false
+  freeze_stats_after_steps: 2000
+  components:
+    energy_price:
+      weight: 0.9
+      args: {}
+    carbon_emissions:
+      weight: 0.3
+      args: {}
+sla_multipliers:
+- 1.5
+- 4.0
+- 8.0
+deferral_policies:
+- none
+- myopic
+reserve:
+  fraction: 0.5
+  arrivals_per_slot: 32.65

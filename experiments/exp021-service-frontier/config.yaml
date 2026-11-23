@@ -1,0 +1,49 @@
+id: exp021-service-frontier
+title: What does the carbon saving cost in service, at matched SLA and matched volume?
+phase: "3-agents"
+seed: 42
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+  - data/sustaincluster_uk/prices/gb_2024_hourly.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+fleets:
+  - name: capacity_bound
+    n_gpus: 25
+  - name: slack
+    n_gpus: 40
+
+sites:
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+n_slots: 336
+deadlines: [2, 4, 8, 16]
+calibration_days: 28
+eval_months: [10, 11, 12]
+year: 2024
+
+prices: [0.1, 0.3, 1.0]
+rules: [run_now, last_slot]
+
+# Fixed at the values exp018/exp019 already used, not chosen on these weeks.
+arrival_level: 0.95
+arrival_window: 8
+
+hypothesis: >
+  Every carbon saving reported in exp017-020 comes with a service cost: the arms
+  that beat never-deferring on carbon also miss more deadlines and serve less
+  work. The honest claim is therefore not a single percentage but a frontier.
+  Capping the planner's lookahead turns the timing lever into one parameter, so
+  the frontier can be traced instead of argued: look0 is serve-now placement,
+  look16 is the full planner, and the Pareto region against run_now is whatever
+  is no worse on both carbon and missed fraction.

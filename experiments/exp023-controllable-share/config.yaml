@@ -1,0 +1,113 @@
+id: exp023-controllable-share
+title: How much of the published benchmark's carbon is a controller decision at all
+phase: "2-simulator"
+seed: 42
+data:
+  - data/sustaincluster_uk/carbon/GB-London_2024_hourly.csv
+  - data/sustaincluster_uk/carbon/GB-SouthWales_2024_hourly.csv
+  - data/sustaincluster_uk/carbon/GB-NorthWestEngland_2024_hourly.csv
+  - data/sustaincluster_uk/carbon/GB-SouthScotland_2024_hourly.csv
+  - data/sustaincluster_uk/prices/gb_2024_hourly.csv
+  - data/sustaincluster_uk/provenance.json
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+
+sustaincluster:
+  checkout: external/sustain-cluster
+  device: cpu
+
+# Identical to exp022/exp009 so the three experiments share one week, one site
+# list and one derived carbon series -- the numbers are meant to be read together.
+simulation:
+  year: 2024
+  month: 1
+  init_day: 15
+  init_hour: 0
+  duration_days: 7
+  timestep_minutes: 15
+  workload_path: data/workload/alibaba_2020_dataset/result_df_full_year_2020.pkl
+  cloud_provider: aws
+  shuffle_datacenters: false
+  use_tensorboard: false
+  log_dir: runs/uk-controllable
+  disable_defer_action: true
+  single_action_mode: true
+  aggregation_method: average
+  location_regions:
+    GB-London: eu-west-2
+    GB-SouthWales: eu-west-2
+    GB-NorthWestEngland: eu-west-2
+    GB-SouthScotland: eu-west-2
+  init_day_of_year: 14
+
+# Our own arm, so the floor can be read against the rule that already ties the
+# best published controller rather than only against round_robin.
+planner:
+  forecast_csv: data/uk_regional_2024_tidy.csv
+  national_json: data/uk_national_2023-12_2024-12.json
+  region_ids:
+    GB-London: 13
+    GB-SouthWales: 7
+    GB-NorthWestEngland: 3
+    GB-SouthScotland: 2
+  alpha: 0.1
+  lam: 1.0
+  # Integrate over each task's own duration (see exp022).
+  window_hours: null
+  # Strictly before any window this seed can draw.
+  calibration_end: "2024-01-09T00:00Z"
+
+sites:
+  - dc_id: 1
+    location: GB-London
+    timezone_shift: 0
+    population_weight: 0.25
+    total_cores: 50000
+    total_gpus: 1000
+    total_mem: 80000
+    dc_config_file: configs/dcs/dc_config.json
+  - dc_id: 2
+    location: GB-SouthWales
+    timezone_shift: 0
+    population_weight: 0.25
+    total_cores: 50000
+    total_gpus: 1000
+    total_mem: 80000
+    dc_config_file: configs/dcs/dc_config.json
+  - dc_id: 3
+    location: GB-NorthWestEngland
+    timezone_shift: 0
+    population_weight: 0.25
+    total_cores: 50000
+    total_gpus: 1000
+    total_mem: 80000
+    dc_config_file: configs/dcs/dc_config.json
+  - dc_id: 4
+    location: GB-SouthScotland
+    timezone_shift: 0
+    population_weight: 0.25
+    total_cores: 50000
+    total_gpus: 1000
+    total_mem: 80000
+    dc_config_file: configs/dcs/dc_config.json
+
+reward:
+  normalize: false
+  freeze_stats_after_steps: 2000
+  components:
+    energy_price:
+      weight: 0.9
+      args: {}
+    carbon_emissions:
+      weight: 0.3
+      args: {}
+
+hypothesis: >
+  exp022 tied the best published controller exactly. A tie can mean our rule is no
+  better, or that there is nothing left to win. These are separable: run the
+  identical environment with the task stream switched off and what it still emits is
+  the idle draw of the estate, which no placement or deferral decision can remove.
+  The contestable range is then floor-to-round_robin, and the honest score for a
+  controller is the share of that range it removes. If most of the reported carbon
+  is the floor, the published percentages are measuring a small part of a large
+  number, and our tie is a property of the arena rather than a statement about us.

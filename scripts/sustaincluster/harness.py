@@ -103,6 +103,7 @@ def build_env(
     reward_config_path: Path | None = None,
     seed: int | None = None,
     align_clock: bool = False,
+    inject_strategy: tuple[str, object] | None = None,
 ):
     """Environment configured exactly as upstream's evaluation path.
 
@@ -164,6 +165,13 @@ def build_env(
         cloud_provider=sim["cloud_provider"],
         logger=None,
     )
+
+    if inject_strategy is not None:
+        # Upstream keeps its controllers in a strategy map keyed by name; adding
+        # an entry here means our rule is dispatched by the same code path as
+        # theirs, with identical capacity checks and no action translation.
+        name, instance = inject_strategy
+        cluster.strategy_map[name] = instance
 
     if align_clock:
         if seed is None:

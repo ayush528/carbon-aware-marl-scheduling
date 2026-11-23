@@ -88,8 +88,8 @@ experiments:
   - id: exp008-sustaincluster-baseline
     title: SustainCluster as-is -- rule-based baselines and shipped SAC checkpoints
     phase: "2-simulator"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp008-sustaincluster-baseline
     description: >
       Runs upstream SustainCluster unmodified (their 5 sites, their carbon
       data, 7 days, seed 42) through in-repo headless drivers: 5 rule-based
@@ -101,8 +101,8 @@ experiments:
   - id: exp009-uk-sites
     title: SustainCluster on four UK sites -- NESO regional carbon, Elexon prices
     phase: "2-simulator"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp009-uk-sites
     description: >
       Re-runs exp008's unmodified simulator code but swaps in four UK sites
       (London, South Wales, North West England, South Scotland) fed by real
@@ -117,8 +117,8 @@ experiments:
   - id: exp010-rolling-bands
     title: Rolling-origin conformal bands on 2024 (calibrate 28 days before each month)
     phase: "2-simulator"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp010-rolling-bands
     description: >
       Replaces exp004/exp005's single Jan->Feb split with walk-forward
       evaluation on 2024. Every month is calibrated on the 28 days before it
@@ -133,8 +133,8 @@ experiments:
   - id: exp011-band-dispatch
     title: Band-aware dispatch on four real UK regions (Phase 3, rung 4)
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp011-band-dispatch
     description: >
       First experiment where the calibrated band is an input to a decision: a
       capacity-aware carbon-greedy dispatcher runs over the real Azure LLM week
@@ -153,8 +153,8 @@ experiments:
   - id: exp012-rl-dispatch
     title: PPO dispatch with and without the band -- held-out 2024 weeks
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp012-rl-dispatch
     description: >
       Rung 5: the first learned agent. PPO (numpy, in-repo, gradients verified
       against finite differences) over a weekly environment where each action is
@@ -168,3 +168,361 @@ experiments:
       observation changes held-out carbon by 0.01% -- i.e. no effect. Reported as
       the honest outcome: at this fleet size and penalty, uncertainty changes
       risk reporting, not carbon.
+
+  - id: exp013-marl-dispatch
+    title: Decentralized dispatch -- IPPO/MAPPO, communication, and the price of a missed deadline
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp013-marl-dispatch
+    description: >
+      Rung 6. One PPO agent per region quotes a risk level (its own forecast +
+      lam*band) and, under a service obligation, offers its slot capacity or
+      waits; an untrained rule clears the cheapest bids with spill. Variants
+      (IPPO, no communication, a CVaR tail term, MAPPO with a centralised
+      critic, and a market variant that may decline work) crossed with three
+      deadline prices and two fleet sizes, trained Jan-Sep 2024 and evaluated on
+      12 held-out Oct-Dec weeks. The prices bracket the parity price of 0.093 kg
+      per GPU-hour that serving work emits: 0.02 (below it, a control), 0.1 (at
+      it), 1.0 (above it). At weight 0.1 the best learner cuts carbon 26.6%
+      while missing 25.8% of work, and beats the best rule on its own objective
+      by 9.2% (better in 12/12 weeks); at 1.0 it matches carbon-greedy to
+      +0.01% and serves everything.
+      The learner implements the price it is given and beats the heuristics at
+      every price where a trade exists. Two negative results, both reported: a
+      terminal-only CVaR charge does not move the per-slot tail (it enters one
+      of 336 advantages), and communication and a centralised critic do not
+      consistently help. Two earlier runs of this experiment were invalid (a
+      diverging learning rate, then a holding price that double-charged delay);
+      see experiments/exp013-marl-dispatch/README.md.
+
+  - id: exp014-marl-seeds
+    title: Multi-seed replication of the decentralized dispatch result
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp014-marl-seeds
+    description: >
+      Five training seeds x four variants (CVaR at alpha 0.8/0.9/0.95 and
+      risk-neutral) x two fleets, at the parity deadline price (0.1 kg per
+      missed GPU-hour against 0.093 kg emitted per GPU-hour served), always
+      paired against the same carbon-greedy rule on the same 12 held-out
+      Oct-Dec weeks. The direction is seed-robust: all four variants cut carbon
+      in all five seeds and are better in 12/12 weeks in every seed, so this is
+      not the single-seed artefact exp013's first run was. The magnitude is not:
+      capacity-bound the mean cut is 40.9-42.9% (per-seed spread -24.8% to
+      -60.5%, bimodal around -30% and -59%), slack 58.3-62.1%. At this price
+      every arm sheds 39-41% (capacity-bound) or 49-53% (slack) of work against
+      the rule's 12.8% and 0.0%, so the carbon number is inseparable from the
+      service number and both are reported. The CVaR tail term has no
+      measurable effect at any alpha -- means differing by at most 2 points
+      against a 15-point seed spread -- which is what exp013 predicted from the
+      terminal charge entering one of 336 advantages. The learning gate passes
+      for 4-5 of 5 seeds per variant.
+
+  - id: exp015-timing-headroom
+    title: The value of timing -- exact perfect-foresight bound at matched service
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp015-timing-headroom
+    description: >
+      Measures the lever exp011 left standing. Under the national-scaling
+      estimator site ranking is exactly known, so carbon-aware placement has no
+      uncertainty and the oracle ties forecast-greedy; what a scheduler can
+      still control is *when* work runs. For each of the 12 held-out Oct-Dec
+      2024 weeks this serves the volume carbon-greedy serves and asks a min-cost
+      flow (a proven optimum, not a heuristic; verified against exhaustive
+      search on small instances) for the cheapest legal schedule at deadline
+      horizons of 0.5 h to 24 h. At the 4-hour deadline every policy since
+      exp012 uses, perfect foresight saves 29.4% on the slack fleet (40 GPUs
+      per site) and 14.5% on the capacity-bound fleet (25), at identical served
+      volume, better in 12/12 weeks. That gap is what the current action space
+      leaves on the table: under the service obligation an agent can only
+      express deferral by every agent waiting at once, which independent
+      learners never coordinate on. The bound is not a policy -- it sees every
+      realized intensity -- but it bounds what any causal policy could save and
+      motivates the queue-owning redesign (rung 7).
+
+  - id: exp016-queue-ownership
+    title: Rung 7 -- agents own queues, so timing becomes a unilateral decision
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp016-queue-ownership
+    description: >
+      Rung 6 let an agent own a site, which meant deferral was only expressible
+      as `wait` -- and a single agent withdrawing its capacity just let the
+      coordinator spill its work, so deferral needed every agent to wait at
+      once. Ownership is inverted here: each of four agents owns a work stream
+      and a deadline-constrained backlog, and its only decision is what fraction
+      of its own slack to coast (serve now, a third, two thirds, or hold to the
+      last legal slot) before offering its queue. Deferral is then unilateral
+      and a policy can express it. A coordinator still places whatever is
+      offered, cheapest forecast site first, so rung 6's placement result -- the
+      regional ordering is exactly known -- is preserved, and the only lever
+      under test is timing. The four classes (1, 2, 4 and 8 hours) split the
+      Azure arrivals equally, a disclosed modelling choice because the trace
+      carries no latency labels; every arm sees the identical split. Each arm is
+      scored against (a) four hand-written timing rules, (b) the exact
+      perfect-foresight bound at the volume the immediate rule serves, and (c)
+      the same bound at the arm's *own* served volume, which is what stops a
+      policy from looking good by serving less. Units: 600 episodes, three
+      seeds, three prices (0.1 = parity, 0.3 = the rule frontier's crossover,
+      1.0 = a service obligation), two fleets; gamma 1.0 because the objective
+      is the episode total, lam 0.98 and the episode count chosen on a hold-out
+      slice of the training months, never on the evaluation weeks.
+
+  - id: exp017-hybrid-scheduler
+    title: A capacity-aware carbon scheduler -- the hybrid the timing rules cannot express
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp017-hybrid-scheduler
+    description: >
+      exp016 measured that timing rules are not ordered by how much they know:
+      forecast_timing sees the whole forecast and is worse per served GPU-hour
+      than last_slot, which sees only the deadline (65.4 vs 51.1 kg/MWh), because
+      the cost is the placement that timing forces -- 15.0% of its served work
+      landed on the dirtiest site against 8.0%, and a stagger intervention did
+      not recover it. A per-agent timing rule cannot see placement at all. This
+      experiment tests the scheduler that can: at each slot it prices every
+      (slot, site) block as forecast + robust * band and assigns the backlog to
+      the cheapest legal blocks, respecting each class's deadline window and each
+      site's per-slot capacity, then executes the current slot and replans. That
+      is the hybrid the project's premise needs -- a rule-shaped policy (cheapest
+      feasible capacity, deadline-feasible assignment, causal) with the
+      uncertainty model in the price and the exact flow as its bound. Swept: risk
+      appetite (robust 0 vs 1, i.e. point forecast vs whole calibrated band),
+      demand hedge (0-30% of capacity reserved for arrivals the planner cannot
+      see), and greedy vs rolling min-cost-flow on the same forecast, so the cost
+      of greediness is measured rather than assumed. Scored on 12 held-out Oct-Dec
+      2024 weeks, both fleets, on carbon + price * missed GPU-hours at 0.1 (parity),
+      0.3 (the rule frontier's crossover) and 1.0 (a service obligation), each arm
+      also scored against the exact schedule at its own served volume, week by week.
+
+  - id: exp018-arrival-reserve
+    title: A calibrated reserve for the arrivals the planner cannot see
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp018-arrival-reserve
+    description: >
+      exp017 left the reserve as the only thing that moves the planner's numbers
+      after placement is solved (slack fleet 854.6 kg with no reserve, 784.0 with
+      30% at the same 3.4% missed), and it left the carbon band with no decision
+      to change for the third independent time -- under national scaling the
+      realized regional intensity is the forecast times one common factor per
+      slot, so the ordering the planner acts on is the forecast's ordering. So
+      uncertainty earns its place on demand: this experiment replaces the
+      hand-set reserve with a calibrated one. A trailing-mean arrival predictor is
+      scored against what arrived, and the reserve is the split-conformal upper
+      quantile of the positive exceedance, in GPU-seconds, spread over the sites
+      and the tightest deadline window. The profile is the one real Azure week
+      (disclosed), so the quantile is calibrated on its first half and its
+      coverage measured on the second half, in both directions, because the two
+      halves of a diurnal trace are not exchangeable and hiding that would be
+      dishonest. Arms: two rules, the planner with no reserve, with exp017's fixed
+      20%, and with the calibrated quantile at 0.5/0.9/0.95; 12 held-out Oct-Dec
+      2024 weeks, both fleets, three prices, every arm also scored against the
+      exact schedule at its own served volume.
+
+  - id: exp019-arrival-shape
+    title: Does the shape of the incoming work beat one constant reserve?
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp019-arrival-shape
+    description: >
+      exp018 made the reserve calibrated but left it a single number for the whole
+      week, while the workload is diurnal -- so it over-holds in the quiet period
+      and under-holds just before a burst. This experiment gives the planner three
+      ways to anticipate arrivals. 'hold' reserves capacity in every future block
+      (trailing mean, or the same slot of the previous day). 'ghost' instead adds
+      the prediction to the plan as an item with the tightest deadline class, so it
+      competes for the cheapest legal blocks and consumes capacity only where it
+      would actually run, and is never offered to the environment. Both are causal
+      and read only slots before the one they predict. Arms: two rules, the planner
+      with no anticipation, with exp018's calibrated reserve, with each hold, with
+      each ghost model, and the best model plus the calibrated reserve. Same 12
+      held-out weeks, both fleets, three prices, own-volume bound, and a paired
+      comparison against the no-anticipation planner. No parameter is chosen on the
+      evaluation weeks.
+
+  - id: exp020-selected-scheduler
+    title: One shipped scheduler, operating point chosen on training months
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp020-selected-scheduler
+    description: >
+      exp017-019 report frontiers -- six arms, three prices, two fleets, a different
+      winner at each corner -- which is honest but is not a scheduler. A deployment
+      has one price, so it needs one arm, and the only defensible way to pick it is
+      on weeks the reported numbers do not come from. This experiment runs six
+      candidate arms over Jan-Sep 2024, selects the arm with the best mean objective
+      per (fleet, price) cell on those weeks, and reports that arm on the 12
+      held-out Oct-Dec weeks. It also reports the best arm per cell *on* the
+      held-out weeks, so the cost of honest selection is visible rather than
+      assumed.
+
+  - id: exp021-service-frontier
+    title: What does the carbon saving cost in service, at matched SLA and matched volume?
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp021-service-frontier
+    description: >
+      exp017-020's carbon savings all come with less work served and more missed
+      deadlines, so the headline percentage is not like-for-like. This experiment
+      makes the trade the measurement: BlockPlanner gains max_lookahead, an
+      absolute cap on how far ahead a block may be placed, so look0 is serve-now
+      placement and look16 is the full planner. The frontier is traced over six
+      horizons, with and without the calibrated reserve and the ghost arrival
+      model, on the same 12 held-out weeks and both fleets. Each arm is scored
+      three ways: its own carbon and missed fraction, an explicit matched-service
+      extrapolation (its own measured g per served GPU-hour applied to run_now's
+      served volume), and the exact schedule at its own volume as the ceiling.
+      The Pareto flag is set only when an arm is no worse than run_now on both
+      carbon and missed fraction.
+
+  - id: exp022-head-to-head
+    title: Our scheduler against the published SustainCluster controllers, same simulator, same week
+    phase: "2-simulator"
+    status: merged
+    rollback_tag: exp/exp022-head-to-head
+    description: >
+      The only comparator that can be held fixed. Our placement rule is injected
+      into SustainCluster's own strategy map -- not bolted on through the action
+      space -- so it takes the identical assignment path as round_robin,
+      lowest_carbon, lowest_price, most_available and least_pending, on the same
+      four UK sites, the same derived NESO carbon, the same week and the same
+      accounting. Decisions use the NESO forecast plus a conformal band
+      calibrated strictly before the window; accounting uses the simulator's
+      realized series. Three arms separate instantaneous-slot placement (the
+      published rule) from duration-integrated placement, with and without the
+      band. Deferral is deliberately absent: upstream's SLA is 1.5x duration,
+      which leaves less than one 15-minute step of slack, so the timing lever
+      exp021 measures is not expressible here -- reported as a property of the
+      benchmark, not worked around.
+
+  - id: exp023-controllable-share
+    title: How much of the published benchmark's carbon is a controller decision at all
+    phase: "2-simulator"
+    status: merged
+    rollback_tag: exp/exp023-controllable-share
+    description: >
+      Separates "our rule is no better" from "there is nothing left to win", which
+      a tie alone cannot distinguish. Runs the identical environment -- same sites,
+      same week, same carbon and price series, same HVAC and server model -- with
+      the task stream switched off; the remainder is the idle draw of the estate and
+      is a hard lower bound no controller can remove. Reports carbon = floor +
+      controllable for round_robin, lowest_carbon and our planner, each scored by
+      the share of the floor-to-round_robin range it actually removes. Also measures,
+      from the forecast series alone, how often one site is the cheapest -- which is
+      why placement-only rules converge. No tuning; every number is a run or a count.
+
+  - id: exp026-uncertainty-cannot-reorder
+    title: Can calibrated uncertainty change a carbon decision? A theorem, its cost, and its boundary
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp026-uncertainty-cannot-reorder
+    description: >
+      Turns exp011's awkward observation into a theorem about the data construction.
+      Regional carbon actuals mostly do not exist, so realized intensity is built by
+      scaling a national series: realized_r = national_actual * forecast_r /
+      national_forecast. Substituting into the error leaves one bracket per slot
+      shared by every region, so realized and forecast induce the same regional
+      ranking, forecast-greedy is already the optimum of the slot's linear capacity
+      problem, and any band that reorders sites is reordering on noise. Verified on
+      42 fully covered weeks of 2024 (18,757 slots): zero reordered slots, 100%
+      common-multiplicative structure, relative-error spread 1.8e-15. Measured cost:
+      a pooled relative band changes exactly 0.0000% at every lambda; a per-region
+      absolute band reorders 4.6-10.0% of slots and is better in 0 of 42 weeks
+      (worse in 36-41, worst week +3.04%). Boundary, labelled Modelled: equal
+      per-region noise keeps widths proportional and the band inert; region-specific
+      noise at 4x a realistic profile buys 0.003% of tail carbon for 0.54% of mean,
+      about 170:1 against. Ships uncertainty.classify so the claim can be checked on
+      any regional dataset before a spatial-uncertainty result is trusted.
+
+  - id: exp027-regional-actuals-boundary
+    title: Does the band reorder on a grid whose regional actuals are measured, not scaled?
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp027-regional-actuals-boundary
+    description: >
+      Removes the objection that exp026's theorem is about our estimator rather
+      than about grids. EIA-930 publishes hourly generation by fuel per balancing
+      authority, so each region's realized intensity is computed from its own
+      measured mix. The reader gates on completeness (fuel breakdown must account
+      for net generation within 0.5% integer-rounding noise), which excludes PJM
+      and NYIS structurally and a -1.17M MW outlier by rule rather than by hand.
+      Five authorities span 24-949 gCO2/kWh. Result: structure is 100% regional
+      (4,339 hours), 25.03% of hours have a reordered realized ranking against 0%
+      on the UK series, and volatility differs 106x across regions. The band does
+      help for the first time in the project -- 4 and 5 of 18 weeks, best week
+      -0.41% -- but the mean effect is within 0.03% of zero at low risk aversion
+      and becomes a cost by lambda 2. The mechanism is spill order, not the
+      winner: the top pick never changes. A relative band actively misprices the
+      near-zero-intensity hydro region (worst week +41.6%). A better forecaster
+      removes most of the apparent benefit. Also fixes a real bug in exp026:
+      relative bands were added as constants instead of scaling the forecast.
+
+  - id: exp030-deferral-head-to-head
+    title: The head-to-head with the timing lever available to every controller equally
+    phase: "2-simulator"
+    status: merged
+    rollback_tag: exp/exp030-deferral-head-to-head
+    description: >
+      exp022 could compare placement only: upstream's controller interface discards
+      a task when a strategy returns no site. A tested runtime wrapper (sim/deferral.py)
+      gives every controller the same deferral lever without touching upstream source;
+      no task is lost or duplicated and deferral never pushes past the last legal start.
+      The declared SLA is widened identically for all arms because upstream's 1.5x
+      leaves only ~38 minutes of slack on a median task. Result: with the shared lever
+      our forecast-only planner edges the realized-reading lowest_carbon by 37.9 kg
+      (-0.036%) at the published deadline, at identical 0.27% SLA and 21,886 tasks.
+      At 4x and 8x slack the two converge exactly (placement is saturated). The real
+      differentiator is service: the myopic leisure rule violates 1.44% of SLAs at 8x
+      (29x the placement baseline) while our calibrated reserve holds it to 0.13%,
+      an 11x reduction, finishing 847 more tasks for +0.55% carbon. The lever is worth
+      0.03%, 1.07% and 2.02% of total carbon at 1.5x/4x/8x; normalising by the measured
+      11.28% contestable range reconciles this with our environment's 6-12%.
+
+  - id: exp031-demand-robustness
+    title: Does the carbon saving survive a different workload?
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp031-demand-robustness
+    description: >
+      The one real Azure week has been reused in every dispatch experiment. This
+      re-runs exp021's arms on transformations of that real trace -- volume 0.5x and
+      2x, a 12-hour phase rotation, day permutation, and 4-hour block bootstrap --
+      with the arrival reserve re-calibrated on each variant's own arrivals. The matched-
+      service saving is positive in 12 of 12 variant x fleet cells (2.69-18.69%
+      capacity-bound, 3.73-18.24% slack), and the `real` row reproduces exp021 exactly.
+      Magnitude is demand-dependent: it shrinks at 2x volume on the capacity-bound
+      fleet (saturated estate) and grows at 0.5x. Limitation stays explicit: these are
+      transformations of one real trace, not a second workload.
+
+  - id: exp028-idle-floor-curve
+    title: The idle-floor share as a curve over utilisation, not a point at 88.7%
+    phase: "2-simulator"
+    status: merged
+    rollback_tag: exp/exp028-idle-floor-curve
+    description: >
+      exp023's 88.7% idle share was measured at one operating point. The floor is
+      set by the estate, so its share falls as real work is added. The real Alibaba
+      task stream is resampled per 15-minute slot to five arrival rates (0.25x to
+      4x) by a tested transformation that invents no job shape; each scaled pickle
+      is SHA-256 hashed into the metrics. Same sites, week and controllers at every
+      point, with the idle floor measured once by switching arrivals off. Every
+      saving is reported against total and against contestable carbon (total minus
+      floor), so a published-style percentage is always shown next to the fraction
+      of its denominator that was ever a decision.
+
+  - id: exp029-rolling-origin
+    title: Full-year rolling-origin evaluation of the shipped scheduler
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp029-rolling-origin
+    description: >
+      exp020 selected one arm on Jan-Sep and reported it on 12 weeks. This rebuilds
+      the choice every week from prior weeks only, over all 44 fully covered 2024
+      weeks (36 rolling evaluations after an eight-week warm-up), for both fleets
+      and three price weights. The selected arms are stable in almost every cell
+      (36/36 picks), and the oracle-per-week reference prices causal selection at
+      at most ~1.3% of objective. A one-sided split-conformal lower bound on next
+      week's paired saving is reported beside the mean, with the exchangeability
+      caveat stated: carbon seasonality makes the guarantee approximate.

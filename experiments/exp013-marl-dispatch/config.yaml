@@ -1,0 +1,105 @@
+id: exp013-marl-dispatch
+title: Decentralized dispatch -- IPPO/MAPPO with limited communication and CVaR on deadlines
+phase: "3-agents"
+seed: 42
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+# exp007's disclosed site spec, at two fleet sizes. `capacity_bound` is
+# exp007's 25 GPUs per site, where the real trace saturates the fleet (so any
+# carbon saving that comes from serving less is not a scheduling claim);
+# `slack` has enough capacity to serve all demand, so carbon differences there
+# are placement/timing differences and nothing else.
+fleets:
+  - name: capacity_bound
+    n_gpus: 25
+  - name: slack
+    n_gpus: 40
+
+sites:
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+n_slots: 336
+deadline_slots: 8          # 4 hours
+calibration_days: 28       # band from the 28 days before each episode's week
+# Carbon and service are two objectives, so the deadline weight is swept rather
+# than fixed: a single weight would let the comparison "win" by serving less
+# work, because unserved work emits nothing. Each weight gives one point on the
+# carbon-vs-SLA frontier.
+#
+# The weights are prices, and they are scaled against the thing they trade off:
+# serving one GPU-hour emits ~0.093 kg CO2 *on average* here, so 1.0 kg per
+# missed GPU-hour prices a missed hour at eleven served hours. 0.02 sits below
+# that average (carbon dominates), 0.1 at it, 1.0 above it. The average is not
+# the marginal price, though: a policy sheds the *dirtiest* work first, and at
+# the South Wales end a GPU-hour can cost 0.26 kg, so the regime change from
+# "shed" to "serve" lies between 0.1 and 1.0, not at 0.093.
+sla_penalties: [0.02, 0.1, 1.0]
+# No extra charge for work that is merely waiting. The power model already
+# bills every site's idle floor in every slot (cluster.site_energy_kwh), so a
+# deferred GPU-hour costs nothing extra and can even waste less idle power --
+# an explicit holding price would charge the same delay twice, in a unit nobody
+# measured. The deadline is what bounds deferral: work that expires is priced.
+hold_penalty_kg_per_kwh: 0.0
+
+train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+eval_months: [10, 11, 12]
+
+# CVaR over each agent's own per-slot violation series. With weight = the SLA
+# penalty the agent pays the worst 10% of its own violation tail instead of the
+# mean; weight 0 is the risk-neutral reward exp012 used.
+cvar_alpha: 0.9
+
+hidden: 32
+episodes: 200
+lr: 0.0003
+epochs: 3
+
+# One row per learned variant. `algorithm` chooses IPPO (independent actors) or
+# MAPPO (per-agent actors + a centralised critic at training time only).
+variants:
+  - name: ippo_full
+    algorithm: ippo
+    communicate: true
+    band: true
+    cvar: false
+  - name: ippo_no_comm
+    algorithm: ippo
+    communicate: false
+    band: true
+    cvar: false
+  - name: ippo_cvar
+    algorithm: ippo
+    communicate: true
+    band: true
+    cvar: true
+  - name: mappo_full
+    algorithm: mappo
+    communicate: true
+    band: true
+    cvar: false
+  - name: mappo_cvar
+    algorithm: mappo
+    communicate: true
+    band: true
+    cvar: true
+  # The market variant: an agent may also volunteer only part of its capacity.
+  # Included to measure what the offer choice is worth, and to show the
+  # service loss it invites -- not as a headline number.
+  - name: ippo_market
+    algorithm: ippo
+    communicate: true
+    band: true
+    cvar: false
+    decline: true

@@ -1,0 +1,73 @@
+id: exp026-uncertainty-cannot-reorder
+title: Can calibrated uncertainty change a carbon decision? A theorem, its cost, and its boundary
+phase: "3-agents"
+seed: 42
+data:
+  # Forecast and (national-scaling estimated) realized intensity for the four
+  # sites' NESO DNO regions, plus the demand week. All hashed into the record.
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+# Every fully covered week of 2024, each calibrated on the 28 days before it.
+# This is exp011's single week repeated as a rolling-origin evaluation over the
+# whole year, so the theorem is tested on 44 weeks instead of one.
+weeks:
+  year: 2024
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+calibration_days: 28
+alpha: 0.1
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+# Two fleets from exp021/exp023, so the numbers sit beside the frontier and the
+# idle-floor results rather than in their own units.
+fleets:
+  - label: capacity_bound
+    n_gpus: 25
+    gpu_idle_w: 72.0
+    gpu_peak_w: 713.0
+    pue: 1.1
+    tokens_per_gpu_second: 1000.0
+  - label: slack
+    n_gpus: 40
+    gpu_idle_w: 72.0
+    gpu_peak_w: 713.0
+    pue: 1.1
+    tokens_per_gpu_second: 1000.0
+
+lam_grid: [0.5, 1.0, 2.0, 4.0]
+
+# The boundary. The real series has one shared error factor per slot, so the
+# band has nothing to act on. Two counterfactuals separate *uncertainty* from
+# *uncertainty that differs across regions*:
+#
+#   homoskedastic -- every region gets the same relative noise. Band widths
+#     stay proportional to the level, so the ranking barely moves: the control.
+#   heteroskedastic -- regions get different noise, which is what a wind-heavy
+#     region next to a thermal one actually looks like. Now widths differ in
+#     proportion, the ranking can move, and the question becomes whether the
+#     band buys tail carbon at the cost of mean carbon.
+#
+# Both are Modelled, not measured: labelled as such in the output.
+counterfactual:
+  fleet: slack
+  tail_quantile: 0.95
+  homoskedastic:
+    sigma_grid: [0.0, 0.05, 0.1, 0.2, 0.4]
+  heteroskedastic:
+    # Relative volatility per region, scaled by each factor below. Ordering
+    # follows the regions' generation mix: wind-dominated South Scotland is
+    # the steadiest, gas-heavy South Wales the least.
+    base:
+      GB-SouthScotland: 0.05
+      GB-NorthWestEngland: 0.10
+      GB-London: 0.15
+      GB-SouthWales: 0.25
+    scale_grid: [0.0, 1.0, 2.0, 4.0]
+

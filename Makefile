@@ -14,12 +14,12 @@ setup: ## Create .venv and install pinned dependencies
 	bash scripts/setup.sh
 
 lint: ## Static checks (ruff check + format check)
-	$(PYTHON) -m ruff check src tests scripts services
-	$(PYTHON) -m ruff format --check src tests services
+	$(PYTHON) -m ruff check src tests scripts viz/backend
+	$(PYTHON) -m ruff format --check src tests viz/backend
 
 format: ## Auto-format and auto-fix
-	$(PYTHON) -m ruff format src tests services
-	$(PYTHON) -m ruff check --fix src tests scripts
+	$(PYTHON) -m ruff format src tests viz/backend
+	$(PYTHON) -m ruff check --fix src tests scripts viz/backend
 
 test: ## Run the unit-test suite
 	$(PYTHON) -m pytest -q

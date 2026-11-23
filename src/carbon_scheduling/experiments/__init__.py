@@ -21,6 +21,23 @@ from carbon_scheduling.experiments.exp009_uk_sites import run as exp009
 from carbon_scheduling.experiments.exp010_rolling_bands import run as exp010
 from carbon_scheduling.experiments.exp011_band_dispatch import run as exp011
 from carbon_scheduling.experiments.exp012_rl_dispatch import run as exp012
+from carbon_scheduling.experiments.exp013_marl_dispatch import run as exp013
+from carbon_scheduling.experiments.exp014_marl_seeds import run as exp014
+from carbon_scheduling.experiments.exp015_timing_headroom import run as exp015
+from carbon_scheduling.experiments.exp016_queue_ownership import run as exp016
+from carbon_scheduling.experiments.exp017_hybrid_scheduler import run as exp017
+from carbon_scheduling.experiments.exp018_arrival_reserve import run as exp018
+from carbon_scheduling.experiments.exp019_arrival_shape import run as exp019
+from carbon_scheduling.experiments.exp020_selected_scheduler import run as exp020
+from carbon_scheduling.experiments.exp021_service_frontier import run as exp021
+from carbon_scheduling.experiments.exp022_head_to_head import run as exp022
+from carbon_scheduling.experiments.exp023_controllable_share import run as exp023
+from carbon_scheduling.experiments.exp026_uncertainty_cannot_reorder import run as exp026
+from carbon_scheduling.experiments.exp027_regional_actuals_boundary import run as exp027
+from carbon_scheduling.experiments.exp028_idle_floor_curve import run as exp028
+from carbon_scheduling.experiments.exp029_rolling_origin import run as exp029
+from carbon_scheduling.experiments.exp030_deferral_head_to_head import run as exp030
+from carbon_scheduling.experiments.exp031_demand_robustness import run as exp031
 
 REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp001-uk-carbon-baseline": exp001,
@@ -35,4 +52,21 @@ REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp010-rolling-bands": exp010,
     "exp011-band-dispatch": exp011,
     "exp012-rl-dispatch": exp012,
+    "exp013-marl-dispatch": exp013,
+    "exp014-marl-seeds": exp014,
+    "exp015-timing-headroom": exp015,
+    "exp016-queue-ownership": exp016,
+    "exp017-hybrid-scheduler": exp017,
+    "exp018-arrival-reserve": exp018,
+    "exp019-arrival-shape": exp019,
+    "exp020-selected-scheduler": exp020,
+    "exp021-service-frontier": exp021,
+    "exp022-head-to-head": exp022,
+    "exp023-controllable-share": exp023,
+    "exp026-uncertainty-cannot-reorder": exp026,
+    "exp027-regional-actuals-boundary": exp027,
+    "exp028-idle-floor-curve": exp028,
+    "exp029-rolling-origin": exp029,
+    "exp030-deferral-head-to-head": exp030,
+    "exp031-demand-robustness": exp031,
 }

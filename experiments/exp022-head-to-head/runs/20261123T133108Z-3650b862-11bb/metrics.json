@@ -1,0 +1,315 @@
+{
+  "sustaincluster_commit": "3f6ea95cb835b89ba50b0ef76d66d14b8037643e",
+  "carbon_window_start_utc": "2024-01-09T18:00Z",
+  "carbon_window_hours": 168,
+  "clock_aligned_with_carbon": true,
+  "days": 7.0,
+  "seed": 42,
+  "n_sites": 4,
+  "n_tasks_finished_all_arms": [
+    21943
+  ],
+  "controllers": {
+    "round_robin": {
+      "carbon_kg": 114306.2308,
+      "energy_kwh": 588234.3458,
+      "energy_cost_usd": 64371.8351,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 34815.59,
+          "energy_cost_usd": 16018.41,
+          "energy_kwh": 146405.3
+        },
+        "DC2": {
+          "carbon_kg": 49908.08,
+          "energy_cost_usd": 16128.39,
+          "energy_kwh": 147417.08
+        },
+        "DC3": {
+          "carbon_kg": 18644.07,
+          "energy_cost_usd": 16079.95,
+          "energy_kwh": 146969.73
+        },
+        "DC4": {
+          "carbon_kg": 10938.49,
+          "energy_cost_usd": 16145.08,
+          "energy_kwh": 147442.24
+        }
+      },
+      "carbon_vs_round_robin_pct": 0.0,
+      "carbon_vs_lowest_carbon_pct": 7.38,
+      "sla_vs_lowest_carbon_pp": -0.05,
+      "is_planner": false
+    },
+    "lowest_carbon": {
+      "carbon_kg": 106449.1617,
+      "energy_kwh": 591223.785,
+      "energy_cost_usd": 64696.1826,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0005,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 31052.51,
+          "energy_cost_usd": 14286.51,
+          "energy_kwh": 130560.44
+        },
+        "DC2": {
+          "carbon_kg": 44102.96,
+          "energy_cost_usd": 14279.89,
+          "energy_kwh": 130478.29
+        },
+        "DC3": {
+          "carbon_kg": 16998.37,
+          "energy_cost_usd": 14500.47,
+          "energy_kwh": 132827.88
+        },
+        "DC4": {
+          "carbon_kg": 14295.33,
+          "energy_cost_usd": 21629.31,
+          "energy_kwh": 197357.17
+        }
+      },
+      "carbon_vs_round_robin_pct": -6.87,
+      "carbon_vs_lowest_carbon_pct": 0.0,
+      "sla_vs_lowest_carbon_pp": 0.0,
+      "is_planner": false
+    },
+    "lowest_price": {
+      "carbon_kg": 117863.6672,
+      "energy_kwh": 591276.4377,
+      "energy_cost_usd": 64701.4088,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0005,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 47379.51,
+          "energy_cost_usd": 21830.13,
+          "energy_kwh": 199551.21
+        },
+        "DC2": {
+          "carbon_kg": 44211.48,
+          "energy_cost_usd": 14311.51,
+          "energy_kwh": 130768.64
+        },
+        "DC3": {
+          "carbon_kg": 16605.55,
+          "energy_cost_usd": 14279.89,
+          "energy_kwh": 130478.29
+        },
+        "DC4": {
+          "carbon_kg": 9667.12,
+          "energy_cost_usd": 14279.89,
+          "energy_kwh": 130478.29
+        }
+      },
+      "carbon_vs_round_robin_pct": 3.11,
+      "carbon_vs_lowest_carbon_pct": 10.72,
+      "sla_vs_lowest_carbon_pp": 0.0,
+      "is_planner": false
+    },
+    "most_available": {
+      "carbon_kg": 114579.5188,
+      "energy_kwh": 588331.9043,
+      "energy_cost_usd": 64377.5567,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 35039.03,
+          "energy_cost_usd": 16108.33,
+          "energy_kwh": 147239.15
+        },
+        "DC2": {
+          "carbon_kg": 50018.01,
+          "energy_cost_usd": 16189.81,
+          "energy_kwh": 147750.9
+        },
+        "DC3": {
+          "carbon_kg": 18536.71,
+          "energy_cost_usd": 15989.68,
+          "energy_kwh": 146162.19
+        },
+        "DC4": {
+          "carbon_kg": 10985.77,
+          "energy_cost_usd": 16089.73,
+          "energy_kwh": 147179.67
+        }
+      },
+      "carbon_vs_round_robin_pct": 0.24,
+      "carbon_vs_lowest_carbon_pct": 7.64,
+      "sla_vs_lowest_carbon_pp": -0.05,
+      "is_planner": false
+    },
+    "least_pending": {
+      "carbon_kg": 114240.8592,
+      "energy_kwh": 588228.6162,
+      "energy_cost_usd": 64371.2337,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 35092.76,
+          "energy_cost_usd": 16155.86,
+          "energy_kwh": 147584.78
+        },
+        "DC2": {
+          "carbon_kg": 49683.85,
+          "energy_cost_usd": 16050.79,
+          "energy_kwh": 146760.6
+        },
+        "DC3": {
+          "carbon_kg": 18608.91,
+          "energy_cost_usd": 16042.82,
+          "energy_kwh": 146644.07
+        },
+        "DC4": {
+          "carbon_kg": 10855.35,
+          "energy_cost_usd": 16121.76,
+          "energy_kwh": 147239.17
+        }
+      },
+      "carbon_vs_round_robin_pct": -0.06,
+      "carbon_vs_lowest_carbon_pct": 7.32,
+      "sla_vs_lowest_carbon_pp": -0.05,
+      "is_planner": false
+    },
+    "planner_instant": {
+      "carbon_kg": 106477.9372,
+      "energy_kwh": 591202.3524,
+      "energy_cost_usd": 64693.8249,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0005,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 31080.84,
+          "energy_cost_usd": 14299.57,
+          "energy_kwh": 130727.8
+        },
+        "DC2": {
+          "carbon_kg": 44102.96,
+          "energy_cost_usd": 14279.89,
+          "energy_kwh": 130478.29
+        },
+        "DC3": {
+          "carbon_kg": 16904.44,
+          "energy_cost_usd": 14457.71,
+          "energy_kwh": 132279.58
+        },
+        "DC4": {
+          "carbon_kg": 14389.71,
+          "energy_cost_usd": 21656.66,
+          "energy_kwh": 197716.67
+        }
+      },
+      "carbon_vs_round_robin_pct": -6.85,
+      "carbon_vs_lowest_carbon_pct": 0.03,
+      "sla_vs_lowest_carbon_pp": 0.0,
+      "is_planner": true
+    },
+    "planner_window_lam0": {
+      "carbon_kg": 106457.437,
+      "energy_kwh": 591219.0518,
+      "energy_cost_usd": 64695.9345,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0005,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 31049.32,
+          "energy_cost_usd": 14284.88,
+          "energy_kwh": 130542.75
+        },
+        "DC2": {
+          "carbon_kg": 44102.96,
+          "energy_cost_usd": 14279.89,
+          "energy_kwh": 130478.29
+        },
+        "DC3": {
+          "carbon_kg": 16949.66,
+          "energy_cost_usd": 14477.5,
+          "energy_kwh": 132567.06
+        },
+        "DC4": {
+          "carbon_kg": 14355.5,
+          "energy_cost_usd": 21653.66,
+          "energy_kwh": 197630.95
+        }
+      },
+      "carbon_vs_round_robin_pct": -6.87,
+      "carbon_vs_lowest_carbon_pct": 0.01,
+      "sla_vs_lowest_carbon_pp": 0.0,
+      "is_planner": true
+    },
+    "planner_window_lam1": {
+      "carbon_kg": 106457.437,
+      "energy_kwh": 591219.0518,
+      "energy_cost_usd": 64695.9345,
+      "transmission_cost_usd": 0.0,
+      "sla_violation_rate": 0.0005,
+      "tasks_finished": 21943,
+      "mean_gpu_util_percent": 7.4162,
+      "per_dc": {
+        "DC1": {
+          "carbon_kg": 31049.32,
+          "energy_cost_usd": 14284.88,
+          "energy_kwh": 130542.75
+        },
+        "DC2": {
+          "carbon_kg": 44102.96,
+          "energy_cost_usd": 14279.89,
+          "energy_kwh": 130478.29
+        },
+        "DC3": {
+          "carbon_kg": 16949.66,
+          "energy_cost_usd": 14477.5,
+          "energy_kwh": 132567.06
+        },
+        "DC4": {
+          "carbon_kg": 14355.5,
+          "energy_cost_usd": 21653.66,
+          "energy_kwh": 197630.95
+        }
+      },
+      "carbon_vs_round_robin_pct": -6.87,
+      "carbon_vs_lowest_carbon_pct": 0.01,
+      "sla_vs_lowest_carbon_pp": 0.0,
+      "is_planner": true
+    }
+  },
+  "planner_arms": [
+    "planner_instant",
+    "planner_window",
+    "planner_window_band"
+  ],
+  "planner_forecast_fallbacks": {
+    "planner_instant": 0,
+    "planner_window_lam0": 0,
+    "planner_window_lam1": 0
+  },
+  "published_baselines": [
+    "round_robin",
+    "lowest_carbon",
+    "lowest_price",
+    "most_available",
+    "least_pending"
+  ],
+  "best_published_controller": "lowest_carbon",
+  "best_planner": "planner_window_lam0",
+  "planner_beats_best_published_at_no_worse_sla": false,
+  "note": "Planner decisions use the NESO forecast plus a conformal band calibrated strictly before the window; accounting uses the simulator's realized series. Carbon is the derived regional estimate (NESO ships no regional actuals), price is national (lowest_price is degenerate, not a finding), and GB has one AWS region so transmission cost is 0 by construction."
+}

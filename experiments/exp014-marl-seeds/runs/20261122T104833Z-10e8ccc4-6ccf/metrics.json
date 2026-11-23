@@ -1,0 +1,812 @@
+{
+  "window": {
+    "n_slots": 336,
+    "calibration_days": 28,
+    "deadline_slots": 8,
+    "sla_penalty_kg_per_kwh": 1.0,
+    "fleets": {
+      "capacity_bound": 25,
+      "slack": 40
+    },
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "episodes": {
+    "n_train": 32,
+    "n_eval": 12,
+    "eval_weeks": [
+      "2024-10-07",
+      "2024-10-14",
+      "2024-10-21",
+      "2024-10-28",
+      "2024-11-04",
+      "2024-11-11",
+      "2024-11-18",
+      "2024-11-25",
+      "2024-12-02",
+      "2024-12-09",
+      "2024-12-16",
+      "2024-12-23"
+    ]
+  },
+  "rules": {
+    "capacity_bound": {
+      "run_now": {
+        "carbon_kg": 958.84,
+        "sla_violation_fraction": 0.1282
+      },
+      "defer": {
+        "carbon_kg": 929.932,
+        "sla_violation_fraction": 0.2311,
+        "paired_vs_run_now": {
+          "mean_diff": -28.9085,
+          "stderr": 13.5251,
+          "relative_pct": -3.015,
+          "weeks_better": 6,
+          "weeks_worse": 6,
+          "n_weeks": 12
+        }
+      }
+    },
+    "slack": {
+      "run_now": {
+        "carbon_kg": 1109.038,
+        "sla_violation_fraction": 0.0
+      },
+      "defer": {
+        "carbon_kg": 1151.628,
+        "sla_violation_fraction": 0.0658,
+        "paired_vs_run_now": {
+          "mean_diff": 42.5904,
+          "stderr": 16.6972,
+          "relative_pct": 3.84,
+          "weeks_better": 2,
+          "weeks_worse": 10,
+          "n_weeks": 12
+        }
+      }
+    }
+  },
+  "summary": {
+    "capacity_bound": {
+      "cvar80": {
+        "cvar_alpha": 0.8,
+        "carbon_kg": {
+          "mean": 975.767,
+          "sd": 42.283,
+          "min": 946.005,
+          "max": 1050.445
+        },
+        "sla_violation_fraction": {
+          "mean": 0.14,
+          "sd": 0.018,
+          "min": 0.128,
+          "max": 0.169
+        },
+        "paired_relative_pct": {
+          "mean": 1.765,
+          "sd": 4.41,
+          "min": -1.339,
+          "max": 9.554
+        },
+        "seeds_better_in_every_week": 0,
+        "n_seeds": 5
+      },
+      "cvar90": {
+        "cvar_alpha": 0.9,
+        "carbon_kg": {
+          "mean": 965.698,
+          "sd": 74.505,
+          "min": 870.813,
+          "max": 1080.028
+        },
+        "sla_violation_fraction": {
+          "mean": 0.141,
+          "sd": 0.019,
+          "min": 0.128,
+          "max": 0.171
+        },
+        "paired_relative_pct": {
+          "mean": 0.715,
+          "sd": 7.77,
+          "min": -9.181,
+          "max": 12.639
+        },
+        "seeds_better_in_every_week": 1,
+        "n_seeds": 5
+      },
+      "cvar95": {
+        "cvar_alpha": 0.95,
+        "carbon_kg": {
+          "mean": 944.604,
+          "sd": 65.13,
+          "min": 836.405,
+          "max": 1013.421
+        },
+        "sla_violation_fraction": {
+          "mean": 0.138,
+          "sd": 0.013,
+          "min": 0.128,
+          "max": 0.159
+        },
+        "paired_relative_pct": {
+          "mean": -1.485,
+          "sd": 6.792,
+          "min": -12.769,
+          "max": 5.692
+        },
+        "seeds_better_in_every_week": 1,
+        "n_seeds": 5
+      },
+      "risk_neutral": {
+        "cvar_alpha": null,
+        "carbon_kg": {
+          "mean": 901.612,
+          "sd": 75.59,
+          "min": 813.385,
+          "max": 985.292
+        },
+        "sla_violation_fraction": {
+          "mean": 0.147,
+          "sd": 0.018,
+          "min": 0.128,
+          "max": 0.171
+        },
+        "paired_relative_pct": {
+          "mean": -5.968,
+          "sd": 7.884,
+          "min": -15.17,
+          "max": 2.759
+        },
+        "seeds_better_in_every_week": 3,
+        "n_seeds": 5
+      }
+    },
+    "slack": {
+      "cvar80": {
+        "cvar_alpha": 0.8,
+        "carbon_kg": {
+          "mean": 1115.354,
+          "sd": 13.181,
+          "min": 1109.291,
+          "max": 1138.931
+        },
+        "sla_violation_fraction": {
+          "mean": 0.001,
+          "sd": 0.003,
+          "min": 0.0,
+          "max": 0.007
+        },
+        "paired_relative_pct": {
+          "mean": 0.569,
+          "sd": 1.188,
+          "min": 0.023,
+          "max": 2.695
+        },
+        "seeds_better_in_every_week": 0,
+        "n_seeds": 5
+      },
+      "cvar90": {
+        "cvar_alpha": 0.9,
+        "carbon_kg": {
+          "mean": 1146.285,
+          "sd": 43.812,
+          "min": 1109.185,
+          "max": 1204.621
+        },
+        "sla_violation_fraction": {
+          "mean": 0.001,
+          "sd": 0.002,
+          "min": 0.0,
+          "max": 0.004
+        },
+        "paired_relative_pct": {
+          "mean": 3.358,
+          "sd": 3.951,
+          "min": 0.013,
+          "max": 8.619
+        },
+        "seeds_better_in_every_week": 0,
+        "n_seeds": 5
+      },
+      "cvar95": {
+        "cvar_alpha": 0.95,
+        "carbon_kg": {
+          "mean": 1132.566,
+          "sd": 41.93,
+          "min": 1109.096,
+          "max": 1206.057
+        },
+        "sla_violation_fraction": {
+          "mean": 0.001,
+          "sd": 0.001,
+          "min": 0.0,
+          "max": 0.003
+        },
+        "paired_relative_pct": {
+          "mean": 2.122,
+          "sd": 3.781,
+          "min": 0.005,
+          "max": 8.748
+        },
+        "seeds_better_in_every_week": 0,
+        "n_seeds": 5
+      },
+      "risk_neutral": {
+        "cvar_alpha": null,
+        "carbon_kg": {
+          "mean": 1147.672,
+          "sd": 41.773,
+          "min": 1109.58,
+          "max": 1194.191
+        },
+        "sla_violation_fraction": {
+          "mean": 0.002,
+          "sd": 0.002,
+          "min": 0.0,
+          "max": 0.005
+        },
+        "paired_relative_pct": {
+          "mean": 3.484,
+          "sd": 3.766,
+          "min": 0.049,
+          "max": 7.678
+        },
+        "seeds_better_in_every_week": 0,
+        "n_seeds": 5
+      }
+    }
+  },
+  "per_seed": {
+    "capacity_bound": {
+      "cvar80": [
+        {
+          "seed": 0,
+          "carbon_kg": 964.091,
+          "sla_violation_fraction": 0.1282,
+          "paired_vs_run_now": {
+            "mean_diff": 5.2514,
+            "stderr": 0.6706,
+            "relative_pct": 0.548,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 1,
+          "carbon_kg": 959.16,
+          "sla_violation_fraction": 0.1282,
+          "paired_vs_run_now": {
+            "mean_diff": 0.3203,
+            "stderr": 0.0913,
+            "relative_pct": 0.033,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 2,
+          "carbon_kg": 1050.445,
+          "sla_violation_fraction": 0.1443,
+          "paired_vs_run_now": {
+            "mean_diff": 91.605,
+            "stderr": 6.4438,
+            "relative_pct": 9.554,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 3,
+          "carbon_kg": 959.133,
+          "sla_violation_fraction": 0.1282,
+          "paired_vs_run_now": {
+            "mean_diff": 0.2928,
+            "stderr": 0.0829,
+            "relative_pct": 0.031,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 4,
+          "carbon_kg": 946.005,
+          "sla_violation_fraction": 0.169,
+          "paired_vs_run_now": {
+            "mean_diff": -12.8348,
+            "stderr": 2.7902,
+            "relative_pct": -1.339,
+            "weeks_better": 11,
+            "weeks_worse": 1,
+            "n_weeks": 12
+          }
+        }
+      ],
+      "cvar90": [
+        {
+          "seed": 0,
+          "carbon_kg": 960.655,
+          "sla_violation_fraction": 0.1282,
+          "paired_vs_run_now": {
+            "mean_diff": 1.8151,
+            "stderr": 0.276,
+            "relative_pct": 0.189,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 1,
+          "carbon_kg": 958.901,
+          "sla_violation_fraction": 0.1282,
+          "paired_vs_run_now": {
+            "mean_diff": 0.0611,
+            "stderr": 0.0186,
+            "relative_pct": 0.006,
+            "weeks_better": 0,
+            "weeks_worse": 10,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 2,
+          "carbon_kg": 1080.028,
+          "sla_violation_fraction": 0.1705,
+          "paired_vs_run_now": {
+            "mean_diff": 121.1875,
+            "stderr": 7.3029,
+            "relative_pct": 12.639,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 3,
+          "carbon_kg": 958.093,
+          "sla_violation_fraction": 0.1292,
+          "paired_vs_run_now": {
+            "mean_diff": -0.7468,
+            "stderr": 0.2895,
+            "relative_pct": -0.078,
+            "weeks_better": 6,
+            "weeks_worse": 5,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 4,
+          "carbon_kg": 870.813,
+          "sla_violation_fraction": 0.1499,
+          "paired_vs_run_now": {
+            "mean_diff": -88.0267,
+            "stderr": 6.4238,
+            "relative_pct": -9.181,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          }
+        }
+      ],
+      "cvar95": [
+        {
+          "seed": 0,
+          "carbon_kg": 958.893,
+          "sla_violation_fraction": 0.1282,
+          "paired_vs_run_now": {
+            "mean_diff": 0.0533,
+            "stderr": 0.0291,
+            "relative_pct": 0.006,
+            "weeks_better": 0,
+            "weeks_worse": 10,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 1,
+          "carbon_kg": 958.857,
+          "sla_violation_fraction": 0.1282,
+          "paired_vs_run_now": {
+            "mean_diff": 0.0165,
+            "stderr": 0.0078,
+            "relative_pct": 0.002,
+            "weeks_better": 0,
+            "weeks_worse": 7,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 2,
+          "carbon_kg": 1013.421,
+          "sla_violation_fraction": 0.1411,
+          "paired_vs_run_now": {
+            "mean_diff": 54.5813,
+            "stderr": 3.7477,
+            "relative_pct": 5.692,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 3,
+          "carbon_kg": 955.443,
+          "sla_violation_fraction": 0.1315,
+          "paired_vs_run_now": {
+            "mean_diff": -3.3967,
+            "stderr": 0.6029,
+            "relative_pct": -0.354,
+            "weeks_better": 11,
+            "weeks_worse": 1,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 4,
+          "carbon_kg": 836.405,
+          "sla_violation_fraction": 0.1594,
+          "paired_vs_run_now": {
+            "mean_diff": -122.4352,
+            "stderr": 8.1079,
+            "relative_pct": -12.769,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          }
+        }
+      ],
+      "risk_neutral": [
+        {
+          "seed": 0,
+          "carbon_kg": 915.828,
+          "sla_violation_fraction": 0.1388,
+          "paired_vs_run_now": {
+            "mean_diff": -43.0122,
+            "stderr": 4.9699,
+            "relative_pct": -4.486,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 1,
+          "carbon_kg": 813.385,
+          "sla_violation_fraction": 0.1707,
+          "paired_vs_run_now": {
+            "mean_diff": -145.4547,
+            "stderr": 8.6131,
+            "relative_pct": -15.17,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 2,
+          "carbon_kg": 985.292,
+          "sla_violation_fraction": 0.1358,
+          "paired_vs_run_now": {
+            "mean_diff": 26.452,
+            "stderr": 2.4498,
+            "relative_pct": 2.759,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 3,
+          "carbon_kg": 959.31,
+          "sla_violation_fraction": 0.1282,
+          "paired_vs_run_now": {
+            "mean_diff": 0.4703,
+            "stderr": 0.1299,
+            "relative_pct": 0.049,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 4,
+          "carbon_kg": 834.247,
+          "sla_violation_fraction": 0.1599,
+          "paired_vs_run_now": {
+            "mean_diff": -124.5935,
+            "stderr": 8.4329,
+            "relative_pct": -12.994,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          }
+        }
+      ]
+    },
+    "slack": {
+      "cvar80": [
+        {
+          "seed": 0,
+          "carbon_kg": 1138.931,
+          "sla_violation_fraction": 0.0069,
+          "paired_vs_run_now": {
+            "mean_diff": 29.8933,
+            "stderr": 4.5648,
+            "relative_pct": 2.695,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 1,
+          "carbon_kg": 1109.426,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.3883,
+            "stderr": 0.0892,
+            "relative_pct": 0.035,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 2,
+          "carbon_kg": 1109.634,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.5965,
+            "stderr": 0.329,
+            "relative_pct": 0.054,
+            "weeks_better": 0,
+            "weeks_worse": 10,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 3,
+          "carbon_kg": 1109.486,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.4487,
+            "stderr": 0.1416,
+            "relative_pct": 0.04,
+            "weeks_better": 0,
+            "weeks_worse": 11,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 4,
+          "carbon_kg": 1109.291,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.2529,
+            "stderr": 0.1178,
+            "relative_pct": 0.023,
+            "weeks_better": 0,
+            "weeks_worse": 10,
+            "n_weeks": 12
+          }
+        }
+      ],
+      "cvar90": [
+        {
+          "seed": 0,
+          "carbon_kg": 1180.697,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 71.6595,
+            "stderr": 5.0415,
+            "relative_pct": 6.461,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 1,
+          "carbon_kg": 1127.568,
+          "sla_violation_fraction": 0.0041,
+          "paired_vs_run_now": {
+            "mean_diff": 18.5307,
+            "stderr": 2.2791,
+            "relative_pct": 1.671,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 2,
+          "carbon_kg": 1204.621,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 95.583,
+            "stderr": 6.9529,
+            "relative_pct": 8.619,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 3,
+          "carbon_kg": 1109.185,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.1468,
+            "stderr": 0.062,
+            "relative_pct": 0.013,
+            "weeks_better": 0,
+            "weeks_worse": 9,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 4,
+          "carbon_kg": 1109.353,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.3151,
+            "stderr": 0.1327,
+            "relative_pct": 0.028,
+            "weeks_better": 0,
+            "weeks_worse": 11,
+            "n_weeks": 12
+          }
+        }
+      ],
+      "cvar95": [
+        {
+          "seed": 0,
+          "carbon_kg": 1206.057,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 97.0196,
+            "stderr": 6.408,
+            "relative_pct": 8.748,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 1,
+          "carbon_kg": 1128.718,
+          "sla_violation_fraction": 0.0029,
+          "paired_vs_run_now": {
+            "mean_diff": 19.6808,
+            "stderr": 2.3357,
+            "relative_pct": 1.775,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 2,
+          "carbon_kg": 1109.096,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.0583,
+            "stderr": 0.0322,
+            "relative_pct": 0.005,
+            "weeks_better": 0,
+            "weeks_worse": 9,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 3,
+          "carbon_kg": 1109.39,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.3525,
+            "stderr": 0.1,
+            "relative_pct": 0.032,
+            "weeks_better": 0,
+            "weeks_worse": 11,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 4,
+          "carbon_kg": 1109.571,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.5331,
+            "stderr": 0.1641,
+            "relative_pct": 0.048,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        }
+      ],
+      "risk_neutral": [
+        {
+          "seed": 0,
+          "carbon_kg": 1194.191,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 85.1537,
+            "stderr": 6.1593,
+            "relative_pct": 7.678,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 1,
+          "carbon_kg": 1128.038,
+          "sla_violation_fraction": 0.0045,
+          "paired_vs_run_now": {
+            "mean_diff": 19.0001,
+            "stderr": 2.7694,
+            "relative_pct": 1.713,
+            "weeks_better": 1,
+            "weeks_worse": 11,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 2,
+          "carbon_kg": 1109.58,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 0.5423,
+            "stderr": 0.1849,
+            "relative_pct": 0.049,
+            "weeks_better": 0,
+            "weeks_worse": 11,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 3,
+          "carbon_kg": 1115.088,
+          "sla_violation_fraction": 0.0,
+          "paired_vs_run_now": {
+            "mean_diff": 6.0503,
+            "stderr": 0.6496,
+            "relative_pct": 0.546,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        },
+        {
+          "seed": 4,
+          "carbon_kg": 1191.463,
+          "sla_violation_fraction": 0.0046,
+          "paired_vs_run_now": {
+            "mean_diff": 82.4257,
+            "stderr": 6.1444,
+            "relative_pct": 7.432,
+            "weeks_better": 0,
+            "weeks_worse": 12,
+            "n_weeks": 12
+          }
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "five seeds is enough to see whether an effect has the same sign every time, not to estimate its size precisely",
+    "the demand profile is one real Azure week reused, identical for every policy and seed, so it cannot favour one",
+    "closed-form reference is the carbon-greedy rule on the same weeks; the paired difference is what is reported"
+  ]
+}
