@@ -162,3 +162,73 @@ def test_ties_break_deterministically_by_site_id() -> None:
     national = {HOUR: {"forecast": 150.0}}
     dcs = {"DC1": FakeDC(1, "a"), "DC2": FakeDC(2, "b")}
     assert _strategy(forecast, national)(FakeTask(), dcs) == 1
+
+
+def test_hour_normalises_a_timezone_aware_stamp() -> None:
+    """The simulator hands us a tz-aware UTC timestamp; our series keys are naive.
+
+    Without normalisation every forecast lookup misses, the strategy falls back
+    to the simulator's own instantaneous carbon signal, and our planner silently
+    becomes ``lowest_carbon``. That is exactly what happened in the first exp022
+    run, and it made an artefact look like a finding.
+    """
+    from datetime import UTC
+
+    from carbon_scheduling.sim.uk_planner import _hour
+
+    aware = datetime(2024, 1, 9, 18, 37, tzinfo=UTC)
+    assert _hour(aware) == datetime(2024, 1, 9, 18, 0)
+    assert _hour(aware).tzinfo is None
+    assert _hour(datetime(2024, 1, 9, 18, 37)) == datetime(2024, 1, 9, 18, 0)
+
+
+def test_window_risk_resolves_with_a_timezone_aware_now() -> None:
+    from datetime import UTC
+
+    from carbon_scheduling.sim.uk_planner import _window_risk
+
+    hour = datetime(2024, 1, 9, 18, 0)
+    forecast = {hour: 120.0, hour + timedelta(hours=1): 90.0}
+    national = {
+        hour: {"forecast": 200.0, "actual": 210.0},
+        hour + timedelta(hours=1): {"forecast": 200.0, "actual": 210.0},
+    }
+    aware_now = datetime(2024, 1, 9, 18, 15, tzinfo=UTC)
+    value = _window_risk(forecast, national, aware_now, 120.0, 0.0, 0.0)
+    assert value is not None
+    assert value == pytest.approx((120.0 + 90.0) / 2)
+
+
+def test_strategy_counts_forecast_fallbacks_so_a_silent_one_cannot_hide() -> None:
+    """A fallback is legitimate for a missing hour, but it must be countable.
+
+    The experiment asserts zero fallbacks over a covered window, so a repeat of
+    the tz bug fails the run instead of quietly reproducing lowest_carbon.
+    """
+    from carbon_scheduling.sim.uk_planner import DurationAwareStrategy
+
+    strategy = DurationAwareStrategy(
+        forecast={"GB-London": {}},
+        national={},
+        q_national=0.0,
+        lam=0.0,
+        window_hours=None,
+    )
+
+    class DC:
+        dc_id = 1
+        location = "GB-London"
+        current_time_task = datetime(2024, 1, 9, 18, 0)
+        available_gpus = 8
+        available_cores = 64
+
+        def get_current_carbon_intensity(self) -> float:
+            return 175.0
+
+    class Task:
+        duration = 60.0
+        gpu_req = 1
+        cores_req = 4
+
+    assert strategy(Task(), {"a": DC()}) == 1
+    assert strategy.fallbacks == 1

@@ -148,6 +148,22 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         for result in results
     }
 
+    # Our planner must actually have used our forecast. A tz-aware simulator
+    # clock against naive series keys made every lookup miss in the first run of
+    # this experiment, so the strategy silently fell back to the simulator's own
+    # carbon signal -- i.e. it *was* lowest_carbon, and the exact tie was an
+    # artefact. The fallback count is now reported and asserted.
+    fallbacks = {
+        r["controller"]: r["forecast_fallbacks"]
+        for r in results
+        if r.get("forecast_fallbacks") is not None
+    }
+    if any(count != 0 for count in fallbacks.values()):
+        raise RuntimeError(
+            f"planner arms fell back to the simulator's own signal: {fallbacks}. "
+            "The forecast did not resolve; the comparison would be invalid."
+        )
+
     # Every controller must have run the same week; otherwise the comparison is
     # between different weather and different carbon.
     windows = {repr(sorted(r["window"].items())) for r in results if r.get("window")}
@@ -198,6 +214,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         "n_tasks_finished_all_arms": sorted({v["tasks_finished"] for v in arms.values()}),
         "controllers": arms,
         "planner_arms": [arm["label"] for arm in PLANNERS],
+        "planner_forecast_fallbacks": fallbacks,
         "published_baselines": list(sc_cfg["baselines"]),
         "best_published_controller": best_published,
         "best_planner": best_planner,

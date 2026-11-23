@@ -157,6 +157,17 @@ def risk(forecast_site: float, forecast_national: float, q_national: float, lam:
 
 
 def _hour(stamp: datetime) -> datetime:
+    """Floor to the hour in **naive UTC**, matching the series keys.
+
+    The simulator hands us a timezone-aware UTC timestamp while the loaded
+    series are keyed by naive datetimes. Without stripping the offset every
+    lookup misses and the strategy silently falls back to the simulator's own
+    carbon signal -- which is ``lowest_carbon``. That bug made the first exp022
+    run report an artefact as a finding, so it is pinned by a test.
+    """
+    offset = stamp.utcoffset() if hasattr(stamp, "utcoffset") else None
+    if offset is not None:
+        stamp = (stamp - offset).replace(tzinfo=None)
     return stamp.replace(minute=0, second=0, microsecond=0)
 
 
@@ -228,9 +239,13 @@ class DurationAwareStrategy:
         # ``None`` = integrate over the task's own duration; ``0`` = one slot
         # (the published controller's view), which is the sanity-check arm.
         self.window_hours = window_hours
+        # Counted, never silent: a fallback means our forecast did not resolve
+        # for that site/hour and the simulator's own signal was used instead.
+        # The head-to-head asserts this is zero over a covered window.
+        self.fallbacks = 0
 
     def reset(self) -> None:
-        return None
+        self.fallbacks = 0
 
     def _score(self, dc: Any, now: datetime, duration_minutes: float) -> float | None:
         slug = getattr(dc, "location", "")
@@ -257,7 +272,9 @@ class DurationAwareStrategy:
             score = self._score(dc, now, float(task.duration))
             if score is None:
                 # No forecast for this site/hour: fall back to the simulator's
-                # own instantaneous signal rather than dropping the task.
+                # own instantaneous signal rather than dropping the task. Counted
+                # so a systematic miss cannot masquerade as a result.
+                self.fallbacks += 1
                 score = float(dc.get_current_carbon_intensity())
             candidates.append((score, int(dc.dc_id)))
         if not candidates:

@@ -158,6 +158,15 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         **common,
     )
 
+    # Our planner must have used our forecast, not silently fallen back to the
+    # simulator's own (realized) carbon signal -- see exp022's correction.
+    if runs["planner"].get("forecast_fallbacks"):
+        raise RuntimeError(
+            f"planner fell back to the simulator's signal "
+            f"{runs['planner']['forecast_fallbacks']} times; the decomposition "
+            "would compare lowest_carbon with itself."
+        )
+
     # All arms must describe the same week, or the decomposition is across
     # different weather and means nothing.
     clocks = {r.get("clock_start_utc") for r in runs.values()}

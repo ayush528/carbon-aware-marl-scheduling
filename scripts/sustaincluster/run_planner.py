@@ -120,6 +120,9 @@ def main() -> int:
         "alpha": args.alpha,
         "calibration_end": args.calibration_end,
         "q_national_gco2_per_kwh": round(q_national, 4),
+        # Non-zero means our forecast did not resolve and the simulator's own
+        # signal was used -- i.e. the arm was not actually our planner.
+        "forecast_fallbacks": strategy.fallbacks,
         "seed": args.seed,
         "days": args.days,
         "init_day_of_year": args.init_day_of_year,
