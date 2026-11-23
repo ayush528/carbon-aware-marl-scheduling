@@ -24,8 +24,12 @@ carbon emissions without missing deadlines — built on real-world data only.
   2026 added strong centralised carbon+SLA solvers (arXiv 2607.22806, 2610.14571,
   2609.14775), so the gap is narrower than a 30-paper 2024–2025 survey implies.
   See `docs/research/2024-2026-carbon-scheduling-comparison.md`. The
-  uncertainty-specific contribution is a *measured negative result*: under the
-  national-scaling estimator the band cannot reorder sites. Every phase must
+  uncertainty-specific contribution is now a **theorem plus its boundary**
+  (exp026), not an observation: any regional series built by scaling a national
+  one has `realized - forecast = forecast x (one shared per-slot factor)`, so
+  realized and forecast induce the same ranking, forecast-greedy is already the
+  slot optimum, and a band can only misprice. Verified on 18,757 slots (0
+  reordered, 42 weeks, 0 weeks better). Every phase must
   produce evidence toward the narrowed claim; work that doesn't is scaffolding
   and is kept minimal.
 - **The problem:** public workload traces never name the grid region their
@@ -194,6 +198,7 @@ service the visualization consumes later.
 | UK input puller | `make sc-uk-data` (`scripts/sustaincluster/pull_uk_inputs.py`) | NESO regional carbon (national-scaling estimate, hourly) + Elexon GB prices (GBP→USD at the ECB 2024 mean) → `data/sustaincluster_uk/` + `provenance.json` |
 | UK input installer | `make sc-uk-install` (`scripts/sustaincluster/install_uk_inputs.py`) | writes those series into the simulator's hardcoded paths, forward-fills the 15 missing NESO hours, symlinks GB weather per site, emits an install manifest (rows/fills/sha256) |
 | Dispatch core | `src/carbon_scheduling/dispatch.py` | `risk_scores` (forecast + λ·band), `rank`, capacity-aware `allocate` with spill, `carbon_kg`, and both band builders (per-region absolute, pooled relative). Pure, stdlib-only, and unit-tested on the properties the claims rest on (a relative band cannot reorder sites; allocation is lossless) |
+| Uncertainty diagnostic | `src/carbon_scheduling/uncertainty.py` | `classify(realized, forecast)` → `common-multiplicative` \| `common-additive` \| `regional`, plus `reorders`. The structural claim in executable form: a regional series built by scaling a national one has one shared error factor per slot, so its ranking is the forecast's and no band can act on it. Only `regional` leaves a band something to decide. exp026 verifies it on 18,757 real slots; run it on any dataset before trusting a spatial-uncertainty result built on that dataset |
 | Scheduling env | `src/carbon_scheduling/rl/env.py` | weekly single-agent environment on our own data: an action is a risk level (fill every site by `forecast + λ·band`, with spill) or a wait; deadline violations, holding cost, idle draw, optional band in the observation; fully deterministic |
 | Agent | `src/carbon_scheduling/rl/numpy_net.py`, `rl/ppo.py` | small actor-critic with hand-written backprop (checked against finite differences) + Adam, and clipped-surrogate PPO with GAE. numpy only, so CI and the Docker image keep one dependency set |
 | Episode assembly | `src/carbon_scheduling/rl/data.py` | 2024 weeks → (forecast, realized, band, demand); the band is always calibrated on the 28 days *before* the episode's week; the single real Azure week is reused as a demand profile (disclosed) |
@@ -304,6 +309,7 @@ docs/
 | 2026-11-23 | exp021: **the frontier, and the correction to the headline.** The 27% carbon figure was not like-for-like: those arms miss 3–4% of arrivals where `run_now` misses none. `max_lookahead` caps how far ahead work may be placed (`0` = serve now, `None` = full horizon), tracing the trade instead of arguing about it. Capacity-bound fleet: a real Pareto region — `look8_ghost` cuts **11.8% carbon and 2.34 pp of misses at once**, and 8.7% at literally matched served volume, so served-work intensity genuinely falls (76.3 → 68.2 g/GPU-h) rather than work disappearing. Slack fleet: no Pareto point (nothing was missing), so inside a 0.5 pp miss budget the reachable saving is **6.6%**; 15–27% needs 2–4 pp of misses. Two axes measured for the first time: every arm is *cheaper* at the real GB day-ahead price (−1.5% to −9.4%, because GB low-carbon hours are low-price hours) and every arm delays served work by 1–2 h **within its deadline**. Honest claim: 6–12% carbon at matched service, same money or less, same SLA, later completion inside it | branch |
 | 2026-11-23 | exp022: **head-to-head against the published controllers — the honest verdict is a tie.** Our placement rule is injected into the external simulator's own strategy map, so it takes the identical assignment path as all five published rule-based controllers on one week, one site list, one carbon series. All three of our arms (instantaneous, duration-integrated, duration+band) land on `lowest_carbon`'s number to the decimal — 106,449.2 kg, 591,224 kWh, same cost, 0.05% SLA, 21,943 tasks — and the published −6.87% vs round-robin is reproduced exactly, so the harness is sound. Two code facts explain it: the controller interface queues a task only if a site is returned (`None` discards it) and arrivals are never re-served, so deferral exists only in the RL path no published controller uses; and South Scotland is the cheapest region in 336 of 348 half-hours. The benchmark is **saturated for the one decision it exposes** | branch |
 | 2026-11-23 | exp023: **88.7% of that benchmark's carbon is not a decision.** The identical environment with the task stream switched off emits 101,414.2 kg of round-robin's 114,306.2 — idle draw that no placement or deferral rule can remove. The contestable range is 12,892 kg (11.3%); `lowest_carbon` removes 7,857 kg of it (60.95%) and so does our planner, identically. Placement stability is measured, not asserted: South Scotland cheapest in 162/168 hours with a median gap to the runner-up of 49.3% of its own intensity, so the argmin has one winner and a wide margin and every correct rule computes the same assignment. Both caveats stated: the floor share is a property of this operating point (four sites at ~7% utilisation), and the marginal-intensity split is labelled derived and kept out of every headline | branch |
+| 2026-11-23 | exp026: **the uncertainty result is a theorem, not an observation.** Regional actuals mostly do not exist, so realized intensity is built by scaling a national series; substituting into the error leaves one bracket per slot shared by every region, so realized and forecast induce the *same* regional ranking, forecast-greedy is already the slot optimum, and any reordering band can only misprice. Verified on 42 weeks / 18,757 slots: 0 reordered slots, 100% common-multiplicative, relative-error spread 1.8e-15. A pooled relative band changes 0.0000% at every λ; a per-region absolute band reorders 4.6–10.0% of slots and is better in **0 of 42 weeks** (worst +3.04%). Boundary (labelled Modelled): equal noise leaves the band inert; region-specific noise at 4× a realistic profile buys 0.003% tail carbon for 0.54% mean, about 170:1 against. Ships `uncertainty.classify` so the claim is checkable on any regional dataset | local |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 
@@ -404,11 +410,23 @@ docs/
       another controller on an estate whose emissions were mostly idle draw; saying that once, with
       our own measurement, is a stronger contribution than another percentage -- but it must be
       written as "the denominator is rarely reported", never as "their numbers are wrong".
-- [ ] The uncertainty claim needs forecast error to be real. Re-run the point-forecast vs whole-band
-      pair under the *measured* national forecast error distribution resampled onto the regional
-      series (a labelled stress test, not a data claim). Either the band protects the plan there --
-      the uncertainty-aware evidence the project needs -- or the uncertainty claim is a negative
-      result about this estimator and must be written as one.
+- [x] exp026: the uncertainty claim, settled as a theorem. A regional series built by scaling a
+      national one has one shared error factor per slot, so realized and forecast induce the same
+      ranking, forecast-greedy is already the slot optimum, and a band can only misprice. Verified
+      on 18,757 slots across 42 weeks: 0 reordered slots, 0 of 42 weeks better, worst +3.04%.
+      Equal per-region noise leaves the band inert; region-specific noise at 4x a realistic profile
+      buys 0.003% of tail carbon for 0.54% of mean. So the band is a level/tail hedge, never a site
+      selector -- and any spatial-uncertainty result computed on a scaled regional series is
+      vacuous at best.
+- [ ] **The one check exp026 cannot do for itself**: re-run its diagnostic on a grid with genuine
+      per-region actuals (EIA-930 per balancing authority, fuel mix to intensity, already on disk).
+      Until then "the band cannot reorder" is a statement about scaled series, not about grids.
+- [ ] **Publication plan, one month, in order:** the EIA-930 boundary check; the idle floor as a
+      curve over utilisation (the 88.7% is one operating point); full-year rolling-origin evaluation
+      of the shipped planner (42 weeks, not 12); a deferral buffer in the published simulator given
+      identically to all five published controllers; the risk-qualified headline on exp021's saving;
+      the manuscript. Nothing else -- no new MARL variants, no new band constructions, no extra
+      seeds for settled questions.
 - [ ] Learned arrival pressure on top of the planner: the residual gap to the exact schedule is the
       part of the schedule that depends on arrivals the plan has not seen.
 - [ ] exp016: a per-step tail surcharge in place of the terminal CVaR charge. The objective and
