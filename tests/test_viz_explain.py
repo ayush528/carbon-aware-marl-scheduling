@@ -10,7 +10,10 @@ from __future__ import annotations
 
 import pytest
 
-from viz.backend import explain
+# The scheduler image deliberately excludes `viz/` (separate deployable, see
+# PROJECT.md), so this suite skips there instead of failing to import. On the
+# host and in CI it runs: the dashboard's numbers are still tested.
+explain = pytest.importorskip("viz.backend.explain")
 
 
 def _verdict(**over: object) -> dict:

@@ -15,7 +15,10 @@ from __future__ import annotations
 
 import pytest
 
-from viz.backend import schedule
+# The scheduler image deliberately excludes `viz/` (separate deployable, see
+# PROJECT.md), so this suite skips there instead of failing to import. On the
+# host and in CI it runs: the dashboard's numbers are still tested.
+schedule = pytest.importorskip("viz.backend.schedule")
 
 
 @pytest.fixture(scope="module")
