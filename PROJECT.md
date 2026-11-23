@@ -221,6 +221,8 @@ service the visualization consumes later.
 | Rollback | `scripts/rollback.sh` | worktree at tag `exp/<id>`; re-run must reproduce recorded config_hash + metrics |
 | CLI | `scripts/run_experiment.py` | `make exp-run EXP=...` entrypoint |
 
+**Evaluation additions (public-safe):** a tested deferral wrapper gives every published controller the same timing lever without changing upstream source (exp030); real-workload resampling turns the idle-floor share into a utilisation curve (exp028); a 44-week rolling-origin evaluation replaces the single train/test split and supplies one-sided conformal saving bounds (exp029); transformations of the one real demand week show the saving is not an artefact of that week (exp031). The paper draft and its claim-to-evidence table live in `docs/research/manuscript/`.
+
 **Data store:** flat files + git (no DB server) — catalog in
 `docs/datasets/DATASETS.md`, small evidence committed, large raw refetched.
 
@@ -314,6 +316,11 @@ docs/
 | 2026-11-23 | exp023: **88.7% of that benchmark's carbon is not a decision.** The identical environment with the task stream switched off emits 101,414.2 kg of round-robin's 114,306.2 — idle draw that no placement or deferral rule can remove. The contestable range is 12,892 kg (11.3%); `lowest_carbon` removes 7,857 kg of it (60.95%); our causal planner removes 7,849 kg (60.88%). Placement stability is measured, not asserted: South Scotland cheapest in 162/168 hours with a median gap to the runner-up of 49.3% of its own intensity, so the argmin has one winner and a wide margin and every correct rule computes the same assignment. Both caveats stated: the floor share is a property of this operating point (four sites at ~7% utilisation), and the marginal-intensity split is labelled derived and kept out of every headline | branch |
 | 2026-11-23 | exp026: **the uncertainty result is a theorem, not an observation.** Regional actuals mostly do not exist, so realized intensity is built by scaling a national series; substituting into the error leaves one bracket per slot shared by every region, so realized and forecast induce the *same* regional ranking, forecast-greedy is already the slot optimum, and any reordering band can only misprice. Verified on 42 weeks / 18,757 slots: 0 reordered slots, 100% common-multiplicative, relative-error spread 1.8e-15. A pooled relative band changes 0.0000% at every λ; a per-region absolute band reorders 4.6–10.0% of slots and is better in **0 of 42 weeks** (worst +3.04%). Boundary (labelled Modelled): equal noise leaves the band inert; region-specific noise at 4× a realistic profile buys 0.003% tail carbon for 0.54% mean, about 170:1 against. Ships `uncertainty.classify` so the claim is checkable on any regional dataset | local |
 | 2026-11-23 | exp027: **the boundary, measured on a real grid.** EIA-930 gives hourly generation by fuel per balancing authority, so realized intensity comes from each region's own measured mix. Structure is **100% regional** (4,339 h) and **25.03% of hours reorder** — against 0 of 18,757 on the scaled UK series — so exp026's theorem is a property of the construction, not of grids. Volatility differs **106x** across regions. The band helps for the first time in the project (4 and 5 of 18 weeks, best -0.41%) but the mean is within 0.03% of zero at low risk aversion, a cost by lambda 2, runs through **spill order not the winner**, and mostly vanishes with a better forecaster. A relative band misprices the near-zero-intensity hydro region (worst week +41.6%). Also fixed a real exp026 bug: relative bands were added as constants instead of scaling the forecast | local |
+| 2026-11-24 | exp028: the idle-floor share as a curve -- 96.88%->65.72% as utilisation rises 1.9%->29.5% across five resamplings of the real workload; contestable carbon 3.12%->34.28%; the 88.72% point reproduces exactly | local |
+| 2026-11-24 | exp029: rolling origin over all 44 weeks of 2024 (36 evaluations); the same arm wins 36/36 weeks in five of six cells and causal selection costs at most 1.33% vs a per-week oracle. Conformal per-week saving lower bounds +13.5% to +20.5% at alpha 0.1, disclosed as unmatched-service | local |
+| 2026-11-24 | exp030: the equal-lever head-to-head -- causal planner -0.036% carbon vs the realized-reading oracle at matched SLA and service; reserve cuts 8x-slack violations 11x (1.44%->0.13%) while serving 847 more tasks for +0.55% carbon | local |
+| 2026-11-24 | exp031: demand robustness -- matched saving positive in 12/12 transformations x fleets; the real row reproduces exp021 | local |
+| 2026-11-24 | Manuscript skeleton and claims/fences table in `docs/research/manuscript/` | local |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 
@@ -427,12 +434,14 @@ docs/
       hours reorder -- so the theorem is about the scaling construction, not about grids. The band
       does help there, in a minority of weeks, by under half a percent, and mostly because the
       forecast is naive. A relative band misprices a near-zero-intensity region badly.
-- [ ] **Publication plan, one month, in order:** the idle floor as a curve over utilisation (the
-      88.7% is one operating point); full-year rolling-origin evaluation of the shipped planner
-      (42 weeks, not 12); a deferral buffer in the published simulator given identically to all five
-      published controllers; the risk-qualified headline on exp021's saving; the manuscript.
-      Nothing else -- no new MARL variants, no new band constructions, no extra seeds for settled
-      questions.
+- [x] **Publication analyses complete:** exp028 turns the 88.7% idle share into a curve
+      (96.88%->65.72% as utilisation rises 1.9%->29.5%); exp029 evaluates all 44 weeks of 2024
+      with rolling-origin selection (same arm in 36/36 weeks in five of six cells, causal cost
+      <=1.33%) and supplies the conformal per-week saving lower bounds; exp030 gives every
+      published controller the same deferral lever (small carbon win at matched SLA, 11x fewer
+      SLA violations from our reserve at 8x slack); exp031 shows the saving survives 12/12
+      demand transformations. The manuscript draft and a claims/fences table are in
+      `docs/research/manuscript/`; journal formatting remains.
 - [ ] Learned arrival pressure on top of the planner: the residual gap to the exact schedule is the
       part of the schedule that depends on arrivals the plan has not seen.
 - [ ] exp016: a per-step tail surcharge in place of the terminal CVaR charge. The objective and

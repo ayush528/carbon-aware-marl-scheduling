@@ -2,8 +2,8 @@
 
 This is the contract for the manuscript. A claim may appear in the paper only if
 it has a row here, an experiment that produced it, and the stated fence beside
-it. Rows marked `pending` wait on a canonical run; they are not written into the
-paper until it lands.
+it. All rows below have canonical runs except where explicitly noted; no number
+may enter the paper without one.
 
 ## Primary claims
 
@@ -34,10 +34,10 @@ paper until it lands.
 
 | Item | Status | Where it lands |
 |---|---|---|
-| exp028 idle-floor curve | **pending canonical run** | §Benchmark denominator; replaces the standalone 88.7% point |
-| exp029 rolling-origin over 44 weeks | **pending canonical run** | §Evaluation; replaces "12 held-out weeks" as the main stability evidence |
-| Risk-qualified headline from exp021 | pending | §Results: saving quoted with a band-derived lower bound on level |
-| Manuscript draft | in progress (`docs/research/manuscript/`) | entire paper |
+| exp028 idle-floor curve | **done, canonical `20261123T202530Z-aa4ce0b3-8ca8`** | §Benchmark denominator; replaces the standalone 88.7% point |
+| exp029 rolling-origin over 44 weeks | **done, canonical `20261123T195131Z-eb623421-89a1`** | §Evaluation; replaces "12 held-out weeks" as the main stability evidence |
+| Risk-qualified headline | **done in exp029**: one-sided conformal per-week saving lower bounds +13.5% to +20.5% at α 0.1, with the unmatched-service caveat | §Results |
+| Manuscript draft | **draft complete** (`docs/research/manuscript/paper.md`); journal formatting remains | entire paper |
 | One demand source / one main grid | disclosed, bounded by exp027 + exp031 | §Limitations |
 
 ## Reviewer-gap register
@@ -48,8 +48,8 @@ paper until it lands.
 | "CVaR inert / communication useless." | Explicit negative-results subsection with mechanism (N2). | to do in manuscript |
 | "One Azure week reused." | exp031 transformations; limitation retained (C2). | **closed by exp031** |
 | "Main result is one grid." | exp027 real-actual boundary + exp031 demand; claim stays conditional on the UK construction (C6/C7). | partly closed; disclosure required |
-| "No manuscript." | `docs/research/manuscript/` skeleton + this table. | in progress |
+| "No manuscript." | `docs/research/manuscript/paper.md` draft + this table. | **draft closed; formatting remains** |
 | "Beats existing systems?" | exp022: no (near-oracle, placement only); exp030: small carbon win at matched SLA + large SLA-robustness win. Honest answer stated in abstract. | **closed by exp022/exp030** |
 | "Same price, latency, SLA, matched service?" | exp021/exp030 report all four; no shedding counted as saving. | **closed** |
-| "Does the denominator matter?" | exp023 point + exp028 curve. | exp028 pending |
-| "Tuning on evaluation weeks?" | exp020 selection on 39 weeks; exp029 rolling origin. | exp029 pending |
+| "Does the denominator matter?" | exp023 point + exp028 curve (96.9%→65.7% floor share). | **closed by exp028** |
+| "Tuning on evaluation weeks?" | exp020 selection on 39 weeks; exp029 rolling origin, 36 weeks, ≤1.33% cost of causality. | **closed by exp029** |

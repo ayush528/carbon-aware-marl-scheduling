@@ -1,7 +1,6 @@
 # Carbon-Aware Scheduling Under Forecast Uncertainty: A Matched-Service Evaluation of Placement and Timing in Geo-Distributed Data Centres
 
-**Draft v0.1 — every number in this document must appear in `claims-table.md` before submission.**
-Pending numbers are marked `⟨exp028⟩` / `⟨exp029⟩` and are the only placeholders allowed.
+**Draft v0.2 — every number in this document traces to a canonical run in `claims-table.md`.**
 
 ## Abstract
 
@@ -65,8 +64,10 @@ remove, and the service difference between the arms. In our UK instantiation,
 the identical simulator with the task stream switched off emits 101,414.2 kg of
 `round_robin`'s 114,306.2 kg over one week — **88.7%** is idle draw, leaving an
 11.3% contestable range of which the best published rule already captures
-60.95% (exp023). ⟨exp028: the full curve over utilisation, showing that this
-share is an operating point and not a constant.⟩ We therefore state the claim
+60.95% (exp023). exp028 turns this point into a curve: as measured GPU utilisation rises from
+1.9% to 29.5%, the floor share falls from 96.9% to 65.7% and the contestable
+range grows from 3.1% to 34.3% of total carbon. The 88.7% point is reproduced
+exactly at the original operating point. We therefore state the claim
 with its arena: *where a deadline permits deferral*, our planner removes 6–12%
 at matched service; *where the benchmark forbids deferral*, the two are nearly
 identical. The claim is never "the denominator is wrong in prior work" — it is
@@ -123,8 +124,9 @@ Two fleets (25 and 40 GPUs per site), four deadline classes (1/2/4/8 h, equally
 split because the trace has no latency labels), three price weights for a missed
 GPU-hour, and 12 held-out Oct–Dec 2024 weeks form the main arena. Every arm sees
 the same demand and the same carbon series; selection never sees an evaluation
-week. `⟨exp029: rolling-origin choice on all 44 weeks of 2024, with the
-oracle-per-week reference.⟩`
+week. exp029 rebuilds the choice on all 44 weeks of 2024 (36 rolling evaluations):
+the same arm wins 36/36 weeks in five of six cells, and causal selection costs
+at most 1.33% of objective against a per-week oracle.
 
 ## 5. Results
 
@@ -141,7 +143,10 @@ arms missed 3–4% where serve-now misses none.
 
 ### 5.2 Demand robustness
 
-⟨exp031 numbers: 12/12 cells positive; table in the experiment README.⟩
+The matched-service saving is positive in 12 of 12 variant × fleet cells
+(2.69–18.69% capacity-bound, 3.73–18.24% slack); the real-week row reproduces
+the main result exactly, so neither the week's shape nor its day order carries
+the claim.
 
 ### 5.3 Published benchmark: placement only
 
@@ -163,7 +168,9 @@ holds it to 0.13% while finishing 847 more tasks for +0.55% carbon.
 
 ### 5.5 The denominator
 
-⟨exp028 table: floor share, contestable share and savings at five arrival rates.⟩
+At 0.25× arrivals the floor is 96.9% of total and either controller saves
+1.94%; at 4× the floor is 65.7% and the saving is 16.7%. Every published-style
+percentage must be read with its utilisation and its contestable fraction.
 
 ## 6. What uncertainty buys
 
@@ -173,7 +180,9 @@ measure its boundary on real per-region grid data, and show that a relative
 band actively misprices a near-zero-carbon hydro region (+41.6% worst week).
 Under deliberately favourable synthetic heterogeneity the exchange rate is
 ~170:1 against. The risk-qualified headline for the 6–12% result is
-`⟨pending: band-derived lower bound on level⟩`.
+exp029's one-sided conformal bounds on next week's paired saving are +13.5%
+to +20.5% at α = 0.1; they are reported beside the mean and with the explicit
+caveat that several of the underlying operating points trade service for carbon..
 
 ## 7. Negative results
 
