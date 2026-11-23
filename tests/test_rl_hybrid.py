@@ -178,3 +178,116 @@ def test_the_scheduler_gets_the_idle_week_right() -> None:
     assert summary["missed_fraction"] == pytest.approx(0.0)
     # The idle floor is still billed: two sites, four slots, 100 W each.
     assert summary["idle_carbon_kg"] > 0.0
+
+
+def _env_series(demand, forecast, *, deadlines=(4,), n_gpus=10):
+    demand = np.asarray(demand, dtype=np.float64)
+    forecast = np.asarray(forecast, dtype=np.float64).reshape(len(demand), -1)
+    return _env(demand, forecast=forecast, deadlines=deadlines, n_gpus=n_gpus)
+
+
+def test_no_arrival_model_means_no_hold() -> None:
+    env = _env_series([1_000.0] * 6, [10.0, 900.0] * 3)
+    env.reset()
+    planner = BlockPlanner()
+    assert planner.holds(env, 0, 4) == {}
+
+
+def test_a_flat_model_holds_the_trailing_mean_in_every_future_block() -> None:
+    env = _env_series([9_000.0, 9_000.0, 0, 0, 0, 0], [500.0] * 6, deadlines=(2,))
+    env.reset()
+    planner = BlockPlanner(arrival_model="flat", arrival_window=2)
+    # At t = 2 the causal mean of the two past slots is 9,000 GPU-s. Slot 2 has
+    # already arrived (it is not anticipated), and the prediction for slot 3 is
+    # spread over the tightest two-slot window, so block 3 holds 9,000 / 2.
+    holds = planner.holds(env, 2, 4)
+    assert holds == {(3, 0): 4_500.0}
+
+
+def test_the_seasonal_model_uses_the_same_slot_yesterday() -> None:
+    demand = [0.0] * 60
+    demand[8] = 9_000.0  # the same slot-of-day, one day (48 slots) earlier
+    env = _env_series(demand, [500.0] * 60, deadlines=(2,))
+    env.reset()
+    planner = BlockPlanner(arrival_model="seasonal", arrival_window=4)
+    # At t = 53, slot 56 is three slots ahead, and its same slot yesterday
+    # (56 - 48 = 8) carried 9,000 GPU-s.
+    holds = planner.holds(env, 53, 60)
+    # The burst predicted at 56 spreads over its two-slot window, 56 and 57.
+    assert holds[(56, 0)] == pytest.approx(4_500.0)
+    assert holds[(57, 0)] == pytest.approx(4_500.0)
+    # Slot 58's yesterday (10) is empty and the trailing mean is zero, so no hold
+    # from arrivals predicted after 57.
+    assert holds.get((58, 0), 0.0) == pytest.approx(0.0)
+
+
+def test_anticipating_a_burst_makes_the_planner_serve_some_work_now() -> None:
+    """The behavioural consequence of the hold, which is the point of it.
+
+    Backlog at t = 5 can legally run until slot 8, and slot 8 is the cheapest on
+    the forecast. A myopic plan therefore risks everything on slot 8. If the same
+    slot-of-day yesterday carried a burst, the seasonal model knows that block
+    will be needed, holds capacity back, and the backlog serves some of its work
+    in the dear current slot instead of gambling.
+    """
+    demand = [0.0] * 60
+    demand[8] = 9_000.0
+    forecast = [900.0] * 60
+    forecast[56] = 10.0  # slot 56 is the cheap one
+    env = _env_series(demand, forecast, deadlines=(4,))
+    env.reset()
+    for _ in range(53):
+        env.step_offers([0.0])
+    env.queues[0] = {53: 18_000.0}  # a full slot of backlog, legal in 53..56
+    myopic = BlockPlanner().plan(env, 53)[0]
+    seasonal = BlockPlanner(arrival_model="seasonal", arrival_window=4).plan(env, 53)[0]
+    assert myopic == pytest.approx(0.0)
+    assert seasonal > 0.0
+
+
+def test_ghost_arrivals_consume_capacity_and_are_never_offered() -> None:
+    """A predicted arrival takes the cheap block, and only the real work is offered.
+
+    Slot 3 is cheap and a burst is expected there. The ghost reserves the cheap
+    block for the arrival, so today's backlog is placed in the dear current slot
+    (and offered), while the ghost itself contributes nothing to the offer.
+    """
+    demand = [0.0] * 60
+    demand[8] = 18_000.0  # the same slot-of-day one day (48 slots) earlier: a
+    # full block of work, so the predicted arrival needs the whole cheap slot
+    forecast = [900.0] * 60
+    forecast[56] = 10.0
+    # A long-deadline class holds the backlog, so the tighter ghost outranks it
+    # under the same EDF ordering the planner uses for real work.
+    env = _env_series(demand, forecast, deadlines=(2, 16))
+    env.reset()
+    for _ in range(53):
+        env.step_offers([0.0, 0.0])
+    env.queues[1] = {53: 18_000.0}
+    ghost = BlockPlanner(arrival_model="seasonal", ghost_arrivals=True)
+    assert ghost.holds(env, 53, 53 + 16) == {}  # ghosts replace holds, no stacking
+    offer = ghost.plan(env, 53)[1]
+    myopic = BlockPlanner().plan(env, 53)[1]
+    assert offer > myopic  # the cheap block is defended for the arrival
+    assert offer <= 18_000.0  # and nothing invented is offered
+
+
+def test_a_ghost_is_not_counted_as_work_when_no_block_is_feasible() -> None:
+    # Every block is full, so the ghost cannot be placed; it must not appear as
+    # an offer (agent index -1 has no queue to bill).
+    env = _env_series([0.0] * 6, [500.0] * 6, deadlines=(2,), n_gpus=1)
+    env.reset()
+    env.queues[0] = {}
+    planner = BlockPlanner(arrival_model="flat", arrival_window=2, ghost_arrivals=True)
+    assert planner.plan(env, 2) == {0: 0.0}
+
+
+def test_a_ghost_that_cannot_be_placed_never_becomes_an_offer() -> None:
+    """A prediction that does not fit is dropped, not billed to any agent."""
+    env = _env_series([5_000.0] * 6, [500.0] * 6, deadlines=(2,), n_gpus=1)
+    env.reset()
+    env.queues[0] = {}
+    planner = BlockPlanner(arrival_model="flat", arrival_window=2, ghost_arrivals=True)
+    # The prediction is huge relative to one 1,800 GPU-s block, so most of it has
+    # nowhere to go; the offer must still be exactly zero.
+    assert planner.plan(env, 2) == {0: 0.0}

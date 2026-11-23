@@ -320,3 +320,24 @@ experiments:
       20%, and with the calibrated quantile at 0.5/0.9/0.95; 12 held-out Oct-Dec
       2024 weeks, both fleets, three prices, every arm also scored against the
       exact schedule at its own served volume.
+
+  - id: exp019-arrival-shape
+    title: Does the shape of the incoming work beat one constant reserve?
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      exp018 made the reserve calibrated but left it a single number for the whole
+      week, while the workload is diurnal -- so it over-holds in the quiet period
+      and under-holds just before a burst. This experiment gives the planner three
+      ways to anticipate arrivals. 'hold' reserves capacity in every future block
+      (trailing mean, or the same slot of the previous day). 'ghost' instead adds
+      the prediction to the plan as an item with the tightest deadline class, so it
+      competes for the cheapest legal blocks and consumes capacity only where it
+      would actually run, and is never offered to the environment. Both are causal
+      and read only slots before the one they predict. Arms: two rules, the planner
+      with no anticipation, with exp018's calibrated reserve, with each hold, with
+      each ghost model, and the best model plus the calibrated reserve. Same 12
+      held-out weeks, both fleets, three prices, own-volume bound, and a paired
+      comparison against the no-anticipation planner. No parameter is chosen on the
+      evaluation weeks.

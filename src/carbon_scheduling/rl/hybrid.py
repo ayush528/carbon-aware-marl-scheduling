@@ -77,6 +77,24 @@ class BlockPlanner:
         the form with a coverage claim: the reserve bounds how much more work
         arrives than the trailing mean predicted, at a stated level on weeks the
         quantile never saw.
+    arrival_model
+        ``"none"``, ``"flat"`` or ``"seasonal"``: how the planner anticipates
+        arrivals it has not seen. A flat model holds the trailing mean in every
+        future block; the seasonal model uses the same slot of the previous day,
+        which carries the diurnal shape a constant reserve cannot. The hold is
+        spread over the tightest deadline window, because that is how long the
+        arriving work has to run.
+    arrival_window
+        Trailing window (slots) for the flat model and for the seasonal fallback.
+    ghost_arrivals
+        Anticipate arrivals by *placing* them instead of merely holding capacity.
+        The prediction is added to the plan as an item with the tightest deadline
+        class, so it competes for the cheapest legal blocks exactly as real work
+        does -- it consumes capacity where it would actually run and nowhere
+        else. Ghosts are never offered to the environment; only the real backlog
+        is. This replaces ``holds`` when set (a hold would double-count the same
+        arrivals) and is the honest version of "plan against the arrivals you
+        expect": same marginal logic for work you can see and work you cannot.
     """
 
     def __init__(
@@ -86,6 +104,9 @@ class BlockPlanner:
         reserve: float = 0.0,
         arrival_forecast: int = 0,
         reserve_gpu_s: float = 0.0,
+        arrival_model: str = "none",
+        arrival_window: int = 8,
+        ghost_arrivals: bool = False,
     ) -> None:
         self.robust = float(robust)
         self.max_slots_ahead = max_slots_ahead
@@ -93,6 +114,65 @@ class BlockPlanner:
         # Window (in slots) of the causal arrival-rate estimate; 0 disables it.
         self.arrival_forecast = int(arrival_forecast)
         self.reserve_gpu_s = float(reserve_gpu_s)
+        if arrival_model not in {"none", "flat", "seasonal"}:
+            raise ValueError(f"unknown arrival_model {arrival_model!r}")
+        self.arrival_model = arrival_model
+        self.arrival_window = max(1, int(arrival_window))
+        self.ghost_arrivals = bool(ghost_arrivals)
+
+    # One day of half-hour slots: the same slot-of-day in the previous day.
+    SEASONAL_OFFSET = 48
+
+    def _predicted_arrival(self, env: QueueEnv, t: int, slot: int, fallback: float) -> float:
+        """GPU-seconds the model expects to arrive at ``slot``, using only the past."""
+        if self.arrival_model == "seasonal" and slot - self.SEASONAL_OFFSET >= 0:
+            return float(env.demand_tokens[slot - self.SEASONAL_OFFSET]) / env.throughput
+        return fallback
+
+    def holds(self, env: QueueEnv, t: int, last: int) -> dict[tuple[int, int], float]:
+        """Capacity to keep free in each block for work that has not arrived yet.
+
+        A myopic plan fills a cheap slot with present backlog and the arrivals
+        landing in that slot have nowhere legal to run. Holding the *shape* of the
+        incoming work, rather than one constant, is what lets the planner defend a
+        cheap slot only when it is actually about to be needed.
+        """
+        if self.arrival_model == "none" or self.ghost_arrivals:
+            return {}
+        sites = len(env.sites)
+        tightest = min(env.deadlines)
+        past = env.demand_tokens[max(0, t - self.arrival_window) : t] / env.throughput
+        fallback = float(past.mean()) if past.size else 0.0
+        held: dict[tuple[int, int], float] = {}
+        for arrival_slot in range(t + 1, last):
+            predicted = self._predicted_arrival(env, t, arrival_slot, fallback)
+            if predicted <= 0.0:
+                continue
+            share = predicted / (sites * tightest)
+            for slot in range(arrival_slot, min(arrival_slot + tightest, last)):
+                for j in range(sites):
+                    held[(slot, j)] = held.get((slot, j), 0.0) + share
+        return held
+
+    def _ghost_items(self, env: QueueEnv, t: int, last: int) -> list[tuple[int, int, float]]:
+        """Predicted arrivals as items: ``(last_legal_slot, arrival_slot, volume)``.
+
+        Each gets the tightest deadline class, because that is the least the
+        planner can assume about work it has not seen.
+        """
+        if not self.ghost_arrivals:
+            return []
+        tightest = min(env.deadlines)
+        past = env.demand_tokens[max(0, t - self.arrival_window) : t] / env.throughput
+        fallback = float(past.mean()) if past.size else 0.0
+        ghosts: list[tuple[int, int, float]] = []
+        for arrival in range(t + 1, last):
+            predicted = self._predicted_arrival(env, t, arrival, fallback)
+            if predicted <= 0.0:
+                continue
+            last_legal = min(arrival + tightest - 1, env.n_slots - 1)
+            ghosts.append((last_legal, arrival, predicted))
+        return ghosts
 
     def _price(self, env: QueueEnv, slot: int, site: int) -> float:
         return float(env.forecast[slot, site]) + self.robust * float(env.band[slot, site])
@@ -126,10 +206,17 @@ class BlockPlanner:
         if self.reserve_gpu_s > 0.0:
             for key in free:
                 free[key] = max(0.0, free[key] - self.reserve_gpu_s)
+        for key, held in self.holds(env, t, last).items():
+            free[key] = max(0.0, free[key] - held)
         price = {key: self._price(env, key[0], key[1]) for key in free}
 
-        # Items, tightest deadline first, then oldest arrival.
-        items: list[tuple[int, int, int, float]] = []
+        # Items: real backlog plus (optionally) predicted arrivals. Ghosts carry
+        # agent index -1 so they can consume capacity without ever being offered.
+        # Tightest deadline first, then oldest arrival.
+        items: list[tuple[int, int, int, float]] = [
+            (last_legal, -1, arrival, volume)
+            for last_legal, arrival, volume in self._ghost_items(env, t, last)
+        ]
         for i in range(env.n_agents):
             for arrival in sorted(env.queues[i]):
                 items.append(
@@ -139,6 +226,7 @@ class BlockPlanner:
 
         offer_now = {i: 0.0 for i in range(env.n_agents)}
         for last_legal, i, arrival, volume in items:
+            is_ghost = i < 0
             feasible = [
                 key
                 for key in price
@@ -146,8 +234,10 @@ class BlockPlanner:
             ]
             # Work whose window has already closed is offered now regardless: the
             # environment will count the miss, and hiding it would be dishonest.
+            # A ghost whose window closed simply did not fit; it never existed.
             if not feasible:
-                offer_now[i] += volume
+                if not is_ghost:
+                    offer_now[i] += volume
                 continue
             for key in sorted(feasible, key=lambda k: (price[k], k[0])):
                 if volume <= 1e-9:
@@ -155,7 +245,7 @@ class BlockPlanner:
                 take = min(volume, free[key])
                 free[key] -= take
                 volume -= take
-                if key[0] == t:
+                if key[0] == t and not is_ghost:
                     offer_now[i] += take
         return offer_now
 
