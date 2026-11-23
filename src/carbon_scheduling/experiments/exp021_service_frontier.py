@@ -218,8 +218,12 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
 
         ref = arms["run_now"]
         ref_served_h = float(np.mean([r["served_gpu_s"] for r in ref])) / 3600.0
-        ref_carbon = float(np.mean([r["carbon_kg"] for r in ref]))
-        ref_missed = float(np.mean([r["missed_fraction"] for r in ref]))
+        # Compare like with like: the reference goes through the same rounding as
+        # every arm, otherwise run_now fails the Pareto test against itself by a
+        # fraction of a gram.
+        ref_summary = _row_summary(ref, prices, ref_served_h)
+        ref_carbon = ref_summary["carbon_kg"]
+        ref_missed = ref_summary["missed_fraction"]
 
         report: dict[str, Any] = {
             "n_gpus_per_site": n_gpus,
@@ -233,7 +237,11 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             missed = entry["missed_fraction"]
             entry["carbon_vs_run_now_pct"] = round((carbon / ref_carbon - 1.0) * 100.0, 2)
             entry["missed_vs_run_now_pp"] = round((missed - ref_missed) * 100.0, 2)
-            entry["pareto_vs_run_now"] = bool(carbon <= ref_carbon and missed <= ref_missed)
+            entry["pareto_vs_run_now"] = (
+                None
+                if label == "run_now"
+                else bool(carbon <= ref_carbon and missed <= ref_missed)
+            )
             entry["paired_vs_run_now"] = None if label == "run_now" else _paired(rows, ref)
             bound = _mean_bound(
                 series, tokens, sites, names, config, held_out, deadlines, capacity, rows
