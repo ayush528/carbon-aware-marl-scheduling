@@ -380,8 +380,8 @@ experiments:
   - id: exp022-head-to-head
     title: Our scheduler against the published SustainCluster controllers, same simulator, same week
     phase: "2-simulator"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp022-head-to-head
     description: >
       The only comparator that can be held fixed. Our placement rule is injected
       into SustainCluster's own strategy map -- not bolted on through the action
@@ -396,3 +396,19 @@ experiments:
       which leaves less than one 15-minute step of slack, so the timing lever
       exp021 measures is not expressible here -- reported as a property of the
       benchmark, not worked around.
+
+  - id: exp023-controllable-share
+    title: How much of the published benchmark's carbon is a controller decision at all
+    phase: "2-simulator"
+    status: draft
+    rollback_tag: null
+    description: >
+      Separates "our rule is no better" from "there is nothing left to win", which
+      a tie alone cannot distinguish. Runs the identical environment -- same sites,
+      same week, same carbon and price series, same HVAC and server model -- with
+      the task stream switched off; the remainder is the idle draw of the estate and
+      is a hard lower bound no controller can remove. Reports carbon = floor +
+      controllable for round_robin, lowest_carbon and our planner, each scored by
+      the share of the floor-to-round_robin range it actually removes. Also measures,
+      from the forecast series alone, how often one site is the cheapest -- which is
+      why placement-only rules converge. No tuning; every number is a run or a count.

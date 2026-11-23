@@ -39,6 +39,7 @@ DRIVER_DIR = REPO_ROOT / "scripts" / "sustaincluster"
 BASELINE_DRIVER = DRIVER_DIR / "run_baseline.py"
 RL_DRIVER = DRIVER_DIR / "run_rl.py"
 PLANNER_DRIVER = DRIVER_DIR / "run_planner.py"
+IDLE_DRIVER = DRIVER_DIR / "run_idle_floor.py"
 CHECKOUT_MARKER = Path("envs") / "task_scheduling_env.py"
 
 
@@ -227,6 +228,40 @@ def run_planner(
             str(alpha),
             "--calibration-end",
             str(calibration_end),
+            "--days",
+            str(days),
+            "--seed",
+            str(seed),
+            "--out",
+            str(out_path),
+            *_config_flags(init_day_of_year, sim_config, datacenters, reward_config, align_clock),
+        ],
+    )
+
+def run_idle_floor(
+    checkout: Path,
+    python: str,
+    *,
+    days: float,
+    seed: int,
+    out_path: Path,
+    init_day_of_year: int | None = None,
+    sim_config: str | Path | None = None,
+    datacenters: str | Path | None = None,
+    reward_config: str | Path | None = None,
+    align_clock: bool = False,
+) -> dict[str, Any]:
+    """Run the same environment with no work; return the idle draw it reports.
+
+    This is a lower bound, not a controller: servers, cooling and pumps consume
+    whether or not anything is scheduled, so whatever this reports is carbon no
+    placement or deferral decision can remove.
+    """
+    return _invoke(
+        IDLE_DRIVER,
+        checkout,
+        python,
+        [
             "--days",
             str(days),
             "--seed",
