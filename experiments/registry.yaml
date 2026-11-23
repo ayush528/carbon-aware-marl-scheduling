@@ -412,3 +412,26 @@ experiments:
       the share of the floor-to-round_robin range it actually removes. Also measures,
       from the forecast series alone, how often one site is the cheapest -- which is
       why placement-only rules converge. No tuning; every number is a run or a count.
+
+  - id: exp026-uncertainty-cannot-reorder
+    title: Can calibrated uncertainty change a carbon decision? A theorem, its cost, and its boundary
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp026-uncertainty-cannot-reorder
+    description: >
+      Turns exp011's awkward observation into a theorem about the data construction.
+      Regional carbon actuals mostly do not exist, so realized intensity is built by
+      scaling a national series: realized_r = national_actual * forecast_r /
+      national_forecast. Substituting into the error leaves one bracket per slot
+      shared by every region, so realized and forecast induce the same regional
+      ranking, forecast-greedy is already the optimum of the slot's linear capacity
+      problem, and any band that reorders sites is reordering on noise. Verified on
+      42 fully covered weeks of 2024 (18,757 slots): zero reordered slots, 100%
+      common-multiplicative structure, relative-error spread 1.8e-15. Measured cost:
+      a pooled relative band changes exactly 0.0000% at every lambda; a per-region
+      absolute band reorders 4.6-10.0% of slots and is better in 0 of 42 weeks
+      (worse in 36-41, worst week +3.04%). Boundary, labelled Modelled: equal
+      per-region noise keeps widths proportional and the band inert; region-specific
+      noise at 4x a realistic profile buys 0.003% of tail carbon for 0.54% of mean,
+      about 170:1 against. Ships uncertainty.classify so the claim can be checked on
+      any regional dataset before a spatial-uncertainty result is trusted.
