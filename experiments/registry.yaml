@@ -495,3 +495,34 @@ experiments:
       Magnitude is demand-dependent: it shrinks at 2x volume on the capacity-bound
       fleet (saturated estate) and grows at 0.5x. Limitation stays explicit: these are
       transformations of one real trace, not a second workload.
+
+  - id: exp028-idle-floor-curve
+    title: The idle-floor share as a curve over utilisation, not a point at 88.7%
+    phase: "2-simulator"
+    status: merged
+    rollback_tag: exp/exp028-idle-floor-curve
+    description: >
+      exp023's 88.7% idle share was measured at one operating point. The floor is
+      set by the estate, so its share falls as real work is added. The real Alibaba
+      task stream is resampled per 15-minute slot to five arrival rates (0.25x to
+      4x) by a tested transformation that invents no job shape; each scaled pickle
+      is SHA-256 hashed into the metrics. Same sites, week and controllers at every
+      point, with the idle floor measured once by switching arrivals off. Every
+      saving is reported against total and against contestable carbon (total minus
+      floor), so a published-style percentage is always shown next to the fraction
+      of its denominator that was ever a decision.
+
+  - id: exp029-rolling-origin
+    title: Full-year rolling-origin evaluation of the shipped scheduler
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp029-rolling-origin
+    description: >
+      exp020 selected one arm on Jan-Sep and reported it on 12 weeks. This rebuilds
+      the choice every week from prior weeks only, over all 44 fully covered 2024
+      weeks (36 rolling evaluations after an eight-week warm-up), for both fleets
+      and three price weights. The selected arms are stable in almost every cell
+      (36/36 picks), and the oracle-per-week reference prices causal selection at
+      at most ~1.3% of objective. A one-sided split-conformal lower bound on next
+      week's paired saving is reported beside the mean, with the exchangeability
+      caveat stated: carbon seasonality makes the guarantee approximate.

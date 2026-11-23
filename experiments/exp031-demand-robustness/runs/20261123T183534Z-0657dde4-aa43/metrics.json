@@ -1,0 +1,1152 @@
+{
+  "weeks": [
+    "2024-10-07",
+    "2024-10-14",
+    "2024-10-21",
+    "2024-10-28",
+    "2024-11-04",
+    "2024-11-11",
+    "2024-11-18",
+    "2024-11-25",
+    "2024-12-02",
+    "2024-12-09",
+    "2024-12-16",
+    "2024-12-23"
+  ],
+  "n_weeks": 12,
+  "fleets": {
+    "capacity_bound": {
+      "real": {
+        "mean_tokens_per_slot": 126726137.1,
+        "reserve_gpu_s_per_site_slot": 15472.0,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 991.519,
+            "missed_fraction": 0.1073,
+            "served_gpu_h": 10559.2,
+            "variable_carbon_kg": 805.894,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 76.3,
+            "energy_kwh": 8775.9,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 2.84,
+            "mean_served_wait_min": 85.2,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 991.519,
+            "objective_at_price": {
+              "0.1": 1118.431,
+              "0.3": 1372.255,
+              "1.0": 2260.639
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 935.535,
+            "missed_fraction": 0.0953,
+            "served_gpu_h": 10384.0,
+            "variable_carbon_kg": 749.909,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 72.2,
+            "energy_kwh": 8652.3,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.761,
+            "mean_served_wait_min": 112.8,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 948.192,
+            "objective_at_price": {
+              "0.1": 1048.194,
+              "0.3": 1273.513,
+              "1.0": 2062.13
+            },
+            "carbon_vs_run_now_pct": -5.646,
+            "missed_vs_run_now_pp": -1.2,
+            "matched_service_vs_run_now_pct": -4.37,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 874.958,
+            "missed_fraction": 0.0839,
+            "served_gpu_h": 10114.9,
+            "variable_carbon_kg": 689.334,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 68.2,
+            "energy_kwh": 8462.6,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 4.677,
+            "mean_served_wait_min": 140.3,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 905.241,
+            "objective_at_price": {
+              "0.1": 974.233,
+              "0.3": 1172.782,
+              "1.0": 1867.703
+            },
+            "carbon_vs_run_now_pct": -11.756,
+            "missed_vs_run_now_pp": -2.34,
+            "matched_service_vs_run_now_pct": -8.702,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 897.682,
+            "missed_fraction": 0.1162,
+            "served_gpu_h": 10016.5,
+            "variable_carbon_kg": 712.057,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 71.1,
+            "energy_kwh": 8393.2,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 4.657,
+            "mean_served_wait_min": 139.7,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 936.262,
+            "objective_at_price": {
+              "0.1": 1035.101,
+              "0.3": 1309.939,
+              "1.0": 2271.872
+            },
+            "carbon_vs_run_now_pct": -9.464,
+            "missed_vs_run_now_pp": 0.89,
+            "matched_service_vs_run_now_pct": -5.573,
+            "pareto_vs_run_now": false
+          }
+        }
+      },
+      "scale_0.5": {
+        "mean_tokens_per_slot": 63363068.6,
+        "reserve_gpu_s_per_site_slot": 7736.0,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 523.176,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 5913.9,
+            "variable_carbon_kg": 337.551,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 57.1,
+            "energy_kwh": 5500.4,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 0.042,
+            "mean_served_wait_min": 1.3,
+            "max_served_wait_slots": 3,
+            "matched_service_carbon_kg_extrapolated": 523.176,
+            "objective_at_price": {
+              "0.1": 523.176,
+              "0.3": 523.176,
+              "1.0": 523.176
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 476.566,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 5913.9,
+            "variable_carbon_kg": 290.941,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 49.2,
+            "energy_kwh": 5500.4,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 1.447,
+            "mean_served_wait_min": 43.4,
+            "max_served_wait_slots": 10,
+            "matched_service_carbon_kg_extrapolated": 476.566,
+            "objective_at_price": {
+              "0.1": 476.566,
+              "0.3": 476.566,
+              "1.0": 476.566
+            },
+            "carbon_vs_run_now_pct": -8.909,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -8.909,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 424.97,
+            "missed_fraction": 0.0017,
+            "served_gpu_h": 5903.0,
+            "variable_carbon_kg": 239.345,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 40.5,
+            "energy_kwh": 5492.8,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.331,
+            "mean_served_wait_min": 99.9,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 425.41,
+            "objective_at_price": {
+              "0.1": 426.005,
+              "0.3": 428.075,
+              "1.0": 435.32
+            },
+            "carbon_vs_run_now_pct": -18.771,
+            "missed_vs_run_now_pp": 0.17,
+            "matched_service_vs_run_now_pct": -18.687,
+            "pareto_vs_run_now": false
+          },
+          "look4_reserve": {
+            "carbon_kg": 455.553,
+            "missed_fraction": 0.0073,
+            "served_gpu_h": 5867.0,
+            "variable_carbon_kg": 269.928,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 46.0,
+            "energy_kwh": 5467.4,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.511,
+            "mean_served_wait_min": 105.3,
+            "max_served_wait_slots": 14,
+            "matched_service_carbon_kg_extrapolated": 457.711,
+            "objective_at_price": {
+              "0.1": 459.875,
+              "0.3": 468.519,
+              "1.0": 498.774
+            },
+            "carbon_vs_run_now_pct": -12.925,
+            "missed_vs_run_now_pp": 0.73,
+            "matched_service_vs_run_now_pct": -12.513,
+            "pareto_vs_run_now": false
+          }
+        }
+      },
+      "scale_2.0": {
+        "mean_tokens_per_slot": 253452274.3,
+        "reserve_gpu_s_per_site_slot": 30943.9,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 1337.972,
+            "missed_fraction": 0.4128,
+            "served_gpu_h": 13890.1,
+            "variable_carbon_kg": 1152.347,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 83.0,
+            "energy_kwh": 11124.5,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 2.47,
+            "mean_served_wait_min": 74.1,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1337.972,
+            "objective_at_price": {
+              "0.1": 2314.473,
+              "0.3": 4267.475,
+              "1.0": 11102.982
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 1299.404,
+            "missed_fraction": 0.3884,
+            "served_gpu_h": 13725.2,
+            "variable_carbon_kg": 1113.78,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 81.1,
+            "energy_kwh": 11008.2,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.021,
+            "mean_served_wait_min": 90.6,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1312.783,
+            "objective_at_price": {
+              "0.1": 2218.225,
+              "0.3": 4055.867,
+              "1.0": 10487.613
+            },
+            "carbon_vs_run_now_pct": -2.883,
+            "missed_vs_run_now_pp": -2.44,
+            "matched_service_vs_run_now_pct": -1.883,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 1238.447,
+            "missed_fraction": 0.3751,
+            "served_gpu_h": 13463.7,
+            "variable_carbon_kg": 1052.822,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 78.2,
+            "energy_kwh": 10823.8,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.641,
+            "mean_served_wait_min": 109.2,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1271.795,
+            "objective_at_price": {
+              "0.1": 2125.767,
+              "0.3": 3900.406,
+              "1.0": 10111.642
+            },
+            "carbon_vs_run_now_pct": -7.438,
+            "missed_vs_run_now_pp": -3.77,
+            "matched_service_vs_run_now_pct": -4.946,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 1271.526,
+            "missed_fraction": 0.4165,
+            "served_gpu_h": 13430.3,
+            "variable_carbon_kg": 1085.901,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 80.9,
+            "energy_kwh": 10800.3,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.298,
+            "mean_served_wait_min": 98.9,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1308.703,
+            "objective_at_price": {
+              "0.1": 2256.898,
+              "0.3": 4227.641,
+              "1.0": 11125.244
+            },
+            "carbon_vs_run_now_pct": -4.966,
+            "missed_vs_run_now_pp": 0.37,
+            "matched_service_vs_run_now_pct": -2.188,
+            "pareto_vs_run_now": false
+          }
+        }
+      },
+      "shift_12h": {
+        "mean_tokens_per_slot": 126726137.1,
+        "reserve_gpu_s_per_site_slot": 15472.0,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 1080.522,
+            "missed_fraction": 0.0731,
+            "served_gpu_h": 10963.7,
+            "variable_carbon_kg": 894.897,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 81.6,
+            "energy_kwh": 9061.1,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.247,
+            "mean_served_wait_min": 97.4,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1080.522,
+            "objective_at_price": {
+              "0.1": 1166.983,
+              "0.3": 1339.905,
+              "1.0": 1945.132
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 1011.759,
+            "missed_fraction": 0.0587,
+            "served_gpu_h": 10770.9,
+            "variable_carbon_kg": 826.134,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 76.7,
+            "energy_kwh": 8925.2,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 4.219,
+            "mean_served_wait_min": 126.6,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1026.542,
+            "objective_at_price": {
+              "0.1": 1081.178,
+              "0.3": 1220.016,
+              "1.0": 1705.95
+            },
+            "carbon_vs_run_now_pct": -6.364,
+            "missed_vs_run_now_pp": -1.44,
+            "matched_service_vs_run_now_pct": -4.996,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 953.299,
+            "missed_fraction": 0.0469,
+            "served_gpu_h": 10543.5,
+            "variable_carbon_kg": 767.674,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 72.8,
+            "energy_kwh": 8764.8,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 5.204,
+            "mean_served_wait_min": 156.1,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 983.895,
+            "objective_at_price": {
+              "0.1": 1008.791,
+              "0.3": 1119.775,
+              "1.0": 1508.219
+            },
+            "carbon_vs_run_now_pct": -11.774,
+            "missed_vs_run_now_pp": -2.62,
+            "matched_service_vs_run_now_pct": -8.943,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 984.337,
+            "missed_fraction": 0.0808,
+            "served_gpu_h": 10405.7,
+            "variable_carbon_kg": 798.712,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 76.8,
+            "energy_kwh": 8667.6,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 5.03,
+            "mean_served_wait_min": 150.9,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1027.166,
+            "objective_at_price": {
+              "0.1": 1079.925,
+              "0.3": 1271.101,
+              "1.0": 1940.218
+            },
+            "carbon_vs_run_now_pct": -8.902,
+            "missed_vs_run_now_pp": 0.77,
+            "matched_service_vs_run_now_pct": -4.938,
+            "pareto_vs_run_now": false
+          }
+        }
+      },
+      "day_shuffle": {
+        "mean_tokens_per_slot": 126726137.1,
+        "reserve_gpu_s_per_site_slot": 18032.1,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 1006.574,
+            "missed_fraction": 0.0923,
+            "served_gpu_h": 10735.5,
+            "variable_carbon_kg": 820.949,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 76.5,
+            "energy_kwh": 8900.2,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 2.932,
+            "mean_served_wait_min": 88.0,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1006.574,
+            "objective_at_price": {
+              "0.1": 1115.744,
+              "0.3": 1334.085,
+              "1.0": 2098.277
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 935.463,
+            "missed_fraction": 0.0829,
+            "served_gpu_h": 10459.3,
+            "variable_carbon_kg": 749.838,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 71.7,
+            "energy_kwh": 8705.4,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.872,
+            "mean_served_wait_min": 116.2,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 955.267,
+            "objective_at_price": {
+              "0.1": 1033.485,
+              "0.3": 1229.531,
+              "1.0": 1915.689
+            },
+            "carbon_vs_run_now_pct": -7.065,
+            "missed_vs_run_now_pp": -0.94,
+            "matched_service_vs_run_now_pct": -5.097,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 875.17,
+            "missed_fraction": 0.0742,
+            "served_gpu_h": 10197.3,
+            "variable_carbon_kg": 689.545,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 67.6,
+            "energy_kwh": 8520.7,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 4.825,
+            "mean_served_wait_min": 144.8,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 911.566,
+            "objective_at_price": {
+              "0.1": 962.932,
+              "0.3": 1138.456,
+              "1.0": 1752.791
+            },
+            "carbon_vs_run_now_pct": -13.055,
+            "missed_vs_run_now_pp": -1.81,
+            "matched_service_vs_run_now_pct": -9.439,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 909.319,
+            "missed_fraction": 0.0812,
+            "served_gpu_h": 10167.5,
+            "variable_carbon_kg": 723.694,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 71.2,
+            "energy_kwh": 8499.6,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 4.777,
+            "mean_served_wait_min": 143.3,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 949.752,
+            "objective_at_price": {
+              "0.1": 1005.36,
+              "0.3": 1197.443,
+              "1.0": 1869.734
+            },
+            "carbon_vs_run_now_pct": -9.662,
+            "missed_vs_run_now_pp": -1.11,
+            "matched_service_vs_run_now_pct": -5.645,
+            "pareto_vs_run_now": true
+          }
+        }
+      },
+      "block_bootstrap": {
+        "mean_tokens_per_slot": 142277007.7,
+        "reserve_gpu_s_per_site_slot": 21718.4,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 1324.645,
+            "missed_fraction": 0.0402,
+            "served_gpu_h": 12745.3,
+            "variable_carbon_kg": 1139.021,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 89.4,
+            "energy_kwh": 10317.2,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 2.843,
+            "mean_served_wait_min": 85.3,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1324.646,
+            "objective_at_price": {
+              "0.1": 1378.028,
+              "0.3": 1484.792,
+              "1.0": 1858.469
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 1274.189,
+            "missed_fraction": 0.0366,
+            "served_gpu_h": 12573.9,
+            "variable_carbon_kg": 1088.564,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 86.6,
+            "energy_kwh": 10196.4,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.692,
+            "mean_served_wait_min": 110.8,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1289.025,
+            "objective_at_price": {
+              "0.1": 1322.768,
+              "0.3": 1419.928,
+              "1.0": 1759.986
+            },
+            "carbon_vs_run_now_pct": -3.809,
+            "missed_vs_run_now_pp": -0.36,
+            "matched_service_vs_run_now_pct": -2.689,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 1182.361,
+            "missed_fraction": 0.0402,
+            "served_gpu_h": 12278.5,
+            "variable_carbon_kg": 996.736,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 81.2,
+            "energy_kwh": 9988.1,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 4.538,
+            "mean_served_wait_min": 136.2,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1220.251,
+            "objective_at_price": {
+              "0.1": 1235.721,
+              "0.3": 1342.441,
+              "1.0": 1715.963
+            },
+            "carbon_vs_run_now_pct": -10.741,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -7.881,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 1189.811,
+            "missed_fraction": 0.0291,
+            "served_gpu_h": 11983.5,
+            "variable_carbon_kg": 1004.186,
+            "idle_carbon_kg": 185.625,
+            "carbon_g_per_served_gpu_h": 83.8,
+            "energy_kwh": 9780.1,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 4.308,
+            "mean_served_wait_min": 129.3,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1253.645,
+            "objective_at_price": {
+              "0.1": 1228.476,
+              "0.3": 1305.805,
+              "1.0": 1576.457
+            },
+            "carbon_vs_run_now_pct": -10.179,
+            "missed_vs_run_now_pp": -1.11,
+            "matched_service_vs_run_now_pct": -5.36,
+            "pareto_vs_run_now": true
+          }
+        }
+      }
+    },
+    "slack": {
+      "real": {
+        "mean_tokens_per_slot": 126726137.1,
+        "reserve_gpu_s_per_site_slot": 15472.0,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 1109.038,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 11827.8,
+            "variable_carbon_kg": 812.038,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 68.7,
+            "energy_kwh": 10468.7,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 0.526,
+            "mean_served_wait_min": 15.8,
+            "max_served_wait_slots": 9,
+            "matched_service_carbon_kg_extrapolated": 1109.038,
+            "objective_at_price": {
+              "0.1": 1109.038,
+              "0.3": 1109.038,
+              "1.0": 1109.038
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 1035.713,
+            "missed_fraction": 0.0048,
+            "served_gpu_h": 11766.6,
+            "variable_carbon_kg": 738.713,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 62.8,
+            "energy_kwh": 10425.5,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 1.78,
+            "mean_served_wait_min": 53.4,
+            "max_served_wait_slots": 9,
+            "matched_service_carbon_kg_extrapolated": 1039.553,
+            "objective_at_price": {
+              "0.1": 1041.331,
+              "0.3": 1052.567,
+              "1.0": 1091.895
+            },
+            "carbon_vs_run_now_pct": -6.612,
+            "missed_vs_run_now_pp": 0.48,
+            "matched_service_vs_run_now_pct": -6.265,
+            "pareto_vs_run_now": false
+          },
+          "look8_ghost": {
+            "carbon_kg": 930.486,
+            "missed_fraction": 0.0158,
+            "served_gpu_h": 11638.2,
+            "variable_carbon_kg": 633.486,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 54.4,
+            "energy_kwh": 10335.0,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.458,
+            "mean_served_wait_min": 103.7,
+            "max_served_wait_slots": 14,
+            "matched_service_carbon_kg_extrapolated": 940.804,
+            "objective_at_price": {
+              "0.1": 949.193,
+              "0.3": 986.608,
+              "1.0": 1117.562
+            },
+            "carbon_vs_run_now_pct": -16.1,
+            "missed_vs_run_now_pp": 1.58,
+            "matched_service_vs_run_now_pct": -15.169,
+            "pareto_vs_run_now": false
+          },
+          "look4_reserve": {
+            "carbon_kg": 961.459,
+            "missed_fraction": 0.0151,
+            "served_gpu_h": 11436.6,
+            "variable_carbon_kg": 664.46,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 58.1,
+            "energy_kwh": 10192.8,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.703,
+            "mean_served_wait_min": 111.1,
+            "max_served_wait_slots": 14,
+            "matched_service_carbon_kg_extrapolated": 984.189,
+            "objective_at_price": {
+              "0.1": 979.299,
+              "0.3": 1014.98,
+              "1.0": 1139.861
+            },
+            "carbon_vs_run_now_pct": -13.307,
+            "missed_vs_run_now_pp": 1.51,
+            "matched_service_vs_run_now_pct": -11.257,
+            "pareto_vs_run_now": false
+          }
+        }
+      },
+      "scale_0.5": {
+        "mean_tokens_per_slot": 63363068.6,
+        "reserve_gpu_s_per_site_slot": 7736.0,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 479.041,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 5913.9,
+            "variable_carbon_kg": 182.042,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 30.8,
+            "energy_kwh": 6298.8,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 0.0,
+            "mean_served_wait_min": 0.0,
+            "max_served_wait_slots": 0,
+            "matched_service_carbon_kg_extrapolated": 479.041,
+            "objective_at_price": {
+              "0.1": 479.041,
+              "0.3": 479.041,
+              "1.0": 479.041
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 443.644,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 5913.9,
+            "variable_carbon_kg": 146.644,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 24.8,
+            "energy_kwh": 6298.8,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 1.533,
+            "mean_served_wait_min": 46.0,
+            "max_served_wait_slots": 11,
+            "matched_service_carbon_kg_extrapolated": 443.643,
+            "objective_at_price": {
+              "0.1": 443.644,
+              "0.3": 443.644,
+              "1.0": 443.644
+            },
+            "carbon_vs_run_now_pct": -7.389,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -7.389,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 423.19,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 5913.9,
+            "variable_carbon_kg": 126.19,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 21.3,
+            "energy_kwh": 6298.8,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.182,
+            "mean_served_wait_min": 95.5,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 423.19,
+            "objective_at_price": {
+              "0.1": 423.19,
+              "0.3": 423.19,
+              "1.0": 423.19
+            },
+            "carbon_vs_run_now_pct": -11.659,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -11.659,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 439.624,
+            "missed_fraction": 0.0019,
+            "served_gpu_h": 5900.9,
+            "variable_carbon_kg": 142.624,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 24.2,
+            "energy_kwh": 6289.6,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.456,
+            "mean_served_wait_min": 103.7,
+            "max_served_wait_slots": 14,
+            "matched_service_carbon_kg_extrapolated": 439.937,
+            "objective_at_price": {
+              "0.1": 440.768,
+              "0.3": 443.054,
+              "1.0": 451.058
+            },
+            "carbon_vs_run_now_pct": -8.228,
+            "missed_vs_run_now_pp": 0.19,
+            "matched_service_vs_run_now_pct": -8.163,
+            "pareto_vs_run_now": false
+          }
+        }
+      },
+      "scale_2.0": {
+        "mean_tokens_per_slot": 253452274.3,
+        "reserve_gpu_s_per_site_slot": 30943.9,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 1744.086,
+            "missed_fraction": 0.2143,
+            "served_gpu_h": 18585.9,
+            "variable_carbon_kg": 1447.086,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 77.9,
+            "energy_kwh": 15233.8,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 2.859,
+            "mean_served_wait_min": 85.8,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1744.085,
+            "objective_at_price": {
+              "0.1": 2251.024,
+              "0.3": 3264.901,
+              "1.0": 6813.469
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 1640.654,
+            "missed_fraction": 0.2085,
+            "served_gpu_h": 18238.3,
+            "variable_carbon_kg": 1343.654,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 73.7,
+            "energy_kwh": 14988.8,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.554,
+            "mean_served_wait_min": 106.6,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1666.258,
+            "objective_at_price": {
+              "0.1": 2133.932,
+              "0.3": 3120.486,
+              "1.0": 6573.427
+            },
+            "carbon_vs_run_now_pct": -5.93,
+            "missed_vs_run_now_pp": -0.58,
+            "matched_service_vs_run_now_pct": -4.462,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 1551.257,
+            "missed_fraction": 0.1978,
+            "served_gpu_h": 17832.6,
+            "variable_carbon_kg": 1254.258,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 70.3,
+            "energy_kwh": 14702.7,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 4.292,
+            "mean_served_wait_min": 128.8,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1604.237,
+            "objective_at_price": {
+              "0.1": 2019.085,
+              "0.3": 2954.741,
+              "1.0": 6229.536
+            },
+            "carbon_vs_run_now_pct": -11.056,
+            "missed_vs_run_now_pp": -1.65,
+            "matched_service_vs_run_now_pct": -8.018,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 1597.274,
+            "missed_fraction": 0.2041,
+            "served_gpu_h": 17696.5,
+            "variable_carbon_kg": 1300.274,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 73.5,
+            "energy_kwh": 14606.7,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 4.434,
+            "mean_served_wait_min": 133.0,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1662.622,
+            "objective_at_price": {
+              "0.1": 2080.064,
+              "0.3": 3045.644,
+              "1.0": 6425.174
+            },
+            "carbon_vs_run_now_pct": -8.418,
+            "missed_vs_run_now_pp": -1.02,
+            "matched_service_vs_run_now_pct": -4.671,
+            "pareto_vs_run_now": true
+          }
+        }
+      },
+      "shift_12h": {
+        "mean_tokens_per_slot": 126726137.1,
+        "reserve_gpu_s_per_site_slot": 15472.0,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 1070.662,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 11827.8,
+            "variable_carbon_kg": 773.662,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 65.4,
+            "energy_kwh": 10468.7,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 0.526,
+            "mean_served_wait_min": 15.8,
+            "max_served_wait_slots": 9,
+            "matched_service_carbon_kg_extrapolated": 1070.662,
+            "objective_at_price": {
+              "0.1": 1070.662,
+              "0.3": 1070.662,
+              "1.0": 1070.662
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 1030.701,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 11827.8,
+            "variable_carbon_kg": 733.701,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 62.0,
+            "energy_kwh": 10468.7,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 1.788,
+            "mean_served_wait_min": 53.7,
+            "max_served_wait_slots": 10,
+            "matched_service_carbon_kg_extrapolated": 1030.701,
+            "objective_at_price": {
+              "0.1": 1030.701,
+              "0.3": 1030.701,
+              "1.0": 1030.701
+            },
+            "carbon_vs_run_now_pct": -3.732,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -3.732,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 958.058,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 11827.8,
+            "variable_carbon_kg": 661.058,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 55.9,
+            "energy_kwh": 10468.7,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.53,
+            "mean_served_wait_min": 105.9,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 958.058,
+            "objective_at_price": {
+              "0.1": 958.058,
+              "0.3": 958.058,
+              "1.0": 958.058
+            },
+            "carbon_vs_run_now_pct": -10.517,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -10.517,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 990.78,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 11654.3,
+            "variable_carbon_kg": 693.78,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 59.5,
+            "energy_kwh": 10346.3,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.886,
+            "mean_served_wait_min": 116.6,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1001.107,
+            "objective_at_price": {
+              "0.1": 990.78,
+              "0.3": 990.78,
+              "1.0": 990.78
+            },
+            "carbon_vs_run_now_pct": -7.461,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -6.496,
+            "pareto_vs_run_now": true
+          }
+        }
+      },
+      "day_shuffle": {
+        "mean_tokens_per_slot": 126726137.1,
+        "reserve_gpu_s_per_site_slot": 18032.1,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 1121.286,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 11827.8,
+            "variable_carbon_kg": 824.286,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 69.7,
+            "energy_kwh": 10468.7,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 0.526,
+            "mean_served_wait_min": 15.8,
+            "max_served_wait_slots": 9,
+            "matched_service_carbon_kg_extrapolated": 1121.286,
+            "objective_at_price": {
+              "0.1": 1121.286,
+              "0.3": 1121.286,
+              "1.0": 1121.286
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 1038.708,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 11827.8,
+            "variable_carbon_kg": 741.708,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 62.7,
+            "energy_kwh": 10468.7,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 2.058,
+            "mean_served_wait_min": 61.7,
+            "max_served_wait_slots": 10,
+            "matched_service_carbon_kg_extrapolated": 1038.708,
+            "objective_at_price": {
+              "0.1": 1038.708,
+              "0.3": 1038.708,
+              "1.0": 1038.708
+            },
+            "carbon_vs_run_now_pct": -7.365,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -7.365,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 949.418,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 11824.0,
+            "variable_carbon_kg": 652.419,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 55.2,
+            "energy_kwh": 10466.0,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.805,
+            "mean_served_wait_min": 114.1,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 949.625,
+            "objective_at_price": {
+              "0.1": 949.418,
+              "0.3": 949.418,
+              "1.0": 949.418
+            },
+            "carbon_vs_run_now_pct": -15.328,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -15.309,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 987.766,
+            "missed_fraction": 0.0044,
+            "served_gpu_h": 11569.2,
+            "variable_carbon_kg": 690.766,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 59.7,
+            "energy_kwh": 10286.4,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.673,
+            "mean_served_wait_min": 110.2,
+            "max_served_wait_slots": 14,
+            "matched_service_carbon_kg_extrapolated": 1003.203,
+            "objective_at_price": {
+              "0.1": 992.93,
+              "0.3": 1003.26,
+              "1.0": 1039.414
+            },
+            "carbon_vs_run_now_pct": -11.908,
+            "missed_vs_run_now_pp": 0.44,
+            "matched_service_vs_run_now_pct": -10.531,
+            "pareto_vs_run_now": false
+          }
+        }
+      },
+      "block_bootstrap": {
+        "mean_tokens_per_slot": 142277007.7,
+        "reserve_gpu_s_per_site_slot": 21718.4,
+        "arms": {
+          "run_now": {
+            "carbon_kg": 1273.396,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 13279.2,
+            "variable_carbon_kg": 976.396,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 73.5,
+            "energy_kwh": 11492.1,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 0.455,
+            "mean_served_wait_min": 13.7,
+            "max_served_wait_slots": 10,
+            "matched_service_carbon_kg_extrapolated": 1273.396,
+            "objective_at_price": {
+              "0.1": 1273.396,
+              "0.3": 1273.396,
+              "1.0": 1273.396
+            }
+          },
+          "look4_ghost": {
+            "carbon_kg": 1149.643,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 13279.2,
+            "variable_carbon_kg": 852.643,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 64.2,
+            "energy_kwh": 11492.1,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 1.879,
+            "mean_served_wait_min": 56.4,
+            "max_served_wait_slots": 10,
+            "matched_service_carbon_kg_extrapolated": 1149.643,
+            "objective_at_price": {
+              "0.1": 1149.643,
+              "0.3": 1149.643,
+              "1.0": 1149.643
+            },
+            "carbon_vs_run_now_pct": -9.718,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -9.718,
+            "pareto_vs_run_now": true
+          },
+          "look8_ghost": {
+            "carbon_kg": 1041.043,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 13277.8,
+            "variable_carbon_kg": 744.044,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 56.0,
+            "energy_kwh": 11491.0,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.417,
+            "mean_served_wait_min": 102.5,
+            "max_served_wait_slots": 15,
+            "matched_service_carbon_kg_extrapolated": 1041.124,
+            "objective_at_price": {
+              "0.1": 1041.043,
+              "0.3": 1041.043,
+              "1.0": 1041.043
+            },
+            "carbon_vs_run_now_pct": -18.247,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -18.24,
+            "pareto_vs_run_now": true
+          },
+          "look4_reserve": {
+            "carbon_kg": 1083.685,
+            "missed_fraction": 0.0,
+            "served_gpu_h": 13131.0,
+            "variable_carbon_kg": 786.685,
+            "idle_carbon_kg": 297.0,
+            "carbon_g_per_served_gpu_h": 59.9,
+            "energy_kwh": 11387.6,
+            "energy_cost_usd": 0.0,
+            "mean_served_wait_slots": 3.712,
+            "mean_served_wait_min": 111.4,
+            "max_served_wait_slots": 14,
+            "matched_service_carbon_kg_extrapolated": 1092.562,
+            "objective_at_price": {
+              "0.1": 1083.685,
+              "0.3": 1083.685,
+              "1.0": 1083.685
+            },
+            "carbon_vs_run_now_pct": -14.898,
+            "missed_vs_run_now_pp": 0.0,
+            "matched_service_vs_run_now_pct": -14.201,
+            "pareto_vs_run_now": true
+          }
+        }
+      }
+    }
+  },
+  "note": "Every demand variant is a transformation of the one real Azure week, not synthetic demand. The reserve is re-calibrated on each variant's own arrivals. Arms are exp021's, unchanged; no operating point is selected on these weeks."
+}

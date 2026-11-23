@@ -1,0 +1,65 @@
+id: exp029-rolling-origin
+title: Full-year rolling-origin evaluation of the shipped scheduler
+phase: 3-agents
+seed: 42
+data:
+- data/uk_regional_2024_tidy.csv
+- data/uk_national_2023-12_2024-12.json
+- docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+- data/sustaincluster_uk/prices/gb_2024_hourly.csv
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+fleets:
+- name: capacity_bound
+  n_gpus: 25
+- name: slack
+  n_gpus: 40
+sites:
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+n_slots: 336
+deadlines:
+- 2
+- 4
+- 8
+- 16
+calibration_days: 28
+eval_months:
+- 10
+- 11
+- 12
+year: 2024
+prices:
+- 0.1
+- 0.3
+- 1.0
+rules:
+- run_now
+- last_slot
+arrival_level: 0.95
+arrival_window: 8
+hypothesis: exp020 selected one arm on Jan-Sep and reported it on 12 weeks. Rebuilding
+  the choice every week from prior weeks only over all 44 fully covered 2024 weeks
+  tests whether the headline survives the train/test boundary and whether the selection
+  is stable through the year. The oracle-per-week reference prices causal selection
+  honestly.
+months:
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+min_train_weeks: 8
+risk_alpha: 0.1

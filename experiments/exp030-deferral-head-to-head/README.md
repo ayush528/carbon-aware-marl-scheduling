@@ -15,9 +15,15 @@ A runtime buffer (`sim/deferral.py`) wraps two cluster-manager methods so any
 controller may hold a task back. **Upstream source is unmodified.** Two guarantees
 are pinned by tests:
 
-1. no task is lost or duplicated — every arm serves identical work;
+1. the wrapper loses or duplicates no task that the controller assigns;
 2. deferral never pushes a task past its last legal start, so the buffer cannot
    itself manufacture a violation.
+
+Work that expires while waiting is still missed by the simulator's own SLA
+accounting, which is why `tasks_finished` is reported for **every** arm below.
+At the published 1.5× deadline the compared arms serve identical work; at 4×
+and 8× they do not, and the difference is reported as a service result, never
+silently counted as a carbon saving.
 
 The timing policy (`myopic`: defer to the cheapest slot still inside the deadline)
 is **identical for all six controllers**. So a difference in outcome belongs to the
@@ -121,6 +127,9 @@ substitutes for the other.
   window; the arrival rate it budgets against is measured from the workload.
 * GB has one AWS region, so transmission cost is 0 and that term is inoperative;
   the price series is national, so `lowest_price` is degenerate.
+* The published simulator's controller interface does not expose served-work
+  queueing delay, so the latency axis of the comparison is measured in our own
+  environment (exp021), not here. Cost is reported in every arm's metrics.
 
 ## Reproduce
 

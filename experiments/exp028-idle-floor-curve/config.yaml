@@ -1,0 +1,107 @@
+id: exp028-idle-floor-curve
+title: The idle-floor share as a curve over utilisation, not a point at 88.7%
+phase: 2-simulator
+seed: 42
+data:
+- data/sustaincluster_uk/carbon/GB-London_2024_hourly.csv
+- data/sustaincluster_uk/carbon/GB-SouthWales_2024_hourly.csv
+- data/sustaincluster_uk/carbon/GB-NorthWestEngland_2024_hourly.csv
+- data/sustaincluster_uk/carbon/GB-SouthScotland_2024_hourly.csv
+- data/sustaincluster_uk/prices/gb_2024_hourly.csv
+- data/sustaincluster_uk/provenance.json
+- data/uk_regional_2024_tidy.csv
+- data/uk_national_2023-12_2024-12.json
+sustaincluster:
+  checkout: external/sustain-cluster
+  device: cpu
+  baselines:
+  - round_robin
+  - lowest_carbon
+  - lowest_price
+  - most_available
+  - least_pending
+simulation:
+  year: 2024
+  month: 1
+  init_day: 15
+  init_hour: 0
+  duration_days: 7
+  timestep_minutes: 15
+  workload_path: data/workload/alibaba_2020_dataset/result_df_full_year_2020.pkl
+  cloud_provider: aws
+  shuffle_datacenters: false
+  use_tensorboard: false
+  log_dir: runs/uk-floor-curve
+  disable_defer_action: true
+  single_action_mode: true
+  aggregation_method: average
+  location_regions:
+    GB-London: eu-west-2
+    GB-SouthWales: eu-west-2
+    GB-NorthWestEngland: eu-west-2
+    GB-SouthScotland: eu-west-2
+  init_day_of_year: 14
+planner:
+  forecast_csv: data/uk_regional_2024_tidy.csv
+  national_json: data/uk_national_2023-12_2024-12.json
+  region_ids:
+    GB-London: 13
+    GB-SouthWales: 7
+    GB-NorthWestEngland: 3
+    GB-SouthScotland: 2
+  alpha: 0.1
+  calibration_end: 2024-01-09T00:00Z
+sites:
+- dc_id: 1
+  location: GB-London
+  timezone_shift: 0
+  population_weight: 0.25
+  total_cores: 50000
+  total_gpus: 1000
+  total_mem: 80000
+  dc_config_file: configs/dcs/dc_config.json
+- dc_id: 2
+  location: GB-SouthWales
+  timezone_shift: 0
+  population_weight: 0.25
+  total_cores: 50000
+  total_gpus: 1000
+  total_mem: 80000
+  dc_config_file: configs/dcs/dc_config.json
+- dc_id: 3
+  location: GB-NorthWestEngland
+  timezone_shift: 0
+  population_weight: 0.25
+  total_cores: 50000
+  total_gpus: 1000
+  total_mem: 80000
+  dc_config_file: configs/dcs/dc_config.json
+- dc_id: 4
+  location: GB-SouthScotland
+  timezone_shift: 0
+  population_weight: 0.25
+  total_cores: 50000
+  total_gpus: 1000
+  total_mem: 80000
+  dc_config_file: configs/dcs/dc_config.json
+hypothesis: exp023's 88.7% idle share was measured at one operating point (~7% utilisation).
+  The floor is set by the estate, so its share must fall as real work is added. Resampling
+  the real Alibaba task stream to five arrival rates and measuring the same sites,
+  week and controllers at each point turns the caveat into a curve and shows what
+  fraction of each published-style percentage was ever contestable.
+reward:
+  normalize: false
+  freeze_stats_after_steps: 2000
+  components:
+    energy_price:
+      weight: 0.9
+      args: {}
+    carbon_emissions:
+      weight: 0.3
+      args: {}
+arrival_scales:
+- 0.25
+- 0.5
+- 1.0
+- 2.0
+- 4.0
