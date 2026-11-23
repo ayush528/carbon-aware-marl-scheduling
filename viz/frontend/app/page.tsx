@@ -44,6 +44,17 @@ export default async function OverviewPage() {
       <h1 className="page-title">{project.title}</h1>
       <p className="page-lede">{project.subtitle}</p>
 
+      <Card title="Start here: one decision, explained">
+        <p className="fine" style={{ marginTop: 0 }}>
+          The scheduler page replays a held-out week through the planner the project ships and answers three
+          questions for a single queued item: what is waiting, where and when it was placed, and why the other
+          three sites lost. Every sentence in it is generated from the planner&apos;s own ledger.
+        </p>
+        <p>
+          <Link href="/scheduler">Open the scheduler dashboard →</Link>
+        </p>
+      </Card>
+
       <div className="legend" style={{ marginBottom: 22 }}>
         {meta.data!.legend.map((entry) => (
           <span key={entry.key} className="chip" data-tone={entry.tone}>
