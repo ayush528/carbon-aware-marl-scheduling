@@ -67,15 +67,11 @@ def _load_hourly_prices(path: Path) -> dict[datetime, float]:
             stamp = datetime.fromisoformat(row["Datetime (UTC)"])
             if stamp.tzinfo is not None:
                 stamp = stamp.astimezone(UTC).replace(tzinfo=None)
-            out[stamp.replace(minute=0, second=0, microsecond=0)] = float(
-                row["Price (USD/MWh)"]
-            )
+            out[stamp.replace(minute=0, second=0, microsecond=0)] = float(row["Price (USD/MWh)"])
     return out
 
 
-def _week_prices(
-    hourly: dict[datetime, float], start: datetime, n_slots: int
-) -> np.ndarray:
+def _week_prices(hourly: dict[datetime, float], start: datetime, n_slots: int) -> np.ndarray:
     """Price for each half-hour slot of an episode week (USD/MWh)."""
     base = start.replace(minute=0, second=0, microsecond=0)
     return np.array(
@@ -88,24 +84,17 @@ def _cost_usd(env, price_by_slot: np.ndarray) -> float:
     """What the episode's energy would have cost at the real GB price."""
     return float(np.sum(np.asarray(env.energy_kwh_by_slot) * price_by_slot) / 1000.0)
 
+
 # The deferral horizon, in slots. 0 = serve now, 16 = the longest deadline class.
 LOOKAHEADS = (0, 1, 2, 4, 8, 16)
 
 
-def _arms(
-    reserve_gpu_s: float, window: int, level_pct: int
-) -> dict[str, BlockPlanner]:
+def _arms(reserve_gpu_s: float, window: int, level_pct: int) -> dict[str, BlockPlanner]:
     """The frontier: horizon alone, then horizon plus each uncertainty input."""
-    arms: dict[str, BlockPlanner] = {
-        f"look{k}": BlockPlanner(max_lookahead=k) for k in LOOKAHEADS
-    }
+    arms: dict[str, BlockPlanner] = {f"look{k}": BlockPlanner(max_lookahead=k) for k in LOOKAHEADS}
     if reserve_gpu_s > 0.0:
-        arms[f"look4_q{level_pct:02d}"] = BlockPlanner(
-            max_lookahead=4, reserve_gpu_s=reserve_gpu_s
-        )
-        arms[f"look8_q{level_pct:02d}"] = BlockPlanner(
-            max_lookahead=8, reserve_gpu_s=reserve_gpu_s
-        )
+        arms[f"look4_q{level_pct:02d}"] = BlockPlanner(max_lookahead=4, reserve_gpu_s=reserve_gpu_s)
+        arms[f"look8_q{level_pct:02d}"] = BlockPlanner(max_lookahead=8, reserve_gpu_s=reserve_gpu_s)
         arms[f"plan_q{level_pct:02d}"] = BlockPlanner(reserve_gpu_s=reserve_gpu_s)
         arms[f"plan_ghost_q{level_pct:02d}"] = BlockPlanner(
             arrival_model="seasonal",
@@ -163,15 +152,12 @@ def _row_summary(
         "mean_served_wait_min": round(
             float(np.mean([r["mean_served_wait_slots"] for r in rows])) * SLOT_MINUTES, 1
         ),
-        "max_served_wait_slots": int(
-            np.mean([r["max_served_wait_slots"] for r in rows])
-        ),
+        "max_served_wait_slots": int(np.mean([r["max_served_wait_slots"] for r in rows])),
         "matched_service_carbon_kg_extrapolated": round(
             idle + intensity * ref_served_h / 1000.0, 3
         ),
         "objective_at_price": {
-            str(p): round(float(np.mean([_objective(r, p) for r in rows])), 3)
-            for p in prices
+            str(p): round(float(np.mean([_objective(r, p) for r in rows])), 3) for p in prices
         },
     }
 
@@ -193,13 +179,10 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     window = int(config["arrival_window"])
     level = float(config["arrival_level"])
 
-    price_path = next(
-        data.REPO_ROOT / str(p) for p in config["data"] if "prices/" in str(p)
-    )
+    price_path = next(data.REPO_ROOT / str(p) for p in config["data"] if "prices/" in str(p))
     hourly_prices = _load_hourly_prices(price_path)
     week_prices = {
-        start: _week_prices(hourly_prices, start, int(config["n_slots"]))
-        for start in held_out
+        start: _week_prices(hourly_prices, start, int(config["n_slots"])) for start in held_out
     }
     print(f"GB price series: {price_path.name}, {len(hourly_prices)} hourly rows")
 
@@ -292,9 +275,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 (entry["energy_cost_usd"] / ref_summary["energy_cost_usd"] - 1.0) * 100.0, 2
             )
             entry["pareto_vs_run_now"] = (
-                None
-                if label == "run_now"
-                else bool(carbon <= ref_carbon and missed <= ref_missed)
+                None if label == "run_now" else bool(carbon <= ref_carbon and missed <= ref_missed)
             )
             entry["paired_vs_run_now"] = None if label == "run_now" else _paired(rows, ref)
             bound = _mean_bound(
@@ -328,7 +309,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         )
         for label, entry in report["arms"].items():
             print(
-                f"  {label:16s} {entry['carbon_kg']:8.1f} {entry['missed_fraction']*100:6.2f}"
+                f"  {label:16s} {entry['carbon_kg']:8.1f} {entry['missed_fraction'] * 100:6.2f}"
                 f" {entry['served_gpu_h']:9.1f} {entry['carbon_g_per_served_gpu_h']:8.1f}"
                 f" {entry['mean_served_wait_min']:8.1f} {entry['energy_cost_usd']:8.1f}"
                 f" {entry['energy_cost_vs_run_now_pct']:+6.1f}"

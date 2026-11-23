@@ -334,9 +334,7 @@ class QueueEnv:
             else:
                 self.queues[agent][arrival] = amount
 
-        idle_energy = sum(
-            site_energy_kwh(site, 0.0, SLOT_MINUTES) for site in self.sites
-        )
+        idle_energy = sum(site_energy_kwh(site, 0.0, SLOT_MINUTES) for site in self.sites)
         self.energy_kwh_by_slot[t] += idle_energy
         idle = sum(
             site_energy_kwh(site, 0.0, SLOT_MINUTES) * float(self.realized[t, j]) / 1000.0

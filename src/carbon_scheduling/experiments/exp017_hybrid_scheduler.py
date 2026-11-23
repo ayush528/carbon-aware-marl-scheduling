@@ -241,9 +241,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
 
         results["fleets"][fleet["name"]] = report
         for label, entry in report["arms"].items():
-            objs = " ".join(
-                f"p{p:g}={entry['objective_at_price'][str(p)]:.0f}" for p in prices
-            )
+            objs = " ".join(f"p{p:g}={entry['objective_at_price'][str(p)]:.0f}" for p in prices)
             print(
                 f"  {label:18s} carbon {entry['carbon_kg']:8.1f} kg"
                 f"  missed {entry['missed_fraction']:.4f}"

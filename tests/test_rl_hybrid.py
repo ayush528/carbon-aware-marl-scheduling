@@ -115,9 +115,7 @@ def test_a_zero_lookahead_planner_serves_now_even_when_later_is_cheaper() -> Non
 
 def test_the_lookahead_bound_decides_how_far_ahead_the_plan_may_reach() -> None:
     """A one-slot horizon can use slot 1; a zero-slot horizon cannot leave slot 0."""
-    env = _env(
-        [1_000.0, 0.0, 0.0], forecast=[[900.0], [10.0], [1.0]], deadlines=(3,), n_gpus=10
-    )
+    env = _env([1_000.0, 0.0, 0.0], forecast=[[900.0], [10.0], [1.0]], deadlines=(3,), n_gpus=10)
     env.reset()
     assert BlockPlanner(max_lookahead=0).plan(env, env.t)[0] == pytest.approx(1_000.0)
     assert BlockPlanner(max_lookahead=1).plan(env, env.t)[0] == pytest.approx(0.0)

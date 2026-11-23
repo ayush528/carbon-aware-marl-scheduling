@@ -235,9 +235,7 @@ class DurationAwareStrategy:
     def _score(self, dc: Any, now: datetime, duration_minutes: float) -> float | None:
         slug = getattr(dc, "location", "")
         hours = (
-            duration_minutes
-            if self.window_hours is None
-            else max(1.0, self.window_hours * 60.0)
+            duration_minutes if self.window_hours is None else max(1.0, self.window_hours * 60.0)
         )
         return _window_risk(
             self.forecast.get(slug, {}),
