@@ -1,0 +1,45 @@
+id: exp018-arrival-reserve
+title: A calibrated reserve for the arrivals the planner cannot see
+phase: "3-agents"
+seed: 42
+data:
+  - data/uk_regional_2024_tidy.csv
+  - data/uk_national_2023-12_2024-12.json
+  - docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv
+
+regions:
+  GB-London: 13
+  GB-SouthWales: 7
+  GB-NorthWestEngland: 3
+  GB-SouthScotland: 2
+
+fleets:
+  - name: capacity_bound
+    n_gpus: 25
+  - name: slack
+    n_gpus: 40
+
+sites:
+  gpu_idle_w: 72.0
+  gpu_peak_w: 713.0
+  pue: 1.1
+  tokens_per_gpu_second: 1000.0
+
+n_slots: 336
+deadlines: [2, 4, 8, 16]
+calibration_days: 28
+eval_months: [10, 11, 12]
+year: 2024
+
+prices: [0.1, 0.3, 1.0]
+rules: [run_now, last_slot]
+
+# The arrival quantile. window = 8 slots (4 h) is the trailing mean the reserve
+# is measured against; the levels are fixed here, not chosen on the evaluation
+# weeks. The quantile is calibrated on the first half of the one real Azure week
+# and its coverage is measured on the second half, which it never saw.
+arrival_window: 8
+arrival_levels: [0.5, 0.9, 0.95]
+# The fixed fractional reserve exp017 swept, kept as the comparator: exp017 found
+# 20% best on the capacity-bound fleet and 30% on the slack one.
+fixed_reserve: 0.2

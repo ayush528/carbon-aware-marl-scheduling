@@ -295,3 +295,28 @@ experiments:
       2024 weeks, both fleets, on carbon + price * missed GPU-hours at 0.1 (parity),
       0.3 (the rule frontier's crossover) and 1.0 (a service obligation), each arm
       also scored against the exact schedule at its own served volume, week by week.
+
+  - id: exp018-arrival-reserve
+    title: A calibrated reserve for the arrivals the planner cannot see
+    phase: "3-agents"
+    status: draft
+    rollback_tag: null
+    description: >
+      exp017 left the reserve as the only thing that moves the planner's numbers
+      after placement is solved (slack fleet 854.6 kg with no reserve, 784.0 with
+      30% at the same 3.4% missed), and it left the carbon band with no decision
+      to change for the third independent time -- under national scaling the
+      realized regional intensity is the forecast times one common factor per
+      slot, so the ordering the planner acts on is the forecast's ordering. So
+      uncertainty earns its place on demand: this experiment replaces the
+      hand-set reserve with a calibrated one. A trailing-mean arrival predictor is
+      scored against what arrived, and the reserve is the split-conformal upper
+      quantile of the positive exceedance, in GPU-seconds, spread over the sites
+      and the tightest deadline window. The profile is the one real Azure week
+      (disclosed), so the quantile is calibrated on its first half and its
+      coverage measured on the second half, in both directions, because the two
+      halves of a diurnal trace are not exchangeable and hiding that would be
+      dishonest. Arms: two rules, the planner with no reserve, with exp017's fixed
+      20%, and with the calibrated quantile at 0.5/0.9/0.95; 12 held-out Oct-Dec
+      2024 weeks, both fleets, three prices, every arm also scored against the
+      exact schedule at its own served volume.

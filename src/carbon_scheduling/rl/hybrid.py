@@ -67,6 +67,16 @@ class BlockPlanner:
         arrivals that will land there with nowhere to run; measured on the slack
         fleet that costs 3.4% of work even though the fleet has enough capacity
         in aggregate. The reserve is what those arrivals run in.
+    arrival_forecast
+        Trailing window (slots) for a causal arrival-rate estimate. When set, it
+        is turned into a capacity reserve directly; prefer ``reserve_gpu_s``,
+        which is the calibrated form (see ``rl/arrival_risk.py``).
+    reserve_gpu_s
+        Absolute GPU-seconds held back from every block in the plan -- the
+        per-site-per-slot share of a calibrated arrival-excess quantile. This is
+        the form with a coverage claim: the reserve bounds how much more work
+        arrives than the trailing mean predicted, at a stated level on weeks the
+        quantile never saw.
     """
 
     def __init__(
@@ -75,12 +85,14 @@ class BlockPlanner:
         max_slots_ahead: int | None = None,
         reserve: float = 0.0,
         arrival_forecast: int = 0,
+        reserve_gpu_s: float = 0.0,
     ) -> None:
         self.robust = float(robust)
         self.max_slots_ahead = max_slots_ahead
         self.reserve = float(reserve)
         # Window (in slots) of the causal arrival-rate estimate; 0 disables it.
         self.arrival_forecast = int(arrival_forecast)
+        self.reserve_gpu_s = float(reserve_gpu_s)
 
     def _price(self, env: QueueEnv, slot: int, site: int) -> float:
         return float(env.forecast[slot, site]) + self.robust * float(env.band[slot, site])
@@ -111,6 +123,9 @@ class BlockPlanner:
             held = rate / env.n_agents * tightest / len(env.sites)
             for key in free:
                 free[key] = max(0.0, free[key] - held)
+        if self.reserve_gpu_s > 0.0:
+            for key in free:
+                free[key] = max(0.0, free[key] - self.reserve_gpu_s)
         price = {key: self._price(env, key[0], key[1]) for key in free}
 
         # Items, tightest deadline first, then oldest arrival.

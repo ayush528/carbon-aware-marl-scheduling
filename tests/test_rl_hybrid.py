@@ -147,6 +147,22 @@ def test_the_arrival_reserve_makes_the_planner_more_cautious_now() -> None:
     assert cautious >= plain
 
 
+def test_a_calibrated_reserve_holds_capacity_back_in_absolute_terms() -> None:
+    """The reserve in GPU-seconds is what a calibrated arrival quantile produces.
+
+    One site, 10 GPUs (18,000 GPU-s per slot), 18,000 GPU-s of backlog and a cheap
+    first slot. A 5,000 GPU-s reserve must leave exactly 13,000 of that slot's
+    capacity to the plan, and the rest must go to the next slot rather than be
+    dropped.
+    """
+    env = _env([18_000.0, 0.0], forecast=[[10.0], [900.0]], deadlines=(2,), n_gpus=10)
+    env.reset()
+    plain = BlockPlanner().plan(env, env.t)[0]
+    reserved = BlockPlanner(reserve_gpu_s=5_000.0).plan(env, env.t)[0]
+    assert plain == pytest.approx(18_000.0)
+    assert reserved == pytest.approx(13_000.0)
+
+
 def test_the_flow_planner_agrees_with_the_greedy_on_one_slot_one_class() -> None:
     env = _env([1_000.0], forecast=[[10.0]], deadlines=(2,), n_gpus=10)
     env.reset()
