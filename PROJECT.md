@@ -15,15 +15,17 @@ workloads across data centers in different electricity grid regions to cut
 carbon emissions without missing deadlines — built on real-world data only.
 
 - **Main goal: a publishable journal paper**, and the bar for that is a
-  **novel experiment**. The claim as of 2026-11-23 is narrower than the original
-  one and must stay narrow: decentralised multi-agent scheduling with a CVaR
-  tail term on SLA violations, evaluated with **matched-service accounting**, on
-  real region-matched carbon. The "first to use conformal uncertainty on carbon
-  intensity" part is **no longer defensible** — arXiv 2407.02390 (2024, rev.
-  2026) already does it, and the 30-paper survey predates it. See
-  `docs/research/2024-2026-carbon-scheduling-comparison.md`. The defensible
-  uncertainty contribution is the measured negative result that, under the
-  national-scaling estimator, the band cannot reorder sites. Every phase must
+  **novel experiment**. The claim as of 2026-11-23 must be a *combination* claim
+  and must be stated as "we did not find", never "first": decentralised
+  multi-agent scheduling with a CVaR tail term on SLA violations, evaluated with
+  **matched-service accounting**, on real region-matched carbon. The survey
+  already knew the conformal-uncertainty paper (arXiv 2407.02390 / SIGENERGY
+  2024) and correctly noted it has no control agents; what changed since is that
+  2026 added strong centralised carbon+SLA solvers (arXiv 2607.22806, 2610.14571,
+  2609.14775), so the gap is narrower than a 30-paper 2024–2025 survey implies.
+  See `docs/research/2024-2026-carbon-scheduling-comparison.md`. The
+  uncertainty-specific contribution is a *measured negative result*: under the
+  national-scaling estimator the band cannot reorder sites. Every phase must
   produce evidence toward the narrowed claim; work that doesn't is scaffolding
   and is kept minimal.
 - **The problem:** public workload traces never name the grid region their

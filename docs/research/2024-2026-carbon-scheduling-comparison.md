@@ -102,13 +102,22 @@ Three honest statements follow:
 
 ## 5. The novelty claim has to change
 
-The project context currently says the contribution is the *first* combination of
-decentralised limited-communication MARL + calibrated forecast uncertainty + real
-region-matched carbon + risk-aware deadlines. **Paper 6 (arXiv 2407.02390) already
-does conformal carbon-intensity uncertainty for datacenter load shifting**, and
-CarbonX (9) ships uncertainty with its forecasts. "First to use conformal
-prediction on carbon intensity" is therefore **not defensible** and must be
-removed.
+The existing survey (`docs/research/report/executive-summary.md`) claims the
+*combination* of decentralised limited-communication MARL + calibrated forecast
+uncertainty + real region-matched carbon + risk-aware deadlines, and it already
+acknowledged that the conformal-uncertainty paper (arXiv 2407.02390, the
+SIGENERGY 2024 version) has no control agents. That specific claim is not
+contradicted by anything below — but three things must change in how it is
+written:
+
+- **No "first" language.** The right form is "we did not find a published system
+  that …", with the closest prior art named, not "the first".
+- **The survey is now stale.** It covers 2024–2025, and 2026 added the strongest
+  centralised carbon+SLA solvers in the table (papers 1, 2, 4). It must be
+  refreshed before submission, or the paper will look uninformed.
+- **Conformal carbon uncertainty is prior art** (paper 6) and CarbonX (9) ships
+  uncertainty with its forecasts, so uncertainty is not a novelty by itself; it
+  is only novel *inside* the combination.
 
 What remains defensible, and should be the revised claim:
 
