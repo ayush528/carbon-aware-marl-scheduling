@@ -149,6 +149,8 @@ class QueueEnv:
         self.carbon_kg = np.zeros(self.n_agents)
         self.idle_carbon_kg = 0.0
         self.served_gpu_s = 0.0
+        self.served_wait_slot_s = 0.0
+        self.max_served_wait_slots = 0
         self.served_by_agent = np.zeros(self.n_agents)
         self.violated_by_agent = np.zeros(self.n_agents)
         self.owned_gpu_s = np.zeros(self.n_agents)
@@ -315,6 +317,9 @@ class QueueEnv:
                 remaining[site_index] -= take
                 amount -= take
                 served += take
+                wait = t - arrival
+                self.served_wait_slot_s += take * wait
+                self.max_served_wait_slots = max(self.max_served_wait_slots, wait)
                 site_totals[site_index] += take
                 self.served_by_agent[agent] += take
                 site = self.sites[site_index]
@@ -389,6 +394,14 @@ class QueueEnv:
             "idle_carbon_kg": round(float(self.idle_carbon_kg), 3),
             "offered_gpu_s": round(offered, 1),
             "served_gpu_s": round(float(self.served_gpu_s), 1),
+            # Response latency of the work that WAS served: GPU-second-weighted
+            # mean queueing delay and the worst one. A deferral that lowers carbon
+            # by making every served request slower is a different product, and
+            # this is the number that shows it.
+            "mean_served_wait_slots": round(
+                float(self.served_wait_slot_s) / max(float(self.served_gpu_s), 1e-9), 3
+            ),
+            "max_served_wait_slots": int(self.max_served_wait_slots),
             "missed_fraction": round(missed / offered, 4) if offered else 0.0,
             # The learner's history logger reads this name; a missed deadline is
             # exactly what it means, so the alias is the honest one.

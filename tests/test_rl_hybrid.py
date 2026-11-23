@@ -313,3 +313,14 @@ def test_a_ghost_that_cannot_be_placed_never_becomes_an_offer() -> None:
     # The prediction is huge relative to one 1,800 GPU-s block, so most of it has
     # nowhere to go; the offer must still be exactly zero.
     assert planner.plan(env, 2) == {0: 0.0}
+
+
+def test_served_latency_is_measured_on_the_work_that_was_served() -> None:
+    """Deferral lowers carbon by making served work wait; that has to be visible."""
+    env = _env([1_000.0, 0.0], forecast=[[900.0], [10.0]], deadlines=(2,), n_gpus=10)
+    env.reset()
+    env.step_offers([0.0])  # defer all of slot 0's work
+    env.step_offers([1_000.0])  # serve it one slot later
+    summary = env.summary()
+    assert summary["mean_served_wait_slots"] == pytest.approx(1.0)
+    assert summary["max_served_wait_slots"] == 1

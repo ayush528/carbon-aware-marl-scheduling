@@ -113,6 +113,18 @@ def _row_summary(
         # NOTE: the exp017-020 key `carbon_g_per_served_kwh` holds this same
         # number; the name there is wrong -- it is grams per served GPU-hour.
         "carbon_g_per_served_gpu_h": round(intensity, 1),
+        # Latency of the work that was actually served, not of the whole stream:
+        # shed work has no response time, so including it would flatter a
+        # scheduler that misses deadlines.
+        "mean_served_wait_slots": round(
+            float(np.mean([r["mean_served_wait_slots"] for r in rows])), 3
+        ),
+        "mean_served_wait_min": round(
+            float(np.mean([r["mean_served_wait_slots"] for r in rows])) * SLOT_MINUTES, 1
+        ),
+        "max_served_wait_slots": int(
+            np.mean([r["max_served_wait_slots"] for r in rows])
+        ),
         "matched_service_carbon_kg_extrapolated": round(
             idle + intensity * ref_served_h / 1000.0, 3
         ),
@@ -249,12 +261,14 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         results["fleets"][fleet["name"]] = report
         print(
             f"  {'arm':16s} {'kg':>8s} {'miss%':>6s} {'served_h':>9s}"
-            f" {'g/GPU-h':>8s} {'match_kg':>9s} {'pareto':>7s}"
+            f" {'g/GPU-h':>8s} {'wait_min':>8s} {'max_wait':>8s}"
+            f" {'match_kg':>9s} {'pareto':>7s}"
         )
         for label, entry in report["arms"].items():
             print(
                 f"  {label:16s} {entry['carbon_kg']:8.1f} {entry['missed_fraction']*100:6.2f}"
                 f" {entry['served_gpu_h']:9.1f} {entry['carbon_g_per_served_gpu_h']:8.1f}"
+                f" {entry['mean_served_wait_min']:8.1f} {entry['max_served_wait_slots']:8d}"
                 f" {entry['matched_service_carbon_kg_extrapolated']:9.1f}"
                 f" {str(entry['pareto_vs_run_now']):>7s}"
             )
