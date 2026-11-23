@@ -458,3 +458,40 @@ experiments:
       near-zero-intensity hydro region (worst week +41.6%). A better forecaster
       removes most of the apparent benefit. Also fixes a real bug in exp026:
       relative bands were added as constants instead of scaling the forecast.
+
+  - id: exp030-deferral-head-to-head
+    title: The head-to-head with the timing lever available to every controller equally
+    phase: "2-simulator"
+    status: merged
+    rollback_tag: exp/exp030-deferral-head-to-head
+    description: >
+      exp022 could compare placement only: upstream's controller interface discards
+      a task when a strategy returns no site. A tested runtime wrapper (sim/deferral.py)
+      gives every controller the same deferral lever without touching upstream source;
+      no task is lost or duplicated and deferral never pushes past the last legal start.
+      The declared SLA is widened identically for all arms because upstream's 1.5x
+      leaves only ~38 minutes of slack on a median task. Result: with the shared lever
+      our forecast-only planner edges the realized-reading lowest_carbon by 37.9 kg
+      (-0.036%) at the published deadline, at identical 0.27% SLA and 21,886 tasks.
+      At 4x and 8x slack the two converge exactly (placement is saturated). The real
+      differentiator is service: the myopic leisure rule violates 1.44% of SLAs at 8x
+      (29x the placement baseline) while our calibrated reserve holds it to 0.13%,
+      an 11x reduction, finishing 847 more tasks for +0.55% carbon. The lever is worth
+      0.03%, 1.07% and 2.02% of total carbon at 1.5x/4x/8x; normalising by the measured
+      11.28% contestable range reconciles this with our environment's 6-12%.
+
+  - id: exp031-demand-robustness
+    title: Does the carbon saving survive a different workload?
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp031-demand-robustness
+    description: >
+      The one real Azure week has been reused in every dispatch experiment. This
+      re-runs exp021's arms on transformations of that real trace -- volume 0.5x and
+      2x, a 12-hour phase rotation, day permutation, and 4-hour block bootstrap --
+      with the arrival reserve re-calibrated on each variant's own arrivals. The matched-
+      service saving is positive in 12 of 12 variant x fleet cells (2.69-18.69%
+      capacity-bound, 3.73-18.24% slack), and the `real` row reproduces exp021 exactly.
+      Magnitude is demand-dependent: it shrinks at 2x volume on the capacity-bound
+      fleet (saturated estate) and grows at 0.5x. Limitation stays explicit: these are
+      transformations of one real trace, not a second workload.
