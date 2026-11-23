@@ -1,0 +1,401 @@
+{
+  "train_weeks": [
+    "2024-02-05",
+    "2024-02-12",
+    "2024-02-19",
+    "2024-02-26",
+    "2024-03-04",
+    "2024-03-11",
+    "2024-03-18",
+    "2024-03-25",
+    "2024-04-01",
+    "2024-04-08",
+    "2024-04-15",
+    "2024-04-22",
+    "2024-04-29",
+    "2024-05-06",
+    "2024-05-13",
+    "2024-05-20",
+    "2024-05-27",
+    "2024-06-03",
+    "2024-06-17",
+    "2024-07-01",
+    "2024-07-15",
+    "2024-07-22",
+    "2024-07-29",
+    "2024-08-05",
+    "2024-08-12",
+    "2024-08-19",
+    "2024-08-26",
+    "2024-09-02",
+    "2024-09-09",
+    "2024-09-16",
+    "2024-09-23",
+    "2024-09-30"
+  ],
+  "held_out_weeks": [
+    "2024-10-07",
+    "2024-10-14",
+    "2024-10-21",
+    "2024-10-28",
+    "2024-11-04",
+    "2024-11-11",
+    "2024-11-18",
+    "2024-11-25",
+    "2024-12-02",
+    "2024-12-09",
+    "2024-12-16",
+    "2024-12-23"
+  ],
+  "prices": [
+    0.1,
+    0.3,
+    1.0
+  ],
+  "calibration": {
+    "quantile_gpu_s": 123775.7,
+    "quantile_reverse_gpu_s": 158544.8,
+    "coverage_forward": 0.9222,
+    "coverage_reverse": 1.0,
+    "n_held_out_slots": 167
+  },
+  "fleets": {
+    "capacity_bound": {
+      "n_gpus_per_site": 25,
+      "arms": {
+        "run_now": {
+          "carbon_kg": 991.519,
+          "missed_fraction": 0.1073,
+          "objective_on_held_out": {
+            "0.1": 1118.431,
+            "0.3": 1372.255,
+            "1.0": 2260.639
+          },
+          "objective_on_train": {
+            "0.1": 896.041,
+            "0.3": 1149.865,
+            "1.0": 2038.249
+          },
+          "paired_vs_run_now": null,
+          "bound_at_own_volume_kg": 909.209,
+          "gap_to_own_bound_pct": 9.05
+        },
+        "last_slot": {
+          "carbon_kg": 816.996,
+          "missed_fraction": 0.193,
+          "objective_on_held_out": {
+            "0.1": 1045.272,
+            "0.3": 1501.824,
+            "1.0": 3099.756
+          },
+          "objective_on_train": {
+            "0.1": 875.078,
+            "0.3": 1331.63,
+            "1.0": 2929.562
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -174.5227,
+            "stderr": 10.302,
+            "relative_pct": -17.602,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 665.827,
+          "gap_to_own_bound_pct": 22.7
+        },
+        "plan_none": {
+          "carbon_kg": 811.335,
+          "missed_fraction": 0.1355,
+          "objective_on_held_out": {
+            "0.1": 971.601,
+            "0.3": 1292.134,
+            "1.0": 2413.998
+          },
+          "objective_on_train": {
+            "0.1": 800.199,
+            "0.3": 1120.406,
+            "1.0": 2241.132
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -180.1837,
+            "stderr": 10.5051,
+            "relative_pct": -18.172,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 673.907,
+          "gap_to_own_bound_pct": 20.39
+        },
+        "plan_q95": {
+          "carbon_kg": 783.85,
+          "missed_fraction": 0.1431,
+          "objective_on_held_out": {
+            "0.1": 953.106,
+            "0.3": 1291.616,
+            "1.0": 2476.404
+          },
+          "objective_on_train": {
+            "0.1": 790.144,
+            "0.3": 1128.64,
+            "1.0": 2313.376
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -207.6683,
+            "stderr": 11.8739,
+            "relative_pct": -20.944,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 633.817,
+          "gap_to_own_bound_pct": 23.67
+        },
+        "plan_ghost_q95": {
+          "carbon_kg": 782.804,
+          "missed_fraction": 0.1431,
+          "objective_on_held_out": {
+            "0.1": 952.06,
+            "0.3": 1290.571,
+            "1.0": 2475.359
+          },
+          "objective_on_train": {
+            "0.1": 788.935,
+            "0.3": 1126.973,
+            "1.0": 2310.105
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -208.7141,
+            "stderr": 12.05,
+            "relative_pct": -21.05,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 634.278,
+          "gap_to_own_bound_pct": 23.42
+        },
+        "plan_hold_seasonal": {
+          "carbon_kg": 899.279,
+          "missed_fraction": 0.135,
+          "objective_on_held_out": {
+            "0.1": 1059.013,
+            "0.3": 1378.481,
+            "1.0": 2496.619
+          },
+          "objective_on_train": {
+            "0.1": 856.448,
+            "0.3": 1174.793,
+            "1.0": 2288.999
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -92.2399,
+            "stderr": 4.9894,
+            "relative_pct": -9.303,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 819.688,
+          "gap_to_own_bound_pct": 9.71
+        }
+      },
+      "selection": {
+        "0.1": {
+          "chosen": "plan_ghost_q95",
+          "chosen_train_objective": 788.935,
+          "chosen_held_out_objective": 952.06,
+          "tuned_on_test": "plan_ghost_q95",
+          "tuned_on_test_objective": 952.06,
+          "cost_of_honesty_pct": 0.0
+        },
+        "0.3": {
+          "chosen": "plan_none",
+          "chosen_train_objective": 1120.406,
+          "chosen_held_out_objective": 1292.134,
+          "tuned_on_test": "plan_ghost_q95",
+          "tuned_on_test_objective": 1290.571,
+          "cost_of_honesty_pct": 0.12
+        },
+        "1.0": {
+          "chosen": "run_now",
+          "chosen_train_objective": 2038.249,
+          "chosen_held_out_objective": 2260.639,
+          "tuned_on_test": "run_now",
+          "tuned_on_test_objective": 2260.639,
+          "cost_of_honesty_pct": 0.0
+        }
+      }
+    },
+    "slack": {
+      "n_gpus_per_site": 40,
+      "arms": {
+        "run_now": {
+          "carbon_kg": 1109.038,
+          "missed_fraction": 0.0,
+          "objective_on_held_out": {
+            "0.1": 1109.038,
+            "0.3": 1109.038,
+            "1.0": 1109.038
+          },
+          "objective_on_train": {
+            "0.1": 871.883,
+            "0.3": 871.883,
+            "1.0": 871.883
+          },
+          "paired_vs_run_now": null,
+          "bound_at_own_volume_kg": 811.481,
+          "gap_to_own_bound_pct": 36.67
+        },
+        "last_slot": {
+          "carbon_kg": 870.62,
+          "missed_fraction": 0.05,
+          "objective_on_held_out": {
+            "0.1": 929.758,
+            "0.3": 1048.036,
+            "1.0": 1462.008
+          },
+          "objective_on_train": {
+            "0.1": 744.972,
+            "0.3": 863.25,
+            "1.0": 1277.222
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -238.4182,
+            "stderr": 10.8233,
+            "relative_pct": -21.498,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 703.548,
+          "gap_to_own_bound_pct": 23.75
+        },
+        "plan_none": {
+          "carbon_kg": 854.648,
+          "missed_fraction": 0.0342,
+          "objective_on_held_out": {
+            "0.1": 895.099,
+            "0.3": 976.001,
+            "1.0": 1259.158
+          },
+          "objective_on_train": {
+            "0.1": 704.037,
+            "0.3": 784.939,
+            "1.0": 1068.096
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -254.39,
+            "stderr": 11.8617,
+            "relative_pct": -22.938,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 709.326,
+          "gap_to_own_bound_pct": 20.49
+        },
+        "plan_q95": {
+          "carbon_kg": 810.141,
+          "missed_fraction": 0.0365,
+          "objective_on_held_out": {
+            "0.1": 853.312,
+            "0.3": 939.655,
+            "1.0": 1241.854
+          },
+          "objective_on_train": {
+            "0.1": 675.66,
+            "0.3": 762.003,
+            "1.0": 1064.203
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -298.897,
+            "stderr": 14.0437,
+            "relative_pct": -26.951,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 671.252,
+          "gap_to_own_bound_pct": 20.69
+        },
+        "plan_ghost_q95": {
+          "carbon_kg": 825.974,
+          "missed_fraction": 0.0302,
+          "objective_on_held_out": {
+            "0.1": 861.724,
+            "0.3": 933.222,
+            "1.0": 1183.469
+          },
+          "objective_on_train": {
+            "0.1": 681.683,
+            "0.3": 751.097,
+            "1.0": 994.047
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -283.0636,
+            "stderr": 13.2778,
+            "relative_pct": -25.523,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 687.191,
+          "gap_to_own_bound_pct": 20.2
+        },
+        "plan_hold_seasonal": {
+          "carbon_kg": 916.128,
+          "missed_fraction": 0.0095,
+          "objective_on_held_out": {
+            "0.1": 927.404,
+            "0.3": 949.955,
+            "1.0": 1028.886
+          },
+          "objective_on_train": {
+            "0.1": 719.168,
+            "0.3": 740.118,
+            "1.0": 813.443
+          },
+          "paired_vs_run_now": {
+            "mean_diff": -192.91,
+            "stderr": 10.3457,
+            "relative_pct": -17.394,
+            "weeks_better": 12,
+            "weeks_worse": 0,
+            "n_weeks": 12
+          },
+          "bound_at_own_volume_kg": 784.875,
+          "gap_to_own_bound_pct": 16.72
+        }
+      },
+      "selection": {
+        "0.1": {
+          "chosen": "plan_q95",
+          "chosen_train_objective": 675.66,
+          "chosen_held_out_objective": 853.312,
+          "tuned_on_test": "plan_q95",
+          "tuned_on_test_objective": 853.312,
+          "cost_of_honesty_pct": 0.0
+        },
+        "0.3": {
+          "chosen": "plan_hold_seasonal",
+          "chosen_train_objective": 740.118,
+          "chosen_held_out_objective": 949.955,
+          "tuned_on_test": "plan_ghost_q95",
+          "tuned_on_test_objective": 933.222,
+          "cost_of_honesty_pct": 1.79
+        },
+        "1.0": {
+          "chosen": "plan_hold_seasonal",
+          "chosen_train_objective": 813.443,
+          "chosen_held_out_objective": 1028.886,
+          "tuned_on_test": "plan_hold_seasonal",
+          "tuned_on_test_objective": 1028.886,
+          "cost_of_honesty_pct": 0.0
+        }
+      }
+    }
+  },
+  "note": "The operating point for each (fleet, price) cell is the arm with the best mean objective on the training months only; the held-out months are used solely to report that choice. 'tuned_on_test' is the best arm per cell on the held-out weeks, reported as the reference a reviewer should compare against -- the gap between the two is what honest selection costs. Demand is the single real Azure week for every arm (disclosed) and every carbon number is against that identical stream."
+}

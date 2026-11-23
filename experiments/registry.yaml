@@ -345,8 +345,8 @@ experiments:
   - id: exp020-selected-scheduler
     title: One shipped scheduler, operating point chosen on training months
     phase: "3-agents"
-    status: draft
-    rollback_tag: null
+    status: merged
+    rollback_tag: exp/exp020-selected-scheduler
     description: >
       exp017-019 report frontiers -- six arms, three prices, two fleets, a different
       winner at each corner -- which is honest but is not a scheduler. A deployment
