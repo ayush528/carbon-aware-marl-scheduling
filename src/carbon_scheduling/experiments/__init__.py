@@ -34,6 +34,7 @@ from carbon_scheduling.experiments.exp022_head_to_head import run as exp022
 from carbon_scheduling.experiments.exp023_controllable_share import run as exp023
 from carbon_scheduling.experiments.exp026_uncertainty_cannot_reorder import run as exp026
 from carbon_scheduling.experiments.exp027_regional_actuals_boundary import run as exp027
+from carbon_scheduling.experiments.exp030_deferral_head_to_head import run as exp030
 
 REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp001-uk-carbon-baseline": exp001,
@@ -61,4 +62,5 @@ REGISTRY: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "exp023-controllable-share": exp023,
     "exp026-uncertainty-cannot-reorder": exp026,
     "exp027-regional-actuals-boundary": exp027,
+    "exp030-deferral-head-to-head": exp030,
 }

@@ -40,6 +40,7 @@ BASELINE_DRIVER = DRIVER_DIR / "run_baseline.py"
 RL_DRIVER = DRIVER_DIR / "run_rl.py"
 PLANNER_DRIVER = DRIVER_DIR / "run_planner.py"
 IDLE_DRIVER = DRIVER_DIR / "run_idle_floor.py"
+DEFERRAL_DRIVER = DRIVER_DIR / "run_deferral.py"
 CHECKOUT_MARKER = Path("envs") / "task_scheduling_env.py"
 
 
@@ -263,6 +264,82 @@ def run_idle_floor(
         checkout,
         python,
         [
+            "--days",
+            str(days),
+            "--seed",
+            str(seed),
+            "--out",
+            str(out_path),
+            *_config_flags(init_day_of_year, sim_config, datacenters, reward_config, align_clock),
+        ],
+    )
+
+
+def run_deferral(
+    checkout: Path,
+    python: str,
+    *,
+    strategy: str,
+    deferral: str,
+    days: float,
+    seed: int,
+    out_path: Path,
+    forecast_csv: str | Path,
+    national_json: str | Path,
+    region_map: dict[str, int],
+    calibration_end: str,
+    lam: float = 0.0,
+    window_hours: float | None = None,
+    alpha: float = 0.1,
+    reserve_fraction: float = 0.0,
+    arrivals_per_slot: float = 1.0,
+    max_horizon_slots: int | None = None,
+    sla_multiplier: float | None = None,
+    init_day_of_year: int | None = None,
+    sim_config: str | Path | None = None,
+    datacenters: str | Path | None = None,
+    reward_config: str | Path | None = None,
+    align_clock: bool = False,
+) -> dict[str, Any]:
+    """Run one controller with the shared deferral lever (exp030).
+
+    ``strategy`` is a published RBC name or ``planner_duration``; ``deferral`` is
+    the *same* timing policy for every controller, so the comparison isolates the
+    controller rather than the lever.
+    """
+    mapping = ",".join(f"{slug}={rid}" for slug, rid in region_map.items())
+    return _invoke(
+        DEFERRAL_DRIVER,
+        checkout,
+        python,
+        [
+            "--strategy",
+            strategy,
+            "--deferral",
+            deferral,
+            "--reserve-fraction",
+            str(reserve_fraction),
+            "--arrivals-per-slot",
+            str(arrivals_per_slot),
+            *(
+                ["--max-horizon-slots", str(max_horizon_slots)]
+                if max_horizon_slots is not None
+                else []
+            ),
+            *(["--sla-multiplier", str(sla_multiplier)] if sla_multiplier is not None else []),
+            "--forecast-csv",
+            str(forecast_csv),
+            "--national-json",
+            str(national_json),
+            "--region-map",
+            mapping,
+            "--lam",
+            str(lam),
+            *(["--window-hours", str(window_hours)] if window_hours is not None else []),
+            "--alpha",
+            str(alpha),
+            "--calibration-end",
+            str(calibration_end),
             "--days",
             str(days),
             "--seed",
