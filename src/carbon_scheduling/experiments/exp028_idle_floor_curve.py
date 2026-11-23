@@ -154,7 +154,12 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         arms: dict[str, Any] = {}
         for result in results:
             carbon = float(result["carbon_kg"])
-            arms[result["arm"]] = {
+            name = (
+                "planner_duration"
+                if result["controller"].startswith("planner_")
+                else result["controller"]
+            )
+            arms[name] = {
                 **{k: result[k] for k in KEEP},
                 "carbon_above_floor_kg": round(carbon - floor_kg, 2),
             }
