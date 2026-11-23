@@ -435,3 +435,26 @@ experiments:
       noise at 4x a realistic profile buys 0.003% of tail carbon for 0.54% of mean,
       about 170:1 against. Ships uncertainty.classify so the claim can be checked on
       any regional dataset before a spatial-uncertainty result is trusted.
+
+  - id: exp027-regional-actuals-boundary
+    title: Does the band reorder on a grid whose regional actuals are measured, not scaled?
+    phase: "3-agents"
+    status: merged
+    rollback_tag: exp/exp027-regional-actuals-boundary
+    description: >
+      Removes the objection that exp026's theorem is about our estimator rather
+      than about grids. EIA-930 publishes hourly generation by fuel per balancing
+      authority, so each region's realized intensity is computed from its own
+      measured mix. The reader gates on completeness (fuel breakdown must account
+      for net generation within 0.5% integer-rounding noise), which excludes PJM
+      and NYIS structurally and a -1.17M MW outlier by rule rather than by hand.
+      Five authorities span 24-949 gCO2/kWh. Result: structure is 100% regional
+      (4,339 hours), 25.03% of hours have a reordered realized ranking against 0%
+      on the UK series, and volatility differs 106x across regions. The band does
+      help for the first time in the project -- 4 and 5 of 18 weeks, best week
+      -0.41% -- but the mean effect is within 0.03% of zero at low risk aversion
+      and becomes a cost by lambda 2. The mechanism is spill order, not the
+      winner: the top pick never changes. A relative band actively misprices the
+      near-zero-intensity hydro region (worst week +41.6%). A better forecaster
+      removes most of the apparent benefit. Also fixes a real bug in exp026:
+      relative bands were added as constants instead of scaling the forecast.

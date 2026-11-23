@@ -57,8 +57,20 @@ whole 28-day calibration window are present), 18,757 slots, calibrated on the
 | error structure | **100 % common-multiplicative** |
 | max spread of `realized/forecast` across regions | **1.78 × 10⁻¹⁵** (float noise) |
 | pooled relative band, λ ∈ {0.5, 1, 2, 4} | **0.0000 %** carbon change, **0** reordered slots |
-| per-region relative band | **0.0000 %** carbon change (0.01 % ties only) |
+| per-region relative band | reorders 0.22–2.96 %, costs +0.0004…+0.052 %, **0 of 42 weeks better** |
 | per-region absolute band | reorders **4.6–10.0 %** of slots, **0 of 42 weeks better** |
+
+> **Correction on the record.** The first run of this experiment applied
+> relative bands by *adding* the fraction to the intensity instead of scaling
+> the forecast. That turned every relative band into a common additive constant,
+> which cannot reorder for a trivial reason — so the proportional-band theorem
+> looked verified while never being exercised. exp011 had the application right;
+> this experiment did not. It is fixed, pinned by a regression test
+> (`test_relative_bands_multiply_the_forecast_not_add_a_constant`), and the
+> corrected result is **stronger**: the pooled band is still exactly invariant,
+> and the per-region relative band — now properly applied — reorders up to 2.96 %
+> of slots and is still better in 0 of 42 weeks. The earlier run record is kept
+> unaltered as evidence; the canonical run is the corrected one below.
 
 The per-region absolute band is the interesting one, because it *does* reorder —
 a conformal quantile of that region's residual trajectory is not a fixed multiple
@@ -154,5 +166,13 @@ as a level/tail hedge, never as a site selector.
 make exp-run EXP=exp026-uncertainty-cannot-reorder
 ```
 
-Canonical run `20261123T121917Z-375cf197-ea99`, git `71d1616a`, `git_dirty:
-false`. Deterministic: the counterfactual uses the config seed.
+Canonical run `20261123T125030Z-375cf197-ebc1`, git `96f61381`, `git_dirty:
+false` (the corrected relative-band application). Deterministic: the
+counterfactual uses the config seed.
+
+**The boundary is now also measured on real data:** exp027 repeats this
+diagnostic on EIA-930, where regional actuals come from each authority's own
+measured fuel mix. There the structure is 100 % `regional`, 25 % of hours reorder,
+and the band does occasionally help — by a fraction of a percent, in a minority
+of weeks. So the theorem above is a statement about the scaling construction,
+not about grids, and exp027 is what keeps it honest.

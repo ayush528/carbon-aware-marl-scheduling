@@ -1,0 +1,15 @@
+{
+  "exp_id": "exp027-regional-actuals-boundary",
+  "git_sha": "96f6138173e062974e2052641b4bd6c55b1e5614",
+  "git_dirty": false,
+  "config_hash": "8b3b07d7263515e0f3cb98dc1421caa256efa4da160e874a96eeae8e218c7048",
+  "seed": 42,
+  "data_hashes": {
+    "docs/datasets/data-audit/downloads/eia930_balance_2024_janjun_sample.csv": "26768c495c3ba987e29d79df2e40d4e741f9dbcff086f53c12ff774465756a10",
+    "docs/datasets/data-audit/downloads/AzureLLMInferenceTrace_code_1week.csv": "71de5c55cbc35f8f1ed0b6b7806b4cd1e9764b0058469725a6aac98023a1448f"
+  },
+  "python": "3.12.3",
+  "platform": "Linux-7.2.15-76070215-generic-x86_64-with-glibc2.39",
+  "timestamp": "20261123T125113Z",
+  "run_dir": "20261123T125113Z-8b3b07d7-2729"
+}
