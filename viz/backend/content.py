@@ -348,6 +348,135 @@ CLAIM = {
 }
 
 
+# --- scheduler dashboard -----------------------------------------------------
+
+# Representative city coordinates for the four DNO regions. A map needs a point;
+# the coordinates are the region's principal city, not a measured data-centre
+# location. The mapping from workload to region is the project's disclosed
+# assumption.
+SITE_GEO = {
+    "GB-London": (51.5074, -0.1278, "London"),
+    "GB-SouthWales": (51.4816, -3.1791, "Cardiff"),
+    "GB-NorthWestEngland": (53.4808, -2.2426, "Manchester"),
+    "GB-SouthScotland": (55.8642, -4.2518, "Glasgow"),
+}
+
+
+def site_label(name: str | None) -> str:
+    """Short display name for a site, from the one mapping."""
+    if not name:
+        return "—"
+    return SITE_GEO.get(name, (0.0, 0.0, name))[2]
+
+
+def scheduler_site(name: str, region_id: int | None = None) -> dict[str, Any]:
+    lat, lon, short = SITE_GEO.get(name, (0.0, 0.0, name))
+    return {
+        "name": name,
+        "short": short,
+        "region_id": region_id,
+        "lat": lat,
+        "lon": lon,
+        "geo_note": "principal city of the DNO region; representative, not measured",
+    }
+
+
+def scheduler_sites(regions: dict[str, int]) -> list[dict[str, Any]]:
+    return [scheduler_site(name, regions.get(name)) for name in regions]
+
+
+BAND_NOTE = (
+    "The calibrated carbon band cannot change a placement decision here, and the "
+    "dashboard does not imply it does. Under the national-scaling estimator the "
+    "realized regional intensity is the forecast times one common factor per slot, "
+    "so the forecast's ordering across sites is exact: exp011 measured 0 of 336 "
+    "slots reordered by the pooled relative band. The band enters the planner only "
+    "as a price level (forecast + robust x band), and exp017 found it changed no "
+    "decision for the third independent time. The uncertainty input with real "
+    "decision value is the calibrated arrival reserve (exp018), which withholds "
+    "capacity for work that has not arrived yet."
+)
+
+SCHEDULER_LABELS = {
+    "decision": {
+        "status": "modelled",
+        "what": "The chosen site, slot and predicted emissions: the planner's own output.",
+    },
+    "queue": {
+        "status": "modelled",
+        "what": "The backlog the planner sees at this slot, replayed from verified demand.",
+    },
+    "carbon_forecast": {
+        "status": "verified",
+        "what": "NESO half-hourly regional forecast for the held-out week.",
+    },
+    "carbon_realized": {
+        "status": "assumption",
+        "what": (
+            "Regional actuals are estimated as national_actual x regional_forecast / "
+            "national_forecast; NESO ships no regional actuals."
+        ),
+    },
+    "demand": {
+        "status": "verified",
+        "what": "Azure LLM inference trace week; exp006 validated 16.8M requests.",
+    },
+    "mapping": {
+        "status": "assumption",
+        "what": (
+            "Which grid region each data centre sits in. No public workload trace "
+            "names its region, so the four-site mapping is declared, not derived."
+        ),
+    },
+    "explanation": {
+        "status": "modelled",
+        "what": (
+            "Generated from the replayed ledger: candidate prices, residual capacity "
+            "and the assignment the planner made. Not authored per run."
+        ),
+    },
+    "measured_arms": {
+        "status": "verified",
+        "what": "Means over 12 held-out Oct-Dec 2024 weeks, from the exp017 run record.",
+    },
+    "reserve": {
+        "status": "verified",
+        "what": "exp018's calibrated arrival reserve, re-runnable from its run record.",
+    },
+}
+
+SCHEDULER_NOTES = {
+    "objective": (
+        "The objective is exactly the one exp017 ranks its arms on: "
+        "carbon_kg + price * missed_gpu_hours. Price is the only scalar weight. "
+        "Deadlines and per-site per-slot capacity are hard constraints: the planner "
+        "never trades them away, so there is no weighted-sum slider for them."
+    ),
+    "relative": (
+        "Comparisons are relative, under the identical demand stream. Absolute kg "
+        "values are illustrative of this workload and fleet size, not a general "
+        "claim."
+    ),
+    "execution": (
+        "Only the current slot is executed; the rest of the plan is a reservation "
+        "that is recomputed next slot with the arrivals that actually happened. The "
+        "request IDs are derived (class + arrival slot), because the trace has no "
+        "per-request identifiers."
+    ),
+    "classes": (
+        "Arrivals are split equally across four deadline classes (1, 2, 4 and 8 "
+        "hours). The Azure trace carries no latency labels, so the split is a "
+        "disclosed modelling choice, identical for every policy."
+    ),
+    "band": BAND_NOTE,
+    "site_map": (
+        "Sites are placed at their region's principal city. Carbon intensity and "
+        "capacity are the model's; the mapping from workload to region is the "
+        "project's disclosed assumption."
+    ),
+}
+
+
 def policies() -> dict[str, Any]:
     return {
         "ladder": POLICY_LADDER,

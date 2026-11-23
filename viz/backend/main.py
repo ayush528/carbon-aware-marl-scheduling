@@ -14,10 +14,10 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from viz.backend import content, repo
+from viz.backend import content, repo, schedule
 
 app = FastAPI(
     title="Carbon-aware scheduling API",
@@ -343,6 +343,51 @@ def simulator() -> dict[str, Any]:
 @app.get("/api/policies")
 def policies() -> dict[str, Any]:
     return content.policies()
+
+
+@app.get("/api/schedule")
+def schedule_meta() -> dict[str, Any]:
+    """The scheduler's real knobs, held-out weeks, fleets and evidence labels."""
+    return schedule.meta()
+
+
+@app.get("/api/schedule/replay")
+def schedule_replay(
+    week: str | None = Query(None, description="a held-out week from the exp017 record"),
+    fleet: str | None = Query(None, description="capacity_bound or slack"),
+    price: float | None = Query(None, ge=0, description="kg CO2 per missed GPU-hour"),
+    robust: float | None = Query(None, ge=0, le=1, description="band multiplier"),
+    reserve: float | None = Query(None, ge=0, lt=1, description="capacity held back"),
+    reserve_level: float | None = Query(
+        None, ge=0, le=1, description="calibrated arrival-reserve level (exp018)"
+    ),
+    slot: int | None = Query(None, ge=0, description="slot to explain"),
+    site: str | None = Query(None, description="selected site"),
+    item: str | None = Query(None, description="selected request id"),
+) -> dict[str, Any]:
+    """Replay one held-out week through the committed planner and explain a slot.
+
+    Every number comes from the carbon panel, the verified demand artifact and
+    the planner's own ledger. If the demand artifact is missing the payload says
+    so instead of fabricating a schedule.
+    """
+    defaults = schedule.meta().get("defaults") or {}
+    if defaults.get("week") is None:
+        raise HTTPException(status_code=503, detail="no committed exp017 run record")
+    try:
+        return schedule.replay(
+            week=week or defaults["week"],
+            fleet=fleet or defaults["fleet"],
+            price=defaults["price"] if price is None else price,
+            robust=defaults["robust"] if robust is None else robust,
+            reserve=defaults["reserve"] if reserve is None else reserve,
+            reserve_level=reserve_level,
+            slot=slot,
+            site=site,
+            item=item,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/roadmap")
