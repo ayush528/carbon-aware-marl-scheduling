@@ -264,6 +264,7 @@ docs/
 | 2026-11-23 | exp018: a calibrated arrival reserve — **the reserve stops being a knob tuned on the test set.** A split-conformal quantile of arrival exceedance (trailing-mean predictor, positive exceedances only, spread over sites and the tightest deadline window) matches the hand-swept 20% within 2% on both fleets without ever seeing the evaluation weeks: 810.1 kg at 3.65% missed against 812.6 / 3.75% on the slack fleet, 775.3 against 770.9 on the capacity-bound one; every planner arm still beats every rule, 12/12 weeks. Reported honestly: the coverage guarantee does *not* hold (0.778 at a nominal 0.90 across the two halves of one diurnal week), so the deployed reserve hedges less than its level claims | branch |
 | 2026-11-23 | exp019: **anticipation buys service, the reserve buys carbon.** Ghosts (predicted arrivals placed as tightest-class items, never offered) dominate holds at any given service level (slack 865.5 kg at 2.85% missed against the hold's 1006.7 at 2.21%), but every anticipation arm costs a little carbon; the calibrated reserve stays the carbon lever (810.1 kg). The diurnal shape barely matters (flat vs seasonal within 0.4%) — volume does, shape does not. And for the first time a planner beats never-deferring at the obligation price on the slack fleet (1029 vs 1109), so exp017/exp018's "no planner can" was a property of myopic planning | branch |
 | 2026-11-23 | exp020: **one shipped scheduler, its operating point chosen on Jan–Sep only.** Four of six (fleet, price) cells pick the same arm that is best on the held-out weeks; the worst cost of honest selection is 1.79%. Against never deferring: −14.8 / −5.8 / 0.0% on the capacity-bound fleet and −23.1 / −14.3 / −7.2% on the slack fleet at prices 0.1 / 0.3 / 1.0, with 21–27% less carbon at the parity price. The map is monotone in the price, and the two fleets find different extremes at the obligation price: keep deferring with spare capacity, never defer without it | branch |
+| 2026-11-23 | exp021: **the frontier, and the correction to the headline.** The 27% carbon figure was not like-for-like: those arms miss 3–4% of arrivals where `run_now` misses none. `max_lookahead` caps how far ahead work may be placed (`0` = serve now, `None` = full horizon), tracing the trade instead of arguing about it. Capacity-bound fleet: a real Pareto region — `look8_ghost` cuts **11.8% carbon and 2.34 pp of misses at once**, and 8.7% at literally matched served volume, so served-work intensity genuinely falls (76.3 → 68.2 g/GPU-h) rather than work disappearing. Slack fleet: no Pareto point (nothing was missing), so inside a 0.5 pp miss budget the reachable saving is **6.6%**; 15–27% needs 2–4 pp of misses. Two axes measured for the first time: every arm is *cheaper* at the real GB day-ahead price (−1.5% to −9.4%, because GB low-carbon hours are low-price hours) and every arm delays served work by 1–2 h **within its deadline**. Honest claim: 6–12% carbon at matched service, same money or less, same SLA, later completion inside it | branch |
 
 ## Roadmap (from `docs/research/findings-and-plan.md` Part 5)
 
@@ -329,14 +330,30 @@ docs/
       calibrated band changes no decision for the third independent time, and the exact rolling
       flow is the best carbon arm but the worst objective arm: being optimal on the forecast is not
       the same as being right.
-- [ ] exp018: the band's claim needs forecast error to be real. Re-run the point-forecast vs
-      whole-band pair under the *measured* national forecast error distribution resampled onto the
-      regional series (a labelled stress test, not a data claim). Either the band protects the plan
-      there -- the uncertainty-aware evidence the project needs -- or the project's uncertainty
-      claim is a negative result about this estimator and must be written as one.
-- [ ] Learned arrival pressure on top of the planner: the 20% residual gap to the exact schedule is
-      the part of the schedule that depends on arrivals the plan has not seen, which is the one
-      quantity the fix belongs to.
+- [x] exp018: the reserve becomes calibrated, not tuned. A split-conformal quantile of arrival
+      exceedance (trailing-mean predictor, positive exceedances, spread over sites and the tightest
+      deadline window) matches the hand-swept 20% within 2% without seeing evaluation weeks. The
+      coverage guarantee does *not* hold (0.778 at nominal 0.90), so the deployed reserve hedges
+      less than its level claims -- reported as a negative result.
+- [x] exp019: anticipation buys service, the reserve buys carbon. Ghosts (predicted arrivals placed
+      as tightest-class items, never offered) dominate holds at any service level; volume matters,
+      diurnal shape barely does (within 0.4%).
+- [x] exp020: one shipped scheduler, its operating point chosen on Jan-Sep only. Four of six
+      (fleet, price) cells pick the held-out-best arm; worst cost of honest selection 1.79%.
+- [x] exp021: **the frontier, which corrects the headline.** `BlockPlanner.max_lookahead` caps how
+      far ahead work may be placed, so the carbon-vs-SLA trade is measured rather than argued. The
+      capacity-bound fleet has a real Pareto region (`look8_ghost`: -11.8% carbon, -2.34 pp misses;
+      -8.7% at matched served volume); the slack fleet has none, so inside a 0.5 pp miss budget the
+      saving is 6.6%, not 27%. Also measured for the first time: every arm is cheaper at the real GB
+      day-ahead price, and every arm delays served work 1-2 h inside its deadline. The honest claim
+      is 6-12% carbon at matched service.
+- [ ] The uncertainty claim needs forecast error to be real. Re-run the point-forecast vs whole-band
+      pair under the *measured* national forecast error distribution resampled onto the regional
+      series (a labelled stress test, not a data claim). Either the band protects the plan there --
+      the uncertainty-aware evidence the project needs -- or the uncertainty claim is a negative
+      result about this estimator and must be written as one.
+- [ ] Learned arrival pressure on top of the planner: the residual gap to the exact schedule is the
+      part of the schedule that depends on arrivals the plan has not seen.
 - [ ] exp016: a per-step tail surcharge in place of the terminal CVaR charge. The objective and
       the units are right; charging the tail once, at the last step, is why it cannot move the
       tail.
